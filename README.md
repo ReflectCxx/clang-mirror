@@ -76,4 +76,4 @@ clang-mirror --input src/ --out-dir=build/
 
 **⚠️ Early Development – Bootstrapping Phase**
 
-clang-mirror is actively being built and is not yet ready for general use. In the meantime, users can check out [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to explore the underlying runtime reflection system that clang-mirror is designed to support.
+clang-mirror is actively being built and is not yet ready for general use. In the meantime, you can check out [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to explore the underlying runtime reflection system that clang-mirror is designed to support.
