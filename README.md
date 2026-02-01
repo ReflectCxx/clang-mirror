@@ -38,7 +38,7 @@ auto getName = classPerson->getMethod(cxx::type::Person::method::getName);
 auto ctorPerson = classPerson->ctor();  // Get constructor.
 auto [err, personObj] = ctorPerson();   // Create instance.
 auto method = getName->targetT().argsT().returnT(); // Get functor from metadata.
-std::string name = method(personObj)(); // getName() called.
+std::string name = method(personObj)(); // Person::getName() called.
 ```
 
 ## Why clang-mirror?
