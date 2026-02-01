@@ -59,13 +59,13 @@ clang-mirror --input src/ --out-dir=build/
 
 ## Key Features
 
-✅ **Zero Boilerplate** – Analyzes your codebase, generates everything
+* ✅ **Zero Boilerplate** – Analyzes your codebase, generates everything.
 
-✅ **Type-Safe** – Compile-time validation of reflection queries
+* ✅ **Type-Safe** – Compile-time validation of reflection queries.
 
-✅ **Non-Intrusive** – No modifications to your source code required
+* ✅ **Non-Intrusive** – No modifications to your source code required.
 
-✅ **Standard C++** – Generates clean, portable C++20 code
+* ✅ **Standard C++** – Generates clean, portable C++20 code.
 
 ---
 
