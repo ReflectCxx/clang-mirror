@@ -28,7 +28,7 @@ public:
 
 ```cpp
 #include "cxx_mirror.h"
-
+//...
 
 auto classId = cxx::type::Person::id;   // Compile-checked, generated via AST.
 auto classPerson = cxx::mirror().getRecord(classId);   // Type-safe lookup.
