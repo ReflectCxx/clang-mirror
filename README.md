@@ -67,7 +67,6 @@ clang-mirror --input src/ --out-dir=build/
 ✅ **Zero Boilerplate** – Analyzes your codebase, generates everything  
 ✅ **IntelliSense Integration** – Generated IDs work with autocomplete  
 ✅ **Type-Safe** – Compile-time validation of reflection queries  
-✅ **Refactoring-Friendly** – Regenerate after renaming/refactoring  
 ✅ **Non-Intrusive** – No modifications to your source code required  
 ✅ **Standard C++** – Generates clean, portable C++20 code  
 
