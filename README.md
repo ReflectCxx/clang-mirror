@@ -20,7 +20,7 @@ public:
 
 `clang-mirror` generates:
 
-1. **Type-safe reflection identifiers** with IntelliSense support
+1. **Type-safe reflection identifiers** that always resolve
 2. **Complete RTL registration code** ready to compile
 3. **Namespace-organized metadata** for all your types and functions
 
