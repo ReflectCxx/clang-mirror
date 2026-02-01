@@ -35,7 +35,7 @@ auto classPerson = cxx::mirror().getRecord(cxx::type::Person::id);
 auto getName = classPerson->getMethod(cxx::type::Person::method::getName);
 
 // Runtime invocation.
-auto ctorPerson = classPerson->ctor();  // Get Constructor
+auto ctorPerson = classPerson->ctor();  // Get constructor.
 auto [err, personObj] = ctorPerson();   // Create instance.
 auto method = getName->targetT().argsT().returnT(); // Get functor from metadata.
 std::string name = method(personObj)();
