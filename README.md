@@ -32,7 +32,7 @@ public:
 
 auto classId = cxx::type::Person::id;   // Compile-checked, generated via AST.
 auto classPerson = cxx::mirror().getRecord(classId);   // Type-safe lookup.
-auto fnId = cxx::type::Person::method::getName::id;   // Navigable via IntelliSense.
+auto fnId = cxx::type::Person::method::getName::id;    // Introspect via IntelliSense.
 auto getName = classPerson->getMethod(fnId);   // Query method, get metadata.
 
 // Runtime invocations. Get functor from metadata,
