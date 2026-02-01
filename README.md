@@ -29,12 +29,12 @@ clang-mirror generates:
 ```cpp
 #include "cxx_mirror.h"
 
-// Type-safe lookup with autocomplete,
+// Type-safe lookup with, compile-checked ids.
 auto classPerson = cxx::mirror().getRecord(cxx::type::Person::id);
-// Query method, get metadata.
+// Query method, get metadata. navigable via IntelliSense.
 auto getName = classPerson->getMethod(cxx::type::Person::method::getName);
 
-// Runtime invocation.
+// Runtime invocations.
 auto ctorPerson = classPerson->ctor();  // Get constructor.
 auto [err, personObj] = ctorPerson();   // Create instance.
 auto method = getName->targetT().argsT().returnT(); // Get functor from metadata.
