@@ -55,7 +55,7 @@ With `clang-mirror` (Automated):
 clang-mirror --input src/ --out-dir=build/
 ```
 
-**Done.** All types, methods, and functions automatically registered.
+**Done.** All types, methods, and functions automatically registered and compile checked.
 
 ## Key Features
 
