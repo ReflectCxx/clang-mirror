@@ -12,7 +12,8 @@
 namespace clmirror 
 {
     ASTCodeManager::ASTCodeManager() 
-    { }
+    {
+    }
 
     ASTCodeManager::~ASTCodeManager() 
     { 
@@ -27,11 +28,32 @@ namespace clmirror
         return instance;
     }
 
+    void ASTCodeManager::setOutDir(const std::string& pOutDir)
+    {
+        m_outPath = pOutDir;
+    }
+
+    std::filesystem::path ASTCodeManager::getOutDir()
+    {
+        static auto dumpDir = [&]() {
+
+            std::error_code ec;
+            std::filesystem::path dumpDir = std::filesystem::path(m_outPath) / "rtl" / "cxxmirror";
+            std::filesystem::create_directories(dumpDir, ec);
+            if (ec) {
+                Logger::outException("Failed to create output directory: " + ec.message());
+                std::abort();
+            }
+            return dumpDir;
+        }();
+        return dumpDir;
+    }
+
     void ASTCodeManager::dumpMetadataIds(std::fstream& pOut)
     {
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"
-                "\nnamespace rtcl {\n";
+                "\nnamespace " + std::string(NS_CXX) + " {\n";
         for (const auto& itr : m_codeGens) {
             printFreeFunctionIds(itr.second->getFreeFunctionsMap(), pOut);
         }
@@ -45,8 +67,8 @@ namespace clmirror
     {
         pOut << "\n#pragma once"
                 "\n#include <vector>\n"
-                "\nnamespace rtl { class Function; }\n"
-                "\nnamespace rtcl {\n"
+                "\nnamespace " + std::string(NS_CXX) + " { class Function; }\n"
+                "\nnamespace " + std::string(NS_CXX) + " {\n"
                 "\nnamespace " + std::string(NS_REGISTRATION) + " {"
                 "\n    " + std::string(DECL_INIT_REGIS) + "\n}\n";
 
@@ -139,10 +161,8 @@ namespace clmirror
         auto codegen = getCodeGenerator(pSrcFile);
         if (codegen != nullptr) 
         {
-            std::string filePath = std::filesystem::current_path().string() + "/";
-            filePath.append(std::string(FILE_REG_PREFIX) + std::to_string(pIndex) + ".cpp");
-
-            std::fstream fout(filePath, std::ios::out);
+            auto fspath = getOutDir() / (std::string(FILE_REG_PREFIX) + std::to_string(pIndex) + ".cpp");
+            std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file for writing!");
                 return;
@@ -159,16 +179,16 @@ namespace clmirror
                 Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
                 return;
             }
-            Logger::out("generated file : " + filePath);
+            Logger::outgen(std::string(MSG_GENERATED_FILE) + fspath.string());
         }
     }
 
 
-    void ASTCodeManager::dumpReflectionIds()
+    void ASTCodeManager::dumpCxxMirror()
     {
         {
-            const std::string fileStr = std::filesystem::current_path().string() + "/" + std::string(FILE_REG_IDS);
-            std::fstream fout(fileStr, std::ios::out);
+            auto fpath = getOutDir() / std::string(FILE_REG_IDS);
+            std::fstream fout(fpath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file for writing!");
                 return;
@@ -182,10 +202,11 @@ namespace clmirror
                 Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
                 return;
             }
-            Logger::out("generated file : " + fileStr);
-        } {
-            const std::string fileStr = std::filesystem::current_path().string() + "/" + std::string(FILE_REG_DECLS);
-            std::fstream fout(fileStr, std::ios::out);
+            Logger::outgen(std::string(MSG_GENERATED_FILE) + fpath.string());
+        } 
+        {
+            auto fpath = getOutDir() / std::string(FILE_REG_DECLS);
+            std::fstream fout(fpath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file for writing!");
                 return;
@@ -199,7 +220,7 @@ namespace clmirror
                 Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
                 return;
             }
-            Logger::out("generated file : " + fileStr);
+            Logger::outgen(std::string(MSG_GENERATED_FILE) + fpath.string());
         }
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <optional>
+#include <filesystem>
 #include <unordered_map>
 
 namespace clmirror {
@@ -12,7 +13,10 @@ namespace clmirror
 {
 	class ASTCodeManager
 	{
+		std::string m_outPath;
 		std::unordered_map<std::string, ASTCodeGenerator*> m_codeGens;
+
+		std::filesystem::path getOutDir();
 
 		void dumpMetadataIds(std::fstream& pOut);
 		void dumpRegistrationDecls(std::fstream& pOut);
@@ -35,7 +39,9 @@ namespace clmirror
 
 		static ASTCodeManager& instance();
 
-		void dumpReflectionIds();
+		void dumpCxxMirror();
+
+		void setOutDir(const std::string& pOutDir);
 
 		void dumpRegistrations(const std::string& pSrcFile, std::size_t pIndex);
 	};

@@ -20,11 +20,10 @@ namespace clmirror
             syntaxStr.append("\nnamespace " + typeStr + " {");
         }
 
-        syntaxStr.append("\n    inline constexpr std::string_view ")
-                 .append(fnName)
-                 .append(" = \"")
+        syntaxStr.append("\nnamespace " + fnName + " {")
+                 .append("\n    inline constexpr std::string_view id = \"")
                  .append(m_function)
-                 .append("\";\n");
+                 .append("\";\n}");
 
         for (auto& _ : typenames) {
             syntaxStr.append("}");
@@ -43,12 +42,11 @@ namespace clmirror
             syntaxStr.append("\nnamespace " + typeStr + " {");
         }
 
-        syntaxStr.append("\nnamespace " + std::string(NS_METHOD) + " {")
-                 .append("\n    inline constexpr std::string_view ")
+        syntaxStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
+                 .append("\nnamespace " + m_function + " {")
+                 .append("\n    inline constexpr std::string_view id = \"")
                  .append(m_function)
-                 .append(" = \"")
-                 .append(m_function)
-                 .append("\";\n}");
+                 .append("\";\n}}");
 
         for (auto& _ : typenames) {
             syntaxStr.append("}");
@@ -67,9 +65,7 @@ namespace clmirror
             syntaxStr.append("\nnamespace " + typeStr + " {");
         }
         
-        syntaxStr.append("\n    inline constexpr std::string_view ")
-                 .append("id")
-                 .append(" = \"")
+        syntaxStr.append("\n    inline constexpr std::string_view id = \"")
                  .append(m_record)
                  .append("\";\n");
         

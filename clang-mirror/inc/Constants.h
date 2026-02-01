@@ -32,12 +32,13 @@ namespace clmirror {
 	inline constexpr std::string_view FILE_CXX_MIRROR_H = "cxx_mirror.h";
 	inline constexpr std::string_view FILE_CXX_MIRROR_S = "cxx_mirror.cpp";
 
+	inline constexpr std::string_view NS_CXX = "cxx";
 	inline constexpr std::string_view NS_TYPE = "type";
-	inline constexpr std::string_view NS_METHOD = "method";
-	inline constexpr std::string_view NS_FUNCTION = "function";
+	inline constexpr std::string_view NS_FUNCTION = "fn";
 	inline constexpr std::string_view NS_REGISTRATION = "registration";
 	inline constexpr std::string_view DECL_INIT_REGIS = "static void init(std::vector<rtl::Function>&);";
 	inline constexpr std::string_view DEFN_INIT_REGIS = "static void init(std::vector<rtl::Function>& fns)";
+	inline constexpr std::string_view MSG_GENERATED_FILE = "generated: ";
 
 	using ErrorTuple = std::tuple<std::string, std::string, std::string>;
 

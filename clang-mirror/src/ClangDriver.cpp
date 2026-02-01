@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "ASTParser.h"
 #include "ClangDriver.h"
+#include "ASTCodeManager.h"
 
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/WithColor.h"
@@ -31,6 +32,13 @@ using namespace clang::tooling;
 namespace 
 {
     static cl::OptionCategory ClangMirrorCategory("clang-mirror options");
+
+    static cl::opt<std::string> OutDir(
+        "out-dir",
+        cl::desc("Directory where generated RTL registration code will be written"),
+        cl::value_desc("path"),
+        cl::cat(ClangMirrorCategory)
+    );
 }
 
 
@@ -63,8 +71,15 @@ namespace clmirror
             return false;
         }
 
+        if (OutDir.empty()) {
+            llvm::WithColor::error() << "error: --out-dir is required\n";
+            return false;
+        }
+
+        ASTCodeManager::instance().setOutDir(OutDir);
+
         std::string cdbLoadErr;
-        StringRef cdbPathStr("dummy");
+        StringRef cdbPathStr;
         auto pathList = OptionsParser->getSourcePathList();
         if (!pathList.empty()) {
             cdbPathStr = pathList.front();
@@ -98,7 +113,7 @@ namespace clmirror
         Logger::resetDoneCounter(fileCount);
 
         //TODO: get the number of threads from command line
-        const int numCores = /*0; //*/std::thread::hardware_concurrency() - 2;
+        const int numCores = 0; //*/std::thread::hardware_concurrency() - 2;
         const int numThreads = (numCores <= 0 ? 1 : numCores);
 
         int endIndex = 0;
