@@ -37,7 +37,7 @@ auto getName = classPerson->getMethod(cxx::type::Person::method::getName);
 // Runtime invocations.
 auto ctorPerson = classPerson->ctor();  // Get constructor.
 auto [err, personObj] = ctorPerson();   // Create instance.
-auto method = getName->targetT().argsT().returnT(); // Get functor from metadata.
+auto method = getName->targetT().argsT().returnT<std::string>(); // Get functor from metadata.
 std::string name = method(personObj)(); // Person::getName() called.
 ```
 
