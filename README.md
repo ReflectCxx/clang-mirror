@@ -2,7 +2,7 @@
 
 **Automatic generation of metadata to enable runtime reflection for C++ projects.**
 
-clang-mirror is a Clang-based tool that analyzes your C++ code and auto-generates the registration code needed to statically link the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) and enable runtime reflection.
+`clang-mirror` is a Clang-based tool that analyzes your C++ code and auto-generates the registration code needed to statically link the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) and enable runtime reflection.
 
 **No manual registration. No macros. No boilerplate.**
 
@@ -18,13 +18,13 @@ public:
 };
 ```
 
-clang-mirror generates:
+`clang-mirror` generates:
 
 1. **Type-safe reflection identifiers** with IntelliSense support
 2. **Complete RTL registration code** ready to compile
 3. **Namespace-organized metadata** for all your types and functions
 
-**Result:** Just `#include` the generated file and access your entire codebase reflectively.
+**Result:** Just `#include ` the generated file and access your entire codebase reflectively.
 
 ```cpp
 #include "cxx_mirror.h"
@@ -46,10 +46,9 @@ std::string name = method(personObj)();
 ### Without clang-mirror (Manual Registration):
 ```cpp
 // Have to write this for EVERY class, EVERY method:
-rtl::type().record("Person").build();
-rtl::type().member().constructor().build();
-rtl::type().member().method("getName").build(&Person::getName);
-rtl::type().member().method("updateAddress").build(&Person::updateAddress);
+rtl::type().record<Person>("Person").build();
+rtl::type().member<Person>().method("getName").build(&Person::getName);
+rtl::type().member<Person>().method("updateAddress").build(&Person::updateAddress);
 // ...repeat for 100 classes...
 ```
 
