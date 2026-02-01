@@ -30,7 +30,7 @@ public:
 #include "cxx_mirror.h"
 
 
-auto classId = cxx::type::Person::id;   // Compiled id.
+auto classId = cxx::type::Person::id;   // Compile-checked, generated via AST.
 auto classPerson = cxx::mirror().getRecord(classId);   // Type-safe lookup.
 auto fnId = cxx::type::Person::method::getName::id;   // Navigable via IntelliSense.
 auto getName = classPerson->getMethod(fnId);   // Query method, get metadata.
