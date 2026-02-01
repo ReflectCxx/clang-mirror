@@ -29,10 +29,11 @@ public:
 ```cpp
 #include "cxx_mirror.h"
 
-// Type-safe lookup with, compile-checked ids.
-auto classPerson = cxx::mirror().getRecord(cxx::type::Person::id);
-// Query method, get metadata. navigable via IntelliSense.
-auto getName = classPerson->getMethod(cxx::type::Person::method::getName);
+
+auto classId = cxx::type::Person::id;   // Compiled id.
+auto classPerson = cxx::mirror().getRecord(classId);   // Type-safe lookup.
+auto fnId = cxx::type::Person::method::getName::id   // Navigable via IntelliSense.
+auto getName = classPerson->getMethod(fnId);   // Query method, get metadata.
 
 // Runtime invocations. Get functor from metadata,
 auto method = getName->targetT<Person>().argsT().returnT<std::string>();
