@@ -41,18 +41,15 @@ std::string name = method(personObj)(); // Person::getName() called.
 
 ## Why clang-mirror?
 
-### Without clang-mirror (Manual Registration):
+Without `clang-mirror` (Manual Registration required):
 ```cpp
-// Have to write this for EVERY class, EVERY method:
 rtl::type().record<Person>("Person").build();
 rtl::type().member<Person>().method("getName").build(&Person::getName);
 rtl::type().member<Person>().method("updateAddress").build(&Person::updateAddress);
-// ...repeat for 100 classes...
+// ...
 ```
 
-**Painful. Error-prone. Gets out of sync with code.**
-
-### With clang-mirror (Automated):
+With `clang-mirror` (Automated):
 ```bash
 clang-mirror --input src/ --out-dir=build/
 ```
