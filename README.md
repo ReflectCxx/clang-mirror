@@ -20,9 +20,9 @@ public:
 
 `clang-mirror` generates:
 
-1. *Complete RTL registration code* – ready to compile.
-2. *Type-safe reflection identifiers* – that always resolve.
-3. *Namespace-organized metadata* – for all your types and functions.
+* *Complete RTL registration code* – ready to compile.
+* *Type-safe reflection identifiers* – that always resolve.
+* *Namespace-organized metadata* – for all your types and functions.
 
 **Result:** Just `#include ` the generated file and access your entire codebase reflectively.
 
