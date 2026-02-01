@@ -2,7 +2,7 @@
 
 **Automatic generation of metadata to enable runtime reflection for C++ projects.**
 
-`clang-mirror` is a Clang-based tool that analyzes your C++ code and auto-generates the registration code needed to statically link the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) and enable runtime reflection.
+`clang-mirror` is a Clang-based tool that analyzes your C++ code and auto-generates the registration code needed to statically link with [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) and enable runtime reflection.
 
 **No manual registration. No macros. No boilerplate.**
 
@@ -73,4 +73,4 @@ clang-mirror --input src/ --out-dir=build/
 
 **⚠️ Early Development – Bootstrapping Phase**
 
-clang-mirror is actively being built and is not yet ready for general use. In the meantime, you can check out [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to explore the underlying runtime reflection system that clang-mirror is designed to support.
+clang-mirror is actively being built and is not yet ready for general use. In the meantime, you can check out [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to explore the underlying runtime reflection system that `clang-mirror` is designed to support.
