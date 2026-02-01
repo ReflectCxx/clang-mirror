@@ -13,7 +13,6 @@ Given your C++ code:
 ```cpp
 class Person {
 public:
-    Person(std::string name, int age);
     std::string getName() const;
     void updateAddress(std::string addr);
 };
@@ -30,12 +29,15 @@ clang-mirror generates:
 ```cpp
 #include "cxx_mirror.h"
 
-// Type-safe lookup with autocomplete
-auto person = cxx::mirror().getRecord(rtcl::type::Person::id);
-auto getName = person->getMethod(rtcl::type::Person::method::getName);
+// Type-safe lookup with autocomplete,
+auto classPerson = cxx::mirror().getRecord(cxx::type::Person::id);
+// Query method, get metadata.
+auto getName = classPerson->getMethod(cxx::type::Person::method::getName);
 
-// Runtime invocation
-auto method = getName->targetT().argsT().returnT();
+// Runtime invocation.
+auto ctorPerson = classPerson->ctor();  // Get Constructor
+auto [err, personObj] = ctorPerson();   // Create instance.
+auto method = getName->targetT().argsT().returnT(); // Get functor from metadata.
 std::string name = method(personObj)();
 ```
 
