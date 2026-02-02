@@ -3,11 +3,11 @@
 #include <map>
 #include "clang/AST/RecursiveASTVisitor.h"
 
-namespace cxx {
+namespace clmr {
     class ASTCodeBuffer;
 }
 
-namespace cxx {
+namespace clmr {
 
     class CLMirrorASTVisitor : public clang::RecursiveASTVisitor<CLMirrorASTVisitor>
     {

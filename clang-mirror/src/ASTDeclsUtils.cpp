@@ -6,7 +6,7 @@
 
 using namespace clang;
 
-namespace cxx 
+namespace clmr 
 {
     bool ASTDeclsUtils::isInUserCode(NamedDecl* pDecl)
     {

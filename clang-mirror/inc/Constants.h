@@ -7,7 +7,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace cxx {
+namespace clmr {
 
 	inline constexpr std::string_view RESET = "\033[0m";
 	inline constexpr std::string_view DARK_RED = "\033[31m";
@@ -41,7 +41,7 @@ namespace cxx {
 }
 
 
-namespace cxx 
+namespace clmr 
 {
 	enum class MetaKind 
 	{

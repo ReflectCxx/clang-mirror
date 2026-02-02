@@ -11,7 +11,7 @@ namespace {
 	static  std::mutex g_mutex;
 }
 
-namespace cxx {
+namespace clmr {
 
 	std::size_t Logger::m_totalCount = 0;
 	std::size_t Logger::m_currentCount = 0;
@@ -37,7 +37,7 @@ namespace cxx {
 }
 
 
-namespace cxx {
+namespace clmr {
 
 	void Logger::out(const std::string& pMsg)
 	{

@@ -1,6 +1,7 @@
 
-#include "ASTParser.h"
+
 #include "ASTParserUtils.h"
+#include "CLMirrorASTParser.h"
 
 #include <mutex>
 #include <iostream>
@@ -18,16 +19,16 @@ using namespace clang;
 using namespace clang::tidy;
 using namespace clang::tooling;
 
-namespace cxx
+namespace clmr
 {
-	ASTParser::ASTParser(const std::vector<std::string>& pFiles,
+	CLMirrorASTParser::CLMirrorASTParser(const std::vector<std::string>& pFiles,
 					     clang::tooling::CompilationDatabase& pCdb)
 		: m_srcFiles(pFiles)
 		, m_compileDb(pCdb)
 	{ }
 
 
-	const int ASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
+	const int CLMirrorASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
 	{
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{

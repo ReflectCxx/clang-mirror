@@ -4,7 +4,7 @@
 
 #include "Constants.h"
 
-namespace cxx
+namespace clmr
 {
 	struct ASTCodePrinter
 	{

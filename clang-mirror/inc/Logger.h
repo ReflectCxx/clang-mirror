@@ -2,7 +2,7 @@
 
 #include "Constants.h"
 
-namespace cxx {
+namespace clmr {
 
 	class Logger
 	{

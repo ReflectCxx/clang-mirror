@@ -5,11 +5,11 @@
 #include <filesystem>
 #include <unordered_map>
 
-namespace cxx {
+namespace clmr {
 	class ASTCodeBuffer;
 }
 
-namespace cxx 
+namespace clmr 
 {
 	class ASTCodeManager
 	{
@@ -35,7 +35,7 @@ namespace cxx
 
 		static ASTCodeManager& instance();
 
-		void dumpCxxMirror();
+		void createCxxMirror();
 
 		void setOutDir(const std::string& pOutDir);
 

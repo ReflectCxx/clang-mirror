@@ -8,12 +8,12 @@
 #include "Constants.h"
 #include "ASTCodeMeta.h"
 
-namespace cxx 
+namespace clmr 
 {
 	class ASTCodeManager;
 }
 
-namespace cxx
+namespace clmr
 {
 	class ASTCodeBuffer
 	{

@@ -4,7 +4,7 @@
 #include<string>
 #include<vector>
 
-namespace cxx {
+namespace clmr {
 
     struct StringUtils 
     {

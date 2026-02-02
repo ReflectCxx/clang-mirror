@@ -6,7 +6,7 @@
 using namespace clang;
 using namespace clang::tidy;
 
-namespace cxx
+namespace clmr
 {
     CLMirrorDiagnosticConsumer::CLMirrorDiagnosticConsumer(ClangTidyContext& pContext)
         : clang::tidy::ClangTidyDiagnosticConsumer(pContext)

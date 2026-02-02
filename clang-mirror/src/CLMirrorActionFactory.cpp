@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 #include "Logger.h"
-#include "ASTParser.h"
+#include "CLMirrorASTParser.h"
 #include "CLMirrorASTVisitor.h"
 #include "CLMirrorActionFactory.h"
 
@@ -25,7 +25,7 @@ namespace {
 
 		virtual void HandleTranslationUnit(clang::ASTContext& Context)
 		{
-			cxx::CLMirrorASTVisitor visitor(m_currentSrcFile);
+			clmr::CLMirrorASTVisitor visitor(m_currentSrcFile);
 			visitor.TraverseDecl(Context.getTranslationUnitDecl());
 		}
 	};
@@ -60,7 +60,7 @@ namespace {
 }
 
 
-namespace cxx {
+namespace clmr {
 
 	std::unique_ptr<clang::FrontendAction> CLMirrorActionFactory::create()
 	{

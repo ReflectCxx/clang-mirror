@@ -10,9 +10,9 @@
 #include <unordered_set>
 
 #include "Logger.h"
-#include "ASTParser.h"
 #include "ClangDriver.h"
 #include "ASTCodeManager.h"
+#include "CLMirrorASTParser.h"
 
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/WithColor.h"
@@ -42,7 +42,7 @@ namespace
 }
 
 
-namespace cxx
+namespace clmr
 {
     bool ClangDriver::compileSourceFiles(int argc, const char** argv)
     {
@@ -130,7 +130,7 @@ namespace cxx
             auto thread = std::thread(
                 [&](const int pStartIndex, const int pEndIndex) {
 
-                    ASTParser cxxParser(pSrcFiles, pCdb);
+                    CLMirrorASTParser cxxParser(pSrcFiles, pCdb);
                     cxxParser.parseFiles(pStartIndex, pEndIndex);
                 },
                 startIndex, endIndex);

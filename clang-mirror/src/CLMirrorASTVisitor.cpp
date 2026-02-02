@@ -11,7 +11,7 @@
 
 using namespace clang;
 
-namespace cxx
+namespace clmr
 {
     CLMirrorASTVisitor::CLMirrorASTVisitor(const std::string& pSrcFile)
         : m_srcFile(pSrcFile)

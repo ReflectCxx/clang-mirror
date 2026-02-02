@@ -7,7 +7,7 @@
 #include "StringUtils.h"
 #include "ASTCodeMeta.h"
 
-namespace cxx
+namespace clmr
 {
     constexpr const ASTObj& ASTCodeMeta::ast() const
     {

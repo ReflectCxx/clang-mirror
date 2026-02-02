@@ -10,7 +10,7 @@
 #include "ASTCodeManager.h"
 
 
-namespace cxx 
+namespace clmr 
 {
     ASTCodeManager::ASTCodeManager()
     {
@@ -152,7 +152,7 @@ namespace cxx
     }
 
 
-    void ASTCodeManager::dumpCxxMirror()
+    void ASTCodeManager::createCxxMirror()
     {
         {
             auto fpath = getOutDir() / std::string(FILE_REG_IDS);

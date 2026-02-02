@@ -7,23 +7,23 @@ namespace clang::tooling {
 	class CompilationDatabase;
 }
 
-namespace cxx {
+namespace clmr {
 	class ASTCodeBuffer;
 }
 
-namespace cxx
+namespace clmr
 {
-	class ASTParser
+	class CLMirrorASTParser
 	{
 		const std::vector<std::string>& m_srcFiles;
 		
 		clang::tooling::CompilationDatabase& m_compileDb;
 
-		ASTParser() = delete;
+		CLMirrorASTParser() = delete;
 
 	public:
 
-		ASTParser(const std::vector<std::string>& pFiles, clang::tooling::CompilationDatabase& pCdb);
+		CLMirrorASTParser(const std::vector<std::string>& pFiles, clang::tooling::CompilationDatabase& pCdb);
 
 		const int parseFiles(const int pStartIndex, const int pEndIndex);
 	};

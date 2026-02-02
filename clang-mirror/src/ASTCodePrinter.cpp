@@ -2,7 +2,7 @@
 #include "ASTCodeMeta.h"
 #include "ASTCodePrinter.h"
 
-namespace cxx
+namespace clmr
 {
     void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut) 
     {

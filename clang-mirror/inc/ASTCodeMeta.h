@@ -8,7 +8,7 @@
 
 #include "Constants.h"
 
-namespace cxx
+namespace clmr
 {
     struct ASTObj {
 
@@ -33,7 +33,7 @@ namespace cxx
 
     struct ASTMetaType
     {
-        using MemberFnsMap = std::unordered_map<std::string, cxx::ASTCodeMeta>;
+        using MemberFnsMap = std::unordered_map<std::string, clmr::ASTCodeMeta>;
         
         std::string typeStr;
         MemberFnsMap methods;

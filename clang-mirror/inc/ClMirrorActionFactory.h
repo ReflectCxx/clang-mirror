@@ -5,7 +5,7 @@
 #include "clang-tidy/ClangTidyDiagnosticConsumer.h"
 
 
-namespace cxx 
+namespace clmr 
 {
 	class CLMirrorActionFactory : public clang::tooling::FrontendActionFactory
 	{

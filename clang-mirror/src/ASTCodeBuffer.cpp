@@ -2,7 +2,7 @@
 
 #include "ASTCodeBuffer.h"
 
-namespace cxx
+namespace clmr
 {
     ASTCodeBuffer::ASTCodeBuffer(const std::string& pSrcFile)
         : m_errorsFound(false)
