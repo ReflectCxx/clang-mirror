@@ -12,7 +12,7 @@ namespace clmirror
         : clang::tidy::ClangTidyDiagnosticConsumer(pContext)
     { }
 
-    const std::vector<ErrorTuple>& CLMirrorDiagnosticConsumer::getMissingHeaderMsgs() {
+    const std::vector<ErrorTuple>& CLMirrorDiagnosticConsumer::getCompilationErrors() {
         return m_errors;
     }
 
@@ -23,7 +23,7 @@ namespace clmirror
             const SourceManager& srcManager = pInfo.getSourceManager();
             if (!srcManager.isInSystemHeader(pInfo.getLocation()) && !srcManager.isInSystemMacro(pInfo.getLocation()))
             {
-                if (pDiagLevel == DiagnosticsEngine::Level::Fatal)
+                if (pDiagLevel == DiagnosticsEngine::Level::Error || pDiagLevel == DiagnosticsEngine::Level::Fatal)
                 {
                     const SourceLocation& errLoc = pInfo.getLocation();
                     const SourceManager& srcManager = pInfo.getSourceManager();

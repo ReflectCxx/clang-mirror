@@ -61,14 +61,19 @@ namespace clmirror
 	};
 
 	struct ASTMetaType;
-	struct ASTMetaFn;
+	struct ASTCodeMeta;
 
 	using RtlRecordsMap = std::unordered_map<std::string, ASTMetaType>;
-	using RtlFunctionsMap = std::unordered_multimap<std::string, ASTMetaFn>;
+	using RtlFunctionsMap = std::unordered_multimap<std::string, ASTCodeMeta>;
 }
 
 
 #define GETTER_CREF(_varType, _name, _var)       \
 inline constexpr const _varType& get##_name() const {  \
     return _var;                             \
+}
+
+#define GETTER_BOOL(_name, _var)              \
+inline constexpr const bool is##_name() const {     \
+    return _var;                          \
 }

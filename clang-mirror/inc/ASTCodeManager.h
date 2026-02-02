@@ -21,10 +21,6 @@ namespace clmirror
 		void dumpMetadataIds(std::fstream& pOut);
 		void dumpRegistrationDecls(std::fstream& pOut);
 
-		static void printRecordTypeIds(const RtlRecordsMap& pRecodsMap, std::fstream& pOut);
-		static void printFreeFunctionIds(const RtlFunctionsMap& pFunctionsMap, std::fstream& pOut);
-		static void printRegistrationDecls(const RtlRecordsMap& pRecodsMap, std::fstream& pOut);
-
 		ASTCodeManager();
 		~ASTCodeManager();
 
@@ -42,6 +38,8 @@ namespace clmirror
 		void dumpCxxMirror();
 
 		void setOutDir(const std::string& pOutDir);
+
+		void compilationFailedFor(const std::string& pSrcFile);
 
 		void dumpRegistrations(const std::string& pSrcFile, std::size_t pIndex);
 	};

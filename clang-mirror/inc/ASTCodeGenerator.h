@@ -5,7 +5,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "ASTMeta.h"
+#include "Constants.h"
+#include "ASTCodeMeta.h"
 
 namespace clmirror 
 {
@@ -16,6 +17,7 @@ namespace clmirror
 {
 	class ASTCodeGenerator
 	{
+		bool m_errorsFound;
 		const std::string m_srcFile;
 		RtlRecordsMap m_recordsMap;
 		RtlFunctionsMap m_freeFnsMap;
@@ -23,7 +25,7 @@ namespace clmirror
 
 		ASTCodeGenerator(const std::string& pSrcFile);
 
-		void addRtlRecord(const ASTMetaFn& pFnMeta);
+		void addRtlRecord(const ASTCodeMeta& pFnMeta);
 
 	public:
 
@@ -32,6 +34,7 @@ namespace clmirror
 		ASTCodeGenerator& operator=(ASTCodeGenerator&&) = delete;
 		ASTCodeGenerator& operator=(const ASTCodeGenerator&) = delete;
 
+		GETTER_BOOL(CompilationFailed, m_errorsFound)
 		GETTER_CREF(std::string, SrcFile, m_srcFile)
 		GETTER_CREF(RtlRecordsMap, RecordsMap, m_recordsMap)
 		GETTER_CREF(RtlFunctionsMap, FreeFunctionsMap, m_freeFnsMap)

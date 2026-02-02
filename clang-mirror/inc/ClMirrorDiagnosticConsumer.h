@@ -18,6 +18,6 @@ namespace clmirror {
 
 		void HandleDiagnostic(clang::DiagnosticsEngine::Level pDiagLevel,const clang::Diagnostic& pInfo) override;
 
-		const std::vector<ErrorTuple>& getMissingHeaderMsgs();
+		const std::vector<ErrorTuple>& getCompilationErrors();
 	};
 }

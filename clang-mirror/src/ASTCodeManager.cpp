@@ -5,7 +5,8 @@
 #include <unordered_set>
 
 #include "Logger.h"
-#include "ASTMeta.h"
+//#include "ASTCodeMeta.h"
+#include "ASTCodePrinter.h"
 #include "ASTCodeManager.h"
 #include "ASTCodeGenerator.h"
 
@@ -16,7 +17,7 @@ namespace clmirror
     }
 
     ASTCodeManager::~ASTCodeManager() 
-    { 
+    {
         for (auto& itr : m_codeGens) {
             delete itr.second;
         }
@@ -33,15 +34,23 @@ namespace clmirror
         m_outPath = pOutDir;
     }
 
+    void ASTCodeManager::compilationFailedFor(const std::string& pSrcFile)
+    {
+        auto codegen = getCodeGenerator(pSrcFile);
+        if (codegen) {
+            codegen->m_errorsFound = true;
+        }
+    }
+
     std::filesystem::path ASTCodeManager::getOutDir()
     {
         static auto dumpDir = [&]() {
 
-            std::error_code ec;
+            std::error_code errc;
             std::filesystem::path dumpDir = std::filesystem::path(m_outPath) / "rtl" / "cxxmirror";
-            std::filesystem::create_directories(dumpDir, ec);
-            if (ec) {
-                Logger::outException("Failed to create output directory: " + ec.message());
+            std::filesystem::create_directories(dumpDir, errc);
+            if (errc) {
+                Logger::outException("Failed to create output directory: " + errc.message());
                 std::abort();
             }
             return dumpDir;
@@ -54,11 +63,16 @@ namespace clmirror
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"
                 "\nnamespace " + std::string(NS_CXX) + " {\n";
+
         for (const auto& itr : m_codeGens) {
-            printFreeFunctionIds(itr.second->getFreeFunctionsMap(), pOut);
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printFreeFunctionIds(itr.second->getFreeFunctionsMap(), pOut);
+            }
         }
         for (const auto& itr : m_codeGens) {
-            printRecordTypeIds(itr.second->getRecordsMap(), pOut);
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printRecordTypeIds(itr.second->getRecordsMap(), pOut);
+            }
         }
         pOut << "\n}";
     }
@@ -73,57 +87,11 @@ namespace clmirror
                 "\n    " + std::string(DECL_INIT_REGIS) + "\n}\n";
 
         for (const auto& itr : m_codeGens) {
-            printRegistrationDecls(itr.second->getRecordsMap(), pOut);
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printRegistrationDecls(itr.second->getRecordsMap(), pOut);
+            }
         }
         pOut << "\n}";
-    }
-
-    void ASTCodeManager::printFreeFunctionIds(const RtlFunctionsMap& pFunctionsMap, std::fstream& pOut)
-    {
-        std::unordered_set<std::string> seen;
-        for (auto it = pFunctionsMap.begin(); it != pFunctionsMap.end(); ++it)
-        {
-            const std::string& key = it->first;
-            if (!seen.insert(key).second) {
-                continue;
-            }
-            pOut << it->second.toFunctionIdentifierSyntax() << "\n";
-        }
-    }
-
-
-    void ASTCodeManager::printRegistrationDecls(const RtlRecordsMap& pRecodsMap, std::fstream& pOut)
-    {
-        for (const auto& itr : pRecodsMap) {
-
-            std::unordered_set<std::string> seen;
-            const auto& methodMap = itr.second.methods;
-            const auto& fnMeta = methodMap.begin()->second;
-
-            pOut << fnMeta.toRegistrationDeclSyntax() << "\n";
-        }
-    }
-
-
-    void ASTCodeManager::printRecordTypeIds(const RtlRecordsMap& pRecodsMap, std::fstream& pOut)
-    {
-        for (const auto& itr : pRecodsMap) {
-
-            std::unordered_set<std::string> seen;
-            const auto& methodMap = itr.second.methods;
-            const auto& fnMeta = methodMap.begin()->second;
-
-            pOut << fnMeta.toRecordIdentifierSyntax() << "\n";
-            for (auto it = methodMap.begin(); it != methodMap.end(); ++it)
-            {
-                const std::string& key = it->first;
-                if (!seen.insert(key).second) {
-                    continue;
-                }
-                pOut << it->second.toMethodIdentifierSyntax() << "\n";
-            }
-            pOut << "\n";
-        }
     }
 
 
@@ -159,7 +127,7 @@ namespace clmirror
     void ASTCodeManager::dumpRegistrations(const std::string& pSrcFile, std::size_t pIndex)
     {
         auto codegen = getCodeGenerator(pSrcFile);
-        if (codegen != nullptr) 
+        if (codegen && !codegen->isCompilationFailed()) 
         {
             auto fspath = getOutDir() / (std::string(FILE_REG_PREFIX) + std::to_string(pIndex) + ".cpp");
             std::fstream fout(fspath, std::ios::out);

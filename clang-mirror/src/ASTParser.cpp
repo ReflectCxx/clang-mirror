@@ -63,11 +63,14 @@ namespace clmirror
 			auto actionFactory = std::make_unique<CLMirrorActionFactory>();
 			clangTool.run(actionFactory.get());
 
-			auto missingHeaderErrors = diagConsumer.getMissingHeaderMsgs();
-			Logger::outReflectError(srcFilePath, std::vector<std::string>(), missingHeaderErrors);
-
-			//Check for errors, then only dump registration.
-			ASTCodeManager::instance().dumpRegistrations(srcFilePath, index);
+			const auto& errors = diagConsumer.getCompilationErrors();
+			if (errors.empty()) {
+				ASTCodeManager::instance().dumpRegistrations(srcFilePath, index);
+			}
+			else {
+				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
+				Logger::outReflectError(srcFilePath, std::vector<std::string>(), errors);
+			}
 		}
 
 		return 0;

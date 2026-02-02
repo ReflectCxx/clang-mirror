@@ -10,15 +10,14 @@
 
 namespace clmirror
 {
-    struct ASTMetaFn
+    struct ASTCodeMeta
     {
-        MetaKind m_metaKind;
+        const MetaKind m_metaKind;
 		
-        std::string m_header;
-        std::string m_record;
-        std::string m_function;
-		
-        std::vector<std::string> m_argTypes;
+        const std::string m_header;
+        const std::string m_record;
+        const std::string m_function;
+        const std::vector<std::string> m_argTypes;
         
         std::string toRegistrationDeclSyntax() const;
         std::string toRecordIdentifierSyntax() const;
@@ -28,7 +27,7 @@ namespace clmirror
 
     struct ASTMetaType
     {
-        using MemberFnsMap = std::unordered_multimap<std::string, clmirror::ASTMetaFn>;
+        using MemberFnsMap = std::unordered_multimap<std::string, clmirror::ASTCodeMeta>;
         
         std::string typeStr;
         MemberFnsMap methods;

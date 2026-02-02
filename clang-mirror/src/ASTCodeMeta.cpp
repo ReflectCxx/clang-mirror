@@ -5,11 +5,11 @@
 
 #include "Constants.h"
 #include "StringUtils.h"
-#include "ASTMeta.h"
+#include "ASTCodeMeta.h"
 
-namespace clmirror 
+namespace clmirror
 {
-    std::string ASTMetaFn::toFunctionIdentifierSyntax() const
+    std::string ASTCodeMeta::toFunctionIdentifierSyntax() const
     {
         std::vector<std::string> typenames = splitQualifiedName(m_function);
         std::string fnName = typenames.back();
@@ -33,7 +33,7 @@ namespace clmirror
     }
 
 
-    std::string ASTMetaFn::toMethodIdentifierSyntax() const
+    std::string ASTCodeMeta::toMethodIdentifierSyntax() const
     {
         std::vector<std::string> typenames = splitQualifiedName(m_record);
 
@@ -56,7 +56,7 @@ namespace clmirror
     }
 
 
-    std::string ASTMetaFn::toRecordIdentifierSyntax() const
+    std::string ASTCodeMeta::toRecordIdentifierSyntax() const
 	{
         std::vector<std::string> typenames = splitQualifiedName(m_record);
         
@@ -77,7 +77,7 @@ namespace clmirror
     }
 
 
-    std::string ASTMetaFn::toRegistrationDeclSyntax() const
+    std::string ASTCodeMeta::toRegistrationDeclSyntax() const
     {
         std::vector<std::string> typenames = splitQualifiedName(m_record);
 

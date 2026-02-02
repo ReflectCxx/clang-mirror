@@ -1,15 +1,19 @@
 
 
-#include "ASTMeta.h"
 #include "ASTCodeGenerator.h"
 
 namespace clmirror
 {
     ASTCodeGenerator::ASTCodeGenerator(const std::string& pSrcFile)
-        :m_srcFile(pSrcFile)
+        : m_errorsFound(false)
+        , m_srcFile(pSrcFile)
+        , m_recordsMap(RtlRecordsMap())
+        , m_freeFnsMap(RtlFunctionsMap())
+        , m_incFiles(std::unordered_set<std::string>())
     { }
 
-    void ASTCodeGenerator::addRtlRecord(const ASTMetaFn & pFnMeta)
+
+    void ASTCodeGenerator::addRtlRecord(const ASTCodeMeta & pFnMeta)
     {
         auto& userType = [&]()-> ASTMetaType&
         {
@@ -37,7 +41,7 @@ namespace clmirror
     {
         if (pMetaKind == MetaKind::NonMemberFn)
         {
-            m_freeFnsMap.emplace(pFnName, (ASTMetaFn{
+            m_freeFnsMap.emplace(pFnName, (ASTCodeMeta{
                     .m_metaKind = pMetaKind,
                     .m_header = pHeaderFile,
                     .m_record = pRecord,
@@ -47,7 +51,7 @@ namespace clmirror
         }
         else if (pMetaKind != MetaKind::None)
         {
-            addRtlRecord( ASTMetaFn{
+            addRtlRecord( ASTCodeMeta{
                     .m_metaKind = pMetaKind,
                     .m_header = pHeaderFile,
                     .m_record = pRecord,
