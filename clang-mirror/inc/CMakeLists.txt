@@ -11,9 +11,9 @@ set(CLREFLECT_INCS
 	"${CMAKE_CURRENT_LIST_DIR}/Constants.h"
 	"${CMAKE_CURRENT_LIST_DIR}/StringUtils.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeMeta.h"
-	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeManager.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeBuffer.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodePrinter.h"
-	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeGenerator.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeManager.h"
 )
 
 # Add headers to the library target

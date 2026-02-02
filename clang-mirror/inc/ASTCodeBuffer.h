@@ -25,7 +25,9 @@ namespace clmirror
 
 		ASTCodeGenerator(const std::string& pSrcFile);
 
-		void addRtlRecord(const ASTCodeMeta& pFnMeta);
+		static ASTMetaType& getRecordCodeMeta(RtlRecordsMap& pFnMetaMap, const std::string& pTypeStr);
+
+		static ASTCodeMeta& addFunctionCodeMeta(RtlFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta);
 
 	public:
 
@@ -40,7 +42,7 @@ namespace clmirror
 		GETTER_CREF(RtlFunctionsMap, FreeFunctionsMap, m_freeFnsMap)
 
 		void addFunction(MetaKind pMetaKind, const std::string& pHeaderFile, const std::string& pRecord,
-						 const std::string& pFnName, const std::vector<std::string>& pParamTypes);
+						 const std::string& pFnName, const std::string& pParamTypes);
 
 		friend ASTCodeManager;
 	};

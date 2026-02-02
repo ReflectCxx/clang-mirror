@@ -9,9 +9,14 @@
 
 namespace clmirror
 {
+    std::string ASTCodeMeta::toSignatureSyntax() const
+    {
+        return std::string("std::string(void)");
+    }
+
     std::string ASTCodeMeta::toFunctionIdentifierSyntax() const
     {
-        std::vector<std::string> typenames = splitQualifiedName(m_function);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_function);
         std::string fnName = typenames.back();
         typenames.pop_back();
 
@@ -35,7 +40,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toMethodIdentifierSyntax() const
     {
-        std::vector<std::string> typenames = splitQualifiedName(m_record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_record);
 
         std::string syntaxStr = "\nnamespace " + std::string(NS_TYPE) + " {";
         for (const auto& typeStr : typenames) {
@@ -46,7 +51,11 @@ namespace clmirror
                  .append("\nnamespace " + m_function + " {")
                  .append("\n    inline constexpr std::string_view id = \"")
                  .append(m_function)
-                 .append("\";\n}}");
+                 .append("\";")
+                 .append("\n    inline constexpr std::string_view sign = \"")
+                 .append(toSignatureSyntax())
+                 .append("\";")
+                 .append("\n}}");
 
         for (auto& _ : typenames) {
             syntaxStr.append("}");
@@ -58,7 +67,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toRecordIdentifierSyntax() const
 	{
-        std::vector<std::string> typenames = splitQualifiedName(m_record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_record);
         
         std::string syntaxStr = "\nnamespace " + std::string(NS_TYPE) + " {";
         for (const auto& typeStr : typenames) {
@@ -79,7 +88,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toRegistrationDeclSyntax() const
     {
-        std::vector<std::string> typenames = splitQualifiedName(m_record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_record);
 
         std::string syntaxStr = "\nnamespace " + std::string(NS_REGISTRATION) + " {"
                                 "\nnamespace " + std::string(NS_TYPE) + " {";

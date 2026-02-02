@@ -5,7 +5,7 @@
 #include "Constants.h"
 #include "StringUtils.h"
 #include "ASTCodeManager.h"
-#include "ASTCodeGenerator.h"
+#include "ASTCodeBuffer.h"
 #include "ASTDeclsUtils.h"
 #include "ASTVisitor.h"
 
@@ -13,105 +13,96 @@ using namespace clang;
 
 namespace clmirror
 {
-	ASTVisitor::ASTVisitor(const std::string& pSrcFile)
-		: m_srcFile(pSrcFile)
+    ASTVisitor::ASTVisitor(const std::string& pSrcFile)
+        : m_srcFile(pSrcFile)
 	{ }
 
 
-	bool ASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
-	{
-		if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
-			pFnDecl->isDeleted() ||
-			pFnDecl->isInAnonymousNamespace() ||
-			(pFnDecl->isGlobal() && pFnDecl->isStatic()) ||
-			pFnDecl->isOverloadedOperator() ||
-			pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
-			pFnDecl->getAccess() == AS_private ||
-			pFnDecl->getAccess() == AS_protected ||
-			pFnDecl->getLinkageInternal() != Linkage::External) {
-			return true;
-		}
+    bool ASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
+    {
+        if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
+            pFnDecl->isDeleted() ||
+            pFnDecl->isInAnonymousNamespace() ||
+            (pFnDecl->isGlobal() && pFnDecl->isStatic()) ||
+            pFnDecl->isOverloadedOperator() ||
+            pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
+            pFnDecl->getAccess() == AS_private ||
+            pFnDecl->getAccess() == AS_protected ||
+            pFnDecl->getLinkageInternal() != Linkage::External) {
+            return true;
+        }
 
-		if (!pFnDecl->isThisDeclarationADefinition()) {
-			return true;
-		}
-		
-		if (pFnDecl->getFirstDecl() == nullptr) {
-			return true;
-		}
+        if (!pFnDecl->isThisDeclarationADefinition()) {
+            return true;
+        }
 
-		if (!ASTDeclsUtils::isDeclFrmCurrentSource(m_srcFile, pFnDecl)) {
-			return true;
-		}
+        if (pFnDecl->getFirstDecl() == nullptr) {
+            return true;
+        }
 
-		std::string declSrcFile;
-		auto& SM = pFnDecl->getASTContext().getSourceManager();
-		for (auto* D : pFnDecl->redecls())
-		{
-			SourceLocation loc = SM.getSpellingLoc(D->getLocation());
-			if (!loc.isValid()) {
-				continue;
-			}
+        if (!ASTDeclsUtils::isDeclFrmCurrentSource(m_srcFile, pFnDecl)) {
+            return true;
+        }
 
-			StringRef fileName = SM.getFilename(loc);
-			if (fileName.ends_with(".h") || fileName.ends_with(".hpp"))
-			{
-				declSrcFile = fileName.str();
-				break;
-			}
-		}
+        std::string declSrcFile;
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
+        for (auto* D : pFnDecl->redecls())
+        {
+            SourceLocation loc = SM.getSpellingLoc(D->getLocation());
+            if (!loc.isValid()) {
+                continue;
+            }
 
-		if (!declSrcFile.empty()) 
-		{
-			std::vector<std::string> parmTypes;
-			const auto& params = pFnDecl->parameters();
-			const auto& fnQName = pFnDecl->getQualifiedNameAsString();
-			for (unsigned index = 0; index < params.size(); index++)
-			{
-				if (params[index]->isInAnonymousNamespace()) {
-					//m_unreflectedFunctions.push_back(fnQName);
-					return true;
-				}
-				if (params[index]->isInvalidDecl()) {
-					//m_unreflectedFunctions.push_back(fnQName);
-					return true;
-				}
-				parmTypes.push_back(ASTDeclsUtils::extractParameterType(params[index]));
-			}
+            StringRef fileName = SM.getFilename(loc);
+            if (fileName.ends_with(".h") || fileName.ends_with(".hpp"))
+            {
+                declSrcFile = fileName.str();
+                break;
+            }
+        }
 
-			std::string functionName;
-			MetaKind metaKind = MetaKind::None;
+        if (!declSrcFile.empty()) 
+        {
+            std::vector<std::string> parmTypes;
+            const auto& params = pFnDecl->parameters();
+            const auto& fnQName = pFnDecl->getQualifiedNameAsString();
+            for (unsigned index = 0; index < params.size(); index++) {
+                parmTypes.push_back(ASTDeclsUtils::extractParameterType(params[index]));
+            }
 
-			if (llvm::isa<clang::CXXConstructorDecl>(pFnDecl)) 
-			{
-				metaKind = MetaKind::Ctor;
-				functionName = pFnDecl->getDeclName().getAsString();
-			}
-			else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl)) 
-			{
-				if (method->isStatic()) {
-					metaKind = MetaKind::MemberFnStatic;
-				}
-				else {
-					if (method->isConst()) {
-						metaKind = MetaKind::MemberFnConst;
-					}
-					else {
-						metaKind = MetaKind::MemberFnNonConst;
-					}
-				}
-				functionName = pFnDecl->getDeclName().getAsString();
-			}
-			else {
-				metaKind = MetaKind::NonMemberFn;
-				functionName = pFnDecl->getQualifiedNameAsString();
-			}
+            std::string functionName;
+            MetaKind metaKind = MetaKind::None;
 
-			auto codegen = ASTCodeManager::instance().getCodeGenerator(m_srcFile, true);
-			const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
+            if (llvm::isa<clang::CXXConstructorDecl>(pFnDecl))
+            {
+                metaKind = MetaKind::Ctor;
+                functionName = pFnDecl->getDeclName().getAsString();
+            }
+            else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
+            {
+                if (method->isStatic()) {
+                    metaKind = MetaKind::MemberFnStatic;
+                }
+                else {
+                    if (method->isConst()) {
+                        metaKind = MetaKind::MemberFnConst;
+                    }
+                    else {
+                        metaKind = MetaKind::MemberFnNonConst;
+                    }
+                }
+                functionName = pFnDecl->getDeclName().getAsString();
+            }
+            else {
+                metaKind = MetaKind::NonMemberFn;
+                functionName = pFnDecl->getQualifiedNameAsString();
+            }
 
-			codegen->addFunction(metaKind, declSrcFile, recordStr, functionName, parmTypes);
-		}
-		return true;
-	}
+            auto codegen = ASTCodeManager::instance().getCodeGenerator(m_srcFile, true);
+            const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
+
+            codegen->addFunction(metaKind, declSrcFile, recordStr, functionName, StringUtils::getSignatureStr(parmTypes));
+        }
+        return true;
+    }
 }

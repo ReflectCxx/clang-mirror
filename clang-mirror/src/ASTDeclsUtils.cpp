@@ -99,21 +99,21 @@ namespace clmirror
             }
             else if (qt->isPointerType()) {
                 typedefOrgTypeKey = qt->getPointeeType().getUnqualifiedType().getAsString();
-                removeSubStrings(typedefOrgTypeKey, { CONST, ENUM, CLASS, STRUCT });
+                StringUtils::removeSubStrings(typedefOrgTypeKey, { CONST, ENUM, CLASS, STRUCT });
             }
             else {
                 typedefOrgTypeKey = qt.getUnqualifiedType().getAsString();
-                removeSubStrings(typedefOrgTypeKey, { CONST, ENUM, CLASS, STRUCT });
+                StringUtils::removeSubStrings(typedefOrgTypeKey, { CONST, ENUM, CLASS, STRUCT });
             }
             templateArgsTypeDefs.insert(make_pair(typedefOrgTypeKey, typedefStrValue.value()));
         }
         auto typeStr = pParmVarDecl->getOriginalType().getCanonicalType().getAsString();
-        removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
+        StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
         for (auto itr : templateArgsTypeDefs)
         {
             const auto& tmpTypeStr = itr.first;
             const auto& tmpTypeDefStr = itr.second;
-            replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
+            StringUtils::replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
         }
         return typeStr;
     }
@@ -155,11 +155,11 @@ namespace clmirror
                     {
                         const auto& qt = templateArg.getAsType().getUnqualifiedType().getNonReferenceType().getCanonicalType();
                         std::string typeStr = (qt->isPointerType() ? qt->getPointeeType().getUnqualifiedType() : qt).getAsString();
-                        removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
+                        StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
                         for (auto itr : pTemplateTypeDefs) {
                             const auto& tmpTypeStr = itr.first;
                             const auto& tmpTypeDefStr = itr.second;
-                            replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
+                            StringUtils::replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
                         }
                         pTemplateTypeDefs.insert(std::make_pair(typeStr, typeDefStr.value()));
                     }

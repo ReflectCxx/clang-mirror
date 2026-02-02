@@ -63,7 +63,7 @@ namespace clmirror
 	struct ASTCodeMeta;
 
 	using RtlRecordsMap = std::unordered_map<std::string, ASTMetaType>;
-	using RtlFunctionsMap = std::unordered_multimap<std::string, ASTCodeMeta>;
+	using RtlFunctionsMap = std::unordered_map<std::string, ASTCodeMeta>;
 }
 
 
