@@ -3,5 +3,5 @@
 /.vs
 CMakeCache.txt
 CMakeFiles/
-TestProjectSrc/build-ninja
-TestProjectSrc/.clang-tidy
+SrcSamples/build
+SrcSamples/.clang-tidy

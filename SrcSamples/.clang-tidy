@@ -9,5 +9,5 @@ Checks: >
   -google-*,
   -cert-*
 
-HeaderFilterRegex: '^E:/RTL/RTCompiler/TestProjectSrc/'
+HeaderFilterRegex: '^E:/RTL/clang-mirror/SrcSamples/'
 WarningsAsErrors: ''
