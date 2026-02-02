@@ -37,7 +37,8 @@ auto classPerson = cxx::mirror().getRecord(classId);  // Type-safe lookup.
 // ...
 
 {
-    auto fnId = cxx::type::Person::fn::getName::id;  // Introspect via IntelliSense.
+    // If the ID is present, the method is registered (guaranteed).
+    auto fnId = cxx::type::Person::fn::getName::id;
     auto getName = classPerson->getMethod(fnId);  // Query method, get metadata.
 
     // Runtime invocations. Get functor from metadata,
@@ -47,8 +48,7 @@ auto classPerson = cxx::mirror().getRecord(classId);  // Type-safe lookup.
 //...
 
 {
-    // If the ID is present, the method is registered (guaranteed).
-    auto fnId = cxx::type::Person::fn::updateAddress::id;
+    auto fnId = cxx::type::Person::fn::updateAddress::id;  // Introspect via IntelliSense.
     auto updateAddress = classPerson->getMethod(fnId);  // Query method, get metadata.
 
     // Invoke updateAddress(). Get functor from metadata,
