@@ -147,7 +147,7 @@ namespace clmirror
                 Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
                 return;
             }
-            Logger::outgen(std::string(MSG_GENERATED_FILE) + fspath.string());
+            Logger::outgen(fspath.string());
         }
     }
 
@@ -170,7 +170,7 @@ namespace clmirror
                 Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
                 return;
             }
-            Logger::outgen(std::string(MSG_GENERATED_FILE) + fpath.string());
+            Logger::outgen(fpath.string());
         } 
         {
             auto fpath = getOutDir() / std::string(FILE_REG_DECLS);
@@ -188,7 +188,7 @@ namespace clmirror
                 Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
                 return;
             }
-            Logger::outgen(std::string(MSG_GENERATED_FILE) + fpath.string());
+            Logger::outgen(fpath.string());
         }
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }

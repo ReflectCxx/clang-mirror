@@ -48,7 +48,7 @@ namespace clmirror {
 	void Logger::outgen(const std::string& pMsg)
 	{
 		std::lock_guard<std::mutex> lock(g_mutex);
-		std::cout << GREY << "\n[clang-mirror]\t" << pMsg;
+		std::cout << GREY << "\n[clang-mirror]\t" << TEAL << "generated: " << GREY << pMsg;
 	}
 
 	void Logger::outException(const std::string& pMsg)
@@ -63,7 +63,7 @@ namespace clmirror {
 		if (pUpdate) {
 			m_currentCount++;
 		}
-		std::cout << GREEN << "\n[" << formatProgress() << "]\t" << TEAL << pMsg;
+		std::cout << GREEN << "\n[" << formatProgress() << "]\t" << TEAL << "compiling: " << RESET << pMsg;
 	}
 
 	void Logger::outReflectError(const std::string& pSrcFile, const std::vector<std::string>& pUnreflectedFuncs, const std::vector<ErrorTuple>& pErrors)

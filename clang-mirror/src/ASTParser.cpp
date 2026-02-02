@@ -33,7 +33,7 @@ namespace clmirror
 		{
 			const auto& srcFilePath = m_srcFiles.at(index).c_str();
 
-			Logger::outProgress("compiling: " + std::string(srcFilePath));
+			Logger::outProgress(std::string(srcFilePath));
 
 			if (!std::filesystem::exists(srcFilePath)) {
 				Logger::outProgress(srcFilePath + std::string(". File not found..!"), false);
