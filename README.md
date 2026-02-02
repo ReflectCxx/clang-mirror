@@ -29,7 +29,7 @@ public:
 Just `#include ` the generated file and access your entire codebase reflectively.
 
 ```cpp
-#include "cxx_mirror.h"
+#include "cxx_mirror.h"  // The generated header.
 // ...
 
 auto classId = cxx::type::Person::id;   // Compile-checked, generated via AST.
