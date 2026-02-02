@@ -52,7 +52,7 @@ auto classPerson = cxx::mirror().getRecord(classId);  // Type-safe lookup.
 
     // Invoke updateAddress(). Get functor from metadata,
     auto method = updateAddress->targetT<Person>().argsT<std::string>().returnT();
-    method(personObj)("new address");  // Person::updateAdress("new address") called.
+    method(personObj)("new address");  // Person::updateAddress("new address") called.
 }
 ```
 
