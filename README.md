@@ -37,7 +37,7 @@ auto classPerson = cxx::mirror().getRecord(classId);  // Type-safe lookup.
 // ...
 
 {
-    // If the ID is present, the method is registered (guaranteed).
+    // If the ID is present, the method is registered (guaranteed!).
     auto fnId = cxx::type::Person::fn::getName::id;
     auto getName = classPerson->getMethod(fnId);  // Query method, get metadata.
 
