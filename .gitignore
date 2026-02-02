@@ -1,6 +1,5 @@
 /bin
 /build
-/vcpkg_installed
 /.vs
 CMakeCache.txt
 CMakeFiles/
