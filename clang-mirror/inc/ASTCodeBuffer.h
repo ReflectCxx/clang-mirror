@@ -25,7 +25,7 @@ namespace clmr
 
 		ASTCodeBuffer(const std::string& pSrcFile);
 
-		static ASTMetaType& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
+		static ASTRecordMeta& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
 
 		static ASTCodeMeta& addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta);
 

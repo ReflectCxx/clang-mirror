@@ -53,10 +53,10 @@ namespace clmr
 		MemberFnNonConst
 	};
 
-	struct ASTMetaType;
+	struct ASTRecordMeta;
 	struct ASTCodeMeta;
 
-	using CxxRecordsMap = std::unordered_map<std::string, ASTMetaType>;
+	using CxxRecordsMap = std::unordered_map<std::string, ASTRecordMeta>;
 	using CxxFunctionsMap = std::unordered_map<std::string, ASTCodeMeta>;
 
 	using Clock = std::chrono::high_resolution_clock;

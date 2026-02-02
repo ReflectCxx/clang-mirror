@@ -22,15 +22,13 @@ namespace clmr
     {
         const ASTObj ast;
         std::vector<std::string> signatures;
-
         std::string toRegistrationDeclSyntax() const;
-        std::string toMethodIdentifierSyntax() const;
     };
 
-    struct ASTMetaType
+    struct ASTRecordMeta
     {
         using MemberFnsMap = std::unordered_map<std::string, clmr::ASTCodeMeta>;
-        
+
         std::string typeStr;
         MemberFnsMap methods;
 	};

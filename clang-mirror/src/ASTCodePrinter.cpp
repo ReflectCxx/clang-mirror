@@ -33,6 +33,44 @@ namespace clmr
     }
 
 
+    std::string ASTCodePrinter::printMethodNamespace(const ASTCodeMeta& pMeta)
+    {
+        std::string codeStr;
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.record);
+        for (const auto& typeStr : typenames) {
+            codeStr.append("\nnamespace " + typeStr + " {");
+        }
+
+        codeStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
+               .append("\nnamespace " + pMeta.ast.function + " {")
+               .append(printFnIdDeclarations(pMeta))
+               .append("\n}}");
+
+        for (auto& _ : typenames) {
+            codeStr.append("}");
+        }
+        return codeStr;
+    }
+
+
+    void ASTCodePrinter::printMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::fstream& pOut)
+    {
+        for (auto it = pMethodsMap.begin(); it != pMethodsMap.end(); ++it)
+        {
+            const auto& metaFn = it->second;
+            if (metaFn.ast.metaKind != MetaKind::Ctor) {
+
+                std::string codeStr;
+                codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
+                       .append(printMethodNamespace(it->second))
+                       .append("}");
+
+                pOut << codeStr << "\n";
+            }
+        }
+    }
+
+
     std::string ASTCodePrinter::printFnIdDeclarations(const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
@@ -47,6 +85,26 @@ namespace clmr
         }
         return codeStr;
     }
+
+
+    void ASTCodePrinter::printTypeRecords(const CxxRecordsMap& pRecodsMap, std::fstream& pOut)
+    {
+        for (const auto& itr : pRecodsMap) {
+
+            const auto& methodMap = itr.second.methods;
+            const auto& fnMeta = methodMap.begin()->second;
+
+            std::string codeStr;
+            codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
+                   .append(printTypeIdDeclaration(fnMeta))
+                   .append("}");
+
+            pOut << codeStr << "\n";
+            printMemberFunctions(methodMap, pOut);
+            pOut << "\n";
+        }
+    }
+
 
     std::string ASTCodePrinter::printTypeIdDeclaration(const ASTCodeMeta& pMeta)
     {
@@ -79,38 +137,13 @@ namespace clmr
         }
 
         codeStr.append("\nnamespace " + fnName + " {")
-                 .append(printFnIdDeclarations(pMeta))
-                 .append("\n}");
+               .append(printFnIdDeclarations(pMeta))
+               .append("\n}");
 
         for (auto& _ : typnames) {
             codeStr.append("}");
         }
 
         return codeStr;
-    }
-
-
-    void ASTCodePrinter::printTypeRecords(const CxxRecordsMap& pRecodsMap, std::fstream& pOut)
-    {
-        for (const auto& itr : pRecodsMap) {
-
-            const auto& methodMap = itr.second.methods;
-            const auto& fnMeta = methodMap.begin()->second;
-
-            std::string codeStr;
-            codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
-                   .append(printTypeIdDeclaration(fnMeta))
-                   .append("}");
-
-            pOut << codeStr << "\n";
-            for (auto it = methodMap.begin(); it != methodMap.end(); ++it)
-            {
-                const auto& metaFn = it->second;
-                if (metaFn.ast.metaKind != MetaKind::Ctor) {
-                    pOut << it->second.toMethodIdentifierSyntax() << "\n";
-                }
-            }
-            pOut << "\n";
-        }
     }
 }
