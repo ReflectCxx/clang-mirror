@@ -24,7 +24,7 @@ public:
 * *Type-safe reflection identifiers* – that always resolve.
 * *Namespace-organized metadata* – for all your types and functions.
 
-#### Result ⚡
+#### Result 👉
 
 Just `#include ` the generated file and access your entire codebase reflectively.
 
