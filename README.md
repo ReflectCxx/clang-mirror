@@ -34,12 +34,26 @@ Just `#include ` the generated file and access your entire codebase reflectively
 
 auto classId = cxx::type::Person::id;   // Compile-checked, generated via AST.
 auto classPerson = cxx::mirror().getRecord(classId);   // Type-safe lookup.
-auto fnId = cxx::type::Person::fn::getName::id;    // Introspect via IntelliSense.
-auto getName = classPerson->getMethod(fnId);   // Query method, get metadata.
+// ...
 
-// Runtime invocations. Get functor from metadata,
-auto method = getName->targetT<Person>().argsT().returnT<std::string>();
-std::string name = method(personObj)(); // Person::getName() called.
+{
+    auto fnId = cxx::type::Person::fn::getName::id;    // Introspect via IntelliSense.
+    auto getName = classPerson->getMethod(fnId);   // Query method, get metadata.
+
+    // Runtime invocations. Get functor from metadata,
+    auto method = getName->targetT<Person>().argsT().returnT<std::string>();
+    std::string name = method(personObj)(); // Person::getName() called.
+}
+//...
+
+{
+    auto fnId = cxx::type::Person::fn::updateAddress::id;    // If the ID is present, the method is registered (guaranteed).
+    auto getName = classPerson->getMethod(fnId);   // Query method, get metadata.
+
+    // Invoke updateAddress(). Get functor from metadata,
+    auto method = updateAddress->targetT<Person>().argsT<std::string>().returnT();
+    method(personObj)("new address");
+}
 ```
 
 ## Why clang-mirror?
