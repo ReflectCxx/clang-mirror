@@ -6,7 +6,7 @@
 
 **No manual registration. No macros. No boilerplate.**
 
-## What It Does
+## What It Does?
 
 Given your C++ code:
 
