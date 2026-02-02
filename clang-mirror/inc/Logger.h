@@ -2,7 +2,7 @@
 
 #include "Constants.h"
 
-namespace clmirror {
+namespace cxx {
 
 	class Logger
 	{

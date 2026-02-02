@@ -2,22 +2,22 @@
 
 #include "ASTCodeBuffer.h"
 
-namespace clmirror
+namespace cxx
 {
     ASTCodeBuffer::ASTCodeBuffer(const std::string& pSrcFile)
         : m_errorsFound(false)
         , m_srcFile(pSrcFile)
-        , m_recordsMap(RtlRecordsMap())
-        , m_freeFnsMap(RtlFunctionsMap())
+        , m_recordsMap(CxxRecordsMap())
+        , m_freeFnsMap(CxxFunctionsMap())
         , m_incFiles(std::unordered_set<std::string>())
     { }
 
 
-    ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(RtlFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
+    ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
     {
-        auto itr = pFnMetaMap.find(pFnMeta.m_function);
+        auto itr = pFnMetaMap.find(pFnMeta.ast().function);
         if (itr == pFnMetaMap.end()) {
-            return pFnMetaMap.emplace(pFnMeta.m_function, pFnMeta).first->second;
+            return pFnMetaMap.emplace(pFnMeta.ast().function, pFnMeta).first->second;
         }
         else {
             return itr->second;
@@ -25,7 +25,7 @@ namespace clmirror
     }
 
 
-    ASTMetaType& ASTCodeBuffer::getRecordCodeMeta(RtlRecordsMap& pFnMetaMap, const std::string& pTypeStr)
+    ASTMetaType& ASTCodeBuffer::getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr)
     {
         const auto& itr = pFnMetaMap.find(pTypeStr);
         if (itr == pFnMetaMap.end())
@@ -41,32 +41,25 @@ namespace clmirror
     }
 
 
-    void ASTCodeBuffer::addFunction(MetaKind pMetaKind, const std::string& pHeaderFile, const std::string& pRecord,
-                                       const std::string& pFnName, const std::string& pParamTypes)
+    void ASTCodeBuffer::addFunction(const ASTObj& pAst, const std::string& pReturn, const std::string& pParams)
     {
-        if (pMetaKind == MetaKind::NonMemberFn)
+        if (pAst.metaKind == MetaKind::NonMemberFn)
         {
             auto& codeMeta = addFunctionCodeMeta(m_freeFnsMap, ASTCodeMeta{
-                    .m_metaKind = pMetaKind,
-                    .m_header = pHeaderFile,
-                    .m_record = pRecord,
-                    .m_function = pFnName,
-                    .m_argTypes = std::vector<std::string>()
+                    .m_astObj = pAst,
+                    .m_signaturesTy = std::vector<std::string>()
             });
-            codeMeta.m_argTypes.push_back(pParamTypes.empty() ? "void" : pParamTypes);
+            codeMeta.m_signaturesTy.push_back(pParams.empty() ? "void" : pParams);
         }
-        else if (pMetaKind != MetaKind::None)
+        else if (pAst.metaKind != MetaKind::None)
         {
-            auto& recordMeta = getRecordCodeMeta(m_recordsMap, pRecord);
-            auto& codeMeta = addFunctionCodeMeta(recordMeta.methods, ASTCodeMeta{
-                    .m_metaKind = pMetaKind,
-                    .m_header = pHeaderFile,
-                    .m_record = pRecord,
-                    .m_function = pFnName,
-                    .m_argTypes = std::vector<std::string>()
+            auto& typeMeta = getRecordCodeMeta(m_recordsMap, pAst.record);
+            auto& codeMeta = addFunctionCodeMeta(typeMeta.methods, ASTCodeMeta{
+                    .m_astObj = pAst,
+                    .m_signaturesTy = std::vector<std::string>()
             });
-            codeMeta.m_argTypes.push_back(pParamTypes.empty() ? "void" : pParamTypes);
+            codeMeta.m_signaturesTy.push_back(pParams.empty() ? "void" : pParams);
         }
-        m_incFiles.insert(pHeaderFile);
+        m_incFiles.insert(pAst.header);
     }
 }

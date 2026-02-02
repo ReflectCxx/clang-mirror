@@ -25,7 +25,7 @@ namespace {
 
 		virtual void HandleTranslationUnit(clang::ASTContext& Context)
 		{
-			clmirror::CLMirrorASTVisitor visitor(m_currentSrcFile);
+			cxx::CLMirrorASTVisitor visitor(m_currentSrcFile);
 			visitor.TraverseDecl(Context.getTranslationUnitDecl());
 		}
 	};
@@ -60,7 +60,7 @@ namespace {
 }
 
 
-namespace clmirror {
+namespace cxx {
 
 	std::unique_ptr<clang::FrontendAction> CLMirrorActionFactory::create()
 	{

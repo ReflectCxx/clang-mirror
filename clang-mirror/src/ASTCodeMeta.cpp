@@ -7,8 +7,13 @@
 #include "StringUtils.h"
 #include "ASTCodeMeta.h"
 
-namespace clmirror
+namespace cxx
 {
+    constexpr const ASTObj& ASTCodeMeta::ast() const
+    {
+        return m_astObj;
+    }
+
     std::string ASTCodeMeta::toSignatureSyntax() const
     {
         return std::string("std::string(void)");
@@ -16,7 +21,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toFunctionIdentifierSyntax() const
     {
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_function);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(ast().function);
         std::string fnName = typenames.back();
         typenames.pop_back();
 
@@ -27,12 +32,12 @@ namespace clmirror
 
         syntaxStr.append("\nnamespace " + fnName + " {")
                  .append("\n    inline constexpr std::string_view id = \"")
-                 .append(m_function)
+                 .append(ast().function)
                  .append("\";");
 
-        for (std::size_t i = 0; i < m_argTypes.size(); i++) {
+        for (std::size_t i = 0; i < m_signaturesTy.size(); i++) {
             syntaxStr.append("\n    inline constexpr std::string_view sign" + std::to_string(i) + " = \"")
-                     .append(m_argTypes[i])
+                     .append(m_signaturesTy[i])
                      .append("\";");
         }
         syntaxStr.append("\n}");
@@ -47,7 +52,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toMethodIdentifierSyntax() const
     {
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(ast().record);
 
         std::string syntaxStr = "\nnamespace " + std::string(NS_TYPE) + " {";
         for (const auto& typeStr : typenames) {
@@ -55,14 +60,14 @@ namespace clmirror
         }
 
         syntaxStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
-                 .append("\nnamespace " + m_function + " {")
+                 .append("\nnamespace " + ast().function + " {")
                  .append("\n    inline constexpr std::string_view id = \"")
-                 .append(m_function)
+                 .append(ast().function)
                  .append("\";");
 
-        for (std::size_t i = 0; i < m_argTypes.size(); i++) {
+        for (std::size_t i = 0; i < m_signaturesTy.size(); i++) {
             syntaxStr.append("\n    inline constexpr std::string_view sign" + std::to_string(i) + " = \"")
-                     .append(m_argTypes[i])
+                     .append(m_signaturesTy[i])
                      .append("\";");
         }
         syntaxStr.append("\n}}");
@@ -77,7 +82,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toRecordIdentifierSyntax() const
 	{
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(ast().record);
         
         std::string syntaxStr = "\nnamespace " + std::string(NS_TYPE) + " {";
         for (const auto& typeStr : typenames) {
@@ -85,7 +90,7 @@ namespace clmirror
         }
         
         syntaxStr.append("\n    inline constexpr std::string_view id = \"")
-                 .append(m_record)
+                 .append(ast().record)
                  .append("\";\n");
         
         for (auto& _ : typenames) {
@@ -98,7 +103,7 @@ namespace clmirror
 
     std::string ASTCodeMeta::toRegistrationDeclSyntax() const
     {
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(m_record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(ast().record);
 
         std::string syntaxStr = "\nnamespace " + std::string(NS_REGISTRATION) + " {"
                                 "\nnamespace " + std::string(NS_TYPE) + " {";

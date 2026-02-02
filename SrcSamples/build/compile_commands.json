@@ -1,0 +1,74 @@
+[
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Book.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Book.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Book.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Book.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Date.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Date.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Date.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Date.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Person.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Person.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Person.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Person.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Animal.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Animal.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Animal.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Animal.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Library.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Library.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Library.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Library.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Complex.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Complex.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\Complex.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\Complex.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringOps.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringOps.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringOps.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringOps.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringWrap.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringWrap.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringWrap.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringWrap.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringMute.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringMute.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringMute.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringMute.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringConst.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringConst.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringConst.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringConst.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringStatic.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringStatic.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringStatic.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringStatic.cpp.obj"
+},
+{
+  "directory": "E:/RTL/clang-mirror/SrcSamples/build",
+  "command": "C:\\PROGRA~1\\MICROS~3\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP -IE:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\inc /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd /FoCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringConstOverload.cpp.obj /FdCxxTestProps\\CMakeFiles\\CxxTestProps.dir\\CxxTestProps.pdb /FS -c E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringConstOverload.cpp",
+  "file": "E:\\RTL\\clang-mirror\\SrcSamples\\CxxTestProps\\src\\StringConstOverload.cpp",
+  "output": "CxxTestProps\\CMakeFiles\\CxxTestProps.dir\\src\\StringConstOverload.cpp.obj"
+}
+]

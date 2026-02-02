@@ -7,11 +7,11 @@ namespace clang::tooling {
 	class CompilationDatabase;
 }
 
-namespace clmirror {
+namespace cxx {
 	class ASTCodeBuffer;
 }
 
-namespace clmirror
+namespace cxx
 {
 	class ASTParser
 	{

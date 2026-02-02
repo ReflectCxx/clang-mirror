@@ -8,18 +8,22 @@
 
 #include "Constants.h"
 
-namespace clmirror
+namespace cxx
 {
+    struct ASTObj {
+
+        MetaKind metaKind;
+        std::string header;
+        std::string record;
+        std::string function;
+    };
+
     struct ASTCodeMeta
     {
-        const MetaKind m_metaKind;
-		
-        const std::string m_header;
-        const std::string m_record;
-        const std::string m_function;
-
-        std::vector<std::string> m_argTypes;
+        const ASTObj m_astObj;
+        std::vector<std::string> m_signaturesTy;
         
+        constexpr const ASTObj& ast() const;
         std::string toSignatureSyntax() const;
         std::string toRegistrationDeclSyntax() const;
         std::string toRecordIdentifierSyntax() const;
@@ -29,7 +33,7 @@ namespace clmirror
 
     struct ASTMetaType
     {
-        using MemberFnsMap = std::unordered_map<std::string, clmirror::ASTCodeMeta>;
+        using MemberFnsMap = std::unordered_map<std::string, cxx::ASTCodeMeta>;
         
         std::string typeStr;
         MemberFnsMap methods;

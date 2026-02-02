@@ -4,11 +4,11 @@
 #include<string>
 #include<vector>
 
-namespace clmirror {
+namespace cxx {
 
     struct StringUtils 
     {
-        static std::string getSignatureStr(const std::vector<std::string>& pArgs)
+        static std::string getParamTypesStr(const std::vector<std::string>& pArgs)
         {
             std::string signStr;
             for (size_t i = 0; i < pArgs.size(); ++i) {

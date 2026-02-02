@@ -10,7 +10,7 @@
 #include "ASTCodeManager.h"
 
 
-namespace clmirror 
+namespace cxx 
 {
     ASTCodeManager::ASTCodeManager()
     {

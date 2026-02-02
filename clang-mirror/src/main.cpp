@@ -12,20 +12,20 @@
 
 int main(int argc, const char** argv)
 {
-    const auto& tsBegin = clmirror::Clock::now();
+    const auto& tsBegin = cxx::Clock::now();
 
-    if (clmirror::ClangDriver::compileSourceFiles(argc, argv))
+    if (cxx::ClangDriver::compileSourceFiles(argc, argv))
     {
-        clmirror::ASTCodeManager::instance().dumpCxxMirror();
+        cxx::ASTCodeManager::instance().dumpCxxMirror();
     }
     else
     {
-        clmirror::Logger::outException("error running clang-mirror! check logs for more details.\n");
+        cxx::Logger::outException("error running clang-mirror! check logs for more details.\n");
     }
 
-    std::cout << clmirror::RESET << std::flush;
-    const auto& tsEnd = std::chrono::duration_cast<clmirror::Second> (clmirror::Clock::now() - tsBegin).count();
-    clmirror::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
+    std::cout << cxx::RESET << std::flush;
+    const auto& tsEnd = std::chrono::duration_cast<cxx::Second> (cxx::Clock::now() - tsBegin).count();
+    cxx::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
 
     //cxx::type::Animal::fn::setAnimalName::
 

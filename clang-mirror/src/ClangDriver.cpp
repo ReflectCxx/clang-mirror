@@ -42,7 +42,7 @@ namespace
 }
 
 
-namespace clmirror
+namespace cxx
 {
     bool ClangDriver::compileSourceFiles(int argc, const char** argv)
     {

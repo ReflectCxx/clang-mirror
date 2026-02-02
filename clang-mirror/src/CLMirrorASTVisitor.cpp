@@ -11,7 +11,7 @@
 
 using namespace clang;
 
-namespace clmirror
+namespace cxx
 {
     CLMirrorASTVisitor::CLMirrorASTVisitor(const std::string& pSrcFile)
         : m_srcFile(pSrcFile)
@@ -44,7 +44,7 @@ namespace clmirror
             return true;
         }
 
-        std::string declSrcFile;
+        std::string headerStr;
         auto& SM = pFnDecl->getASTContext().getSourceManager();
         for (auto* D : pFnDecl->redecls())
         {
@@ -56,12 +56,12 @@ namespace clmirror
             StringRef fileName = SM.getFilename(loc);
             if (fileName.ends_with(".h") || fileName.ends_with(".hpp"))
             {
-                declSrcFile = fileName.str();
+                headerStr = fileName.str();
                 break;
             }
         }
 
-        if (!declSrcFile.empty()) 
+        if (!headerStr.empty()) 
         {
             std::vector<std::string> parmTypes;
             const auto& params = pFnDecl->parameters();
@@ -99,9 +99,16 @@ namespace clmirror
             }
 
             auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
+
+            const std::string returnStr;
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
 
-            codeBuffer->addFunction(metaKind, declSrcFile, recordStr, functionName, StringUtils::getSignatureStr(parmTypes));
+            codeBuffer->addFunction({ 
+                    .metaKind = metaKind,
+                    .header = headerStr,
+                    .record = recordStr,
+                    .function = functionName
+            }, returnStr, StringUtils::getParamTypesStr(parmTypes));
         }
         return true;
     }

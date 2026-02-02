@@ -4,7 +4,7 @@
 #include "clang/Basic/Diagnostic.h"
 #include "clang-tidy/ClangTidy.h"
 
-namespace clmirror {
+namespace cxx {
 
 	class CLMirrorDiagnosticConsumer : public clang::tidy::ClangTidyDiagnosticConsumer
 	{

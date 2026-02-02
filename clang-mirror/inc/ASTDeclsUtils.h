@@ -7,7 +7,7 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 
-namespace clmirror {
+namespace cxx {
 
     struct ASTDeclsUtils
     {

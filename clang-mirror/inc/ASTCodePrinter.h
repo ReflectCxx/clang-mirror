@@ -4,12 +4,12 @@
 
 #include "Constants.h"
 
-namespace clmirror
+namespace cxx
 {
 	struct ASTCodePrinter
 	{
-		static void printRecordTypeIds(const RtlRecordsMap& pRecodsMap, std::fstream& pOut);
-		static void printFreeFunctionIds(const RtlFunctionsMap& pFunctionsMap, std::fstream& pOut);
-		static void printRegistrationDecls(const RtlRecordsMap& pRecodsMap, std::fstream& pOut);
+		static void printRecordTypeIds(const CxxRecordsMap& pRecodsMap, std::fstream& pOut);
+		static void printFreeFunctionIds(const CxxFunctionsMap& pFunctionsMap, std::fstream& pOut);
+		static void printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut);
 	};
 }

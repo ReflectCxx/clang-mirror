@@ -4,7 +4,7 @@
 #include <string>
 #include "clang/Tooling/Tooling.h"
 
-namespace clmirror
+namespace cxx
 {
     class ClangDriver
     {

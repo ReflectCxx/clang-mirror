@@ -7,7 +7,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace clmirror {
+namespace cxx {
 
 	inline constexpr std::string_view RESET = "\033[0m";
 	inline constexpr std::string_view DARK_RED = "\033[31m";
@@ -38,16 +38,10 @@ namespace clmirror {
 	inline constexpr std::string_view NS_REGISTRATION = "registration";
 	inline constexpr std::string_view DECL_INIT_REGIS = "static void init(std::vector<rtl::Function>&);";
 	inline constexpr std::string_view DEFN_INIT_REGIS = "static void init(std::vector<rtl::Function>& fns)";
-
-	using ErrorTuple = std::tuple<std::string, std::string, std::string>;
-
-	using Clock = std::chrono::high_resolution_clock;
-
-	using Second = std::chrono::duration<double, std::ratio<1> >;
 }
 
 
-namespace clmirror 
+namespace cxx 
 {
 	enum class MetaKind 
 	{
@@ -62,8 +56,12 @@ namespace clmirror
 	struct ASTMetaType;
 	struct ASTCodeMeta;
 
-	using RtlRecordsMap = std::unordered_map<std::string, ASTMetaType>;
-	using RtlFunctionsMap = std::unordered_map<std::string, ASTCodeMeta>;
+	using CxxRecordsMap = std::unordered_map<std::string, ASTMetaType>;
+	using CxxFunctionsMap = std::unordered_map<std::string, ASTCodeMeta>;
+
+	using Clock = std::chrono::high_resolution_clock;
+	using Second = std::chrono::duration<double, std::ratio<1> >;
+	using ErrorTuple = std::tuple<std::string, std::string, std::string>;
 }
 
 

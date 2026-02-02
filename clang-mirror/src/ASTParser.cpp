@@ -18,7 +18,7 @@ using namespace clang;
 using namespace clang::tidy;
 using namespace clang::tooling;
 
-namespace clmirror
+namespace cxx
 {
 	ASTParser::ASTParser(const std::vector<std::string>& pFiles,
 					     clang::tooling::CompilationDatabase& pCdb)

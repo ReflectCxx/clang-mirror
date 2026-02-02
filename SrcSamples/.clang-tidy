@@ -1,0 +1,13 @@
+Checks: >
+  clang-analyzer-*,
+  bugprone-*,
+  modernize-*,
+  performance-*,
+  -llvmlibc-*,
+  -llvm-*,
+  -fuchsia-*,
+  -google-*,
+  -cert-*
+
+HeaderFilterRegex: '^E:/RTL/RTCompiler/TestProjectSrc/'
+WarningsAsErrors: ''

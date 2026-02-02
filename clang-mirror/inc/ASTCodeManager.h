@@ -5,11 +5,11 @@
 #include <filesystem>
 #include <unordered_map>
 
-namespace clmirror {
+namespace cxx {
 	class ASTCodeBuffer;
 }
 
-namespace clmirror 
+namespace cxx 
 {
 	class ASTCodeManager
 	{

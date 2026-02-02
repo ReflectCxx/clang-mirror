@@ -2,9 +2,9 @@
 #include "ASTCodeMeta.h"
 #include "ASTCodePrinter.h"
 
-namespace clmirror
+namespace cxx
 {
-    void ASTCodePrinter::printRegistrationDecls(const RtlRecordsMap& pRecodsMap, std::fstream& pOut) 
+    void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut) 
     {
         for (const auto& itr : pRecodsMap) {
 
@@ -15,19 +15,19 @@ namespace clmirror
     }
 
 
-    void ASTCodePrinter::printFreeFunctionIds(const RtlFunctionsMap& pFunctionsMap, std::fstream& pOut)
+    void ASTCodePrinter::printFreeFunctionIds(const CxxFunctionsMap& pFunctionsMap, std::fstream& pOut)
     {
         for (auto it = pFunctionsMap.begin(); it != pFunctionsMap.end(); ++it)
         {
             const auto& metaFn = it->second;
-            if (metaFn.m_metaKind == MetaKind::NonMemberFn) {
+            if (metaFn.ast().metaKind == MetaKind::NonMemberFn) {
                 pOut << metaFn.toFunctionIdentifierSyntax() << "\n";
             }
         }
     }
 
 
-    void ASTCodePrinter::printRecordTypeIds(const RtlRecordsMap& pRecodsMap, std::fstream& pOut)
+    void ASTCodePrinter::printRecordTypeIds(const CxxRecordsMap& pRecodsMap, std::fstream& pOut)
     {
         for (const auto& itr : pRecodsMap) {
 
@@ -38,7 +38,7 @@ namespace clmirror
             for (auto it = methodMap.begin(); it != methodMap.end(); ++it)
             {
                 const auto& metaFn = it->second;
-                if (metaFn.m_metaKind != MetaKind::Ctor) {
+                if (metaFn.ast().metaKind != MetaKind::Ctor) {
                     pOut << it->second.toMethodIdentifierSyntax() << "\n";
                 }
             }

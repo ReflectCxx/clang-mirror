@@ -84,6 +84,127 @@ namespace revStrOverloadValRef {
 }}
 
 namespace type {
+namespace Person {
+    inline constexpr std::string_view id = "Person";
+}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace getProfile {
+    inline constexpr std::string_view id = "getProfile";
+    inline constexpr std::string_view sign0 = "void";
+    inline constexpr std::string_view sign1 = "std::string, unsigned long long";
+    inline constexpr std::string_view sign2 = "_Bool";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace getFirstName {
+    inline constexpr std::string_view id = "getFirstName";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace getInstanceCount {
+    inline constexpr std::string_view id = "getInstanceCount";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace createConst {
+    inline constexpr std::string_view id = "createConst";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace updateAddress {
+    inline constexpr std::string_view id = "updateAddress";
+    inline constexpr std::string_view sign0 = "void";
+    inline constexpr std::string_view sign1 = "void";
+    inline constexpr std::string_view sign2 = "std::string";
+    inline constexpr std::string_view sign3 = "std::string";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace createPtr {
+    inline constexpr std::string_view id = "createPtr";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace getDefaults {
+    inline constexpr std::string_view id = "getDefaults";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace deletePtr {
+    inline constexpr std::string_view id = "deletePtr";
+    inline constexpr std::string_view sign0 = "const Person *";
+}}}}
+
+namespace type {
+namespace Person {
+namespace fn {
+namespace updateLastName {
+    inline constexpr std::string_view id = "updateLastName";
+    inline constexpr std::string_view sign0 = "std::string";
+}}}}
+
+
+namespace type {
+namespace StrWrap {
+    inline constexpr std::string_view id = "StrWrap";
+}}
+
+namespace type {
+namespace StrWrap {
+namespace fn {
+namespace sstr {
+    inline constexpr std::string_view id = "sstr";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+
+namespace type {
+namespace StrWrapA {
+    inline constexpr std::string_view id = "StrWrapA";
+}}
+
+
+namespace type {
+namespace StrWrapB {
+    inline constexpr std::string_view id = "StrWrapB";
+}}
+
+
+namespace type {
+namespace StrWrapC {
+    inline constexpr std::string_view id = "StrWrapC";
+}}
+
+
+namespace type {
+namespace StrWrapD {
+    inline constexpr std::string_view id = "StrWrapD";
+}}
+
+
+namespace type {
 namespace StrMute {
     inline constexpr std::string_view id = "StrMute";
 }}
@@ -147,6 +268,216 @@ namespace revStrOverloadRefAndCRef {
 
 namespace type {
 namespace StrMute {
+namespace fn {
+namespace revStrOverloadValRef {
+    inline constexpr std::string_view id = "revStrOverloadValRef";
+    inline constexpr std::string_view sign0 = "std::string_view";
+    inline constexpr std::string_view sign1 = "std::string_view &";
+}}}}
+
+
+namespace type {
+namespace StrConstOverload {
+    inline constexpr std::string_view id = "StrConstOverload";
+}}
+
+namespace type {
+namespace StrConstOverload {
+namespace fn {
+namespace reverseString {
+    inline constexpr std::string_view id = "reverseString";
+    inline constexpr std::string_view sign0 = "void";
+    inline constexpr std::string_view sign1 = "void";
+}}}}
+
+
+namespace type {
+namespace Animal {
+    inline constexpr std::string_view id = "Animal";
+}}
+
+namespace type {
+namespace Animal {
+namespace fn {
+namespace getFamilyName {
+    inline constexpr std::string_view id = "getFamilyName";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Animal {
+namespace fn {
+namespace setAnimalName {
+    inline constexpr std::string_view id = "setAnimalName";
+    inline constexpr std::string_view sign0 = "std::string &";
+    inline constexpr std::string_view sign1 = "std::basic_string<char> &&";
+    inline constexpr std::string_view sign2 = "const std::string &";
+    inline constexpr std::string_view sign3 = "const std::string &";
+}}}}
+
+namespace type {
+namespace Animal {
+namespace fn {
+namespace setFamilyName {
+    inline constexpr std::string_view id = "setFamilyName";
+    inline constexpr std::string_view sign0 = "const std::string";
+}}}}
+
+namespace type {
+namespace Animal {
+namespace fn {
+namespace getInstanceCount {
+    inline constexpr std::string_view id = "getInstanceCount";
+    inline constexpr std::string_view sign0 = "void";
+}}}}
+
+namespace type {
+namespace Animal {
+namespace fn {
+namespace updateZooKeeper {
+    inline constexpr std::string_view id = "updateZooKeeper";
+    inline constexpr std::string_view sign0 = "std::string &";
+    inline constexpr std::string_view sign1 = "std::basic_string<char> &&";
+    inline constexpr std::string_view sign2 = "const std::string &";
+}}}}
+
+
+namespace type {
+namespace StrConst {
+    inline constexpr std::string_view id = "StrConst";
+}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace revStrOverloadValCRef {
+    inline constexpr std::string_view id = "revStrOverloadValCRef";
+    inline constexpr std::string_view sign0 = "std::string_view";
+    inline constexpr std::string_view sign1 = "const std::string_view &";
+}}}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace reverseString {
+    inline constexpr std::string_view id = "reverseString";
+    inline constexpr std::string_view sign0 = "void";
+    inline constexpr std::string_view sign1 = "const char *";
+    inline constexpr std::string_view sign2 = "std::string";
+    inline constexpr std::string_view sign3 = "std::string &";
+    inline constexpr std::string_view sign4 = "std::basic_string<char> &&";
+    inline constexpr std::string_view sign5 = "const std::string &";
+    inline constexpr std::string_view sign6 = "std::string *";
+    inline constexpr std::string_view sign7 = "const std::string *";
+}}}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace revStrConstRefArg {
+    inline constexpr std::string_view id = "revStrConstRefArg";
+    inline constexpr std::string_view sign0 = "const std::string_view &";
+}}}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace revStrRValueRefArg {
+    inline constexpr std::string_view id = "revStrRValueRefArg";
+    inline constexpr std::string_view sign0 = "std::basic_string_view<char> &&";
+}}}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace revStrNonConstRefArg {
+    inline constexpr std::string_view id = "revStrNonConstRefArg";
+    inline constexpr std::string_view sign0 = "std::string_view &";
+}}}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace revStrOverloadRefAndCRef {
+    inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
+    inline constexpr std::string_view sign0 = "std::string_view &";
+    inline constexpr std::string_view sign1 = "const std::string_view &";
+}}}}
+
+namespace type {
+namespace StrConst {
+namespace fn {
+namespace revStrOverloadValRef {
+    inline constexpr std::string_view id = "revStrOverloadValRef";
+    inline constexpr std::string_view sign0 = "std::string_view";
+    inline constexpr std::string_view sign1 = "std::string_view &";
+}}}}
+
+
+namespace type {
+namespace StrStatic {
+    inline constexpr std::string_view id = "StrStatic";
+}}
+
+namespace type {
+namespace StrStatic {
+namespace fn {
+namespace revStrOverloadValCRef {
+    inline constexpr std::string_view id = "revStrOverloadValCRef";
+    inline constexpr std::string_view sign0 = "std::string_view";
+    inline constexpr std::string_view sign1 = "const std::string_view &";
+}}}}
+
+namespace type {
+namespace StrStatic {
+namespace fn {
+namespace reverseString {
+    inline constexpr std::string_view id = "reverseString";
+    inline constexpr std::string_view sign0 = "void";
+    inline constexpr std::string_view sign1 = "const char *";
+    inline constexpr std::string_view sign2 = "std::string";
+    inline constexpr std::string_view sign3 = "std::string &";
+    inline constexpr std::string_view sign4 = "std::basic_string<char> &&";
+    inline constexpr std::string_view sign5 = "const std::string &";
+    inline constexpr std::string_view sign6 = "std::string *";
+    inline constexpr std::string_view sign7 = "const std::string *";
+}}}}
+
+namespace type {
+namespace StrStatic {
+namespace fn {
+namespace revStrConstRefArg {
+    inline constexpr std::string_view id = "revStrConstRefArg";
+    inline constexpr std::string_view sign0 = "const std::string_view &";
+}}}}
+
+namespace type {
+namespace StrStatic {
+namespace fn {
+namespace revStrRValueRefArg {
+    inline constexpr std::string_view id = "revStrRValueRefArg";
+    inline constexpr std::string_view sign0 = "std::basic_string_view<char> &&";
+}}}}
+
+namespace type {
+namespace StrStatic {
+namespace fn {
+namespace revStrNonConstRefArg {
+    inline constexpr std::string_view id = "revStrNonConstRefArg";
+    inline constexpr std::string_view sign0 = "std::string_view &";
+}}}}
+
+namespace type {
+namespace StrStatic {
+namespace fn {
+namespace revStrOverloadRefAndCRef {
+    inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
+    inline constexpr std::string_view sign0 = "std::string_view &";
+    inline constexpr std::string_view sign1 = "const std::string_view &";
+}}}}
+
+namespace type {
+namespace StrStatic {
 namespace fn {
 namespace revStrOverloadValRef {
     inline constexpr std::string_view id = "revStrOverloadValRef";
@@ -303,78 +634,6 @@ namespace reset {
 
 
 namespace type {
-namespace StrStatic {
-    inline constexpr std::string_view id = "StrStatic";
-}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace revStrOverloadValCRef {
-    inline constexpr std::string_view id = "revStrOverloadValCRef";
-    inline constexpr std::string_view sign0 = "std::string_view";
-    inline constexpr std::string_view sign1 = "const std::string_view &";
-}}}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace reverseString {
-    inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view sign0 = "void";
-    inline constexpr std::string_view sign1 = "const char *";
-    inline constexpr std::string_view sign2 = "std::string";
-    inline constexpr std::string_view sign3 = "std::string &";
-    inline constexpr std::string_view sign4 = "std::basic_string<char> &&";
-    inline constexpr std::string_view sign5 = "const std::string &";
-    inline constexpr std::string_view sign6 = "std::string *";
-    inline constexpr std::string_view sign7 = "const std::string *";
-}}}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace revStrConstRefArg {
-    inline constexpr std::string_view id = "revStrConstRefArg";
-    inline constexpr std::string_view sign0 = "const std::string_view &";
-}}}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace revStrRValueRefArg {
-    inline constexpr std::string_view id = "revStrRValueRefArg";
-    inline constexpr std::string_view sign0 = "std::basic_string_view<char> &&";
-}}}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace revStrNonConstRefArg {
-    inline constexpr std::string_view id = "revStrNonConstRefArg";
-    inline constexpr std::string_view sign0 = "std::string_view &";
-}}}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace revStrOverloadRefAndCRef {
-    inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
-    inline constexpr std::string_view sign0 = "std::string_view &";
-    inline constexpr std::string_view sign1 = "const std::string_view &";
-}}}}
-
-namespace type {
-namespace StrStatic {
-namespace fn {
-namespace revStrOverloadValRef {
-    inline constexpr std::string_view id = "revStrOverloadValRef";
-    inline constexpr std::string_view sign0 = "std::string_view";
-    inline constexpr std::string_view sign1 = "std::string_view &";
-}}}}
-
-
-namespace type {
 namespace Book {
     inline constexpr std::string_view id = "Book";
 }}
@@ -443,265 +702,6 @@ namespace fn {
 namespace addPreface {
     inline constexpr std::string_view id = "addPreface";
     inline constexpr std::string_view sign0 = "const std::string, const std::string &";
-}}}}
-
-
-namespace type {
-namespace Person {
-    inline constexpr std::string_view id = "Person";
-}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace getProfile {
-    inline constexpr std::string_view id = "getProfile";
-    inline constexpr std::string_view sign0 = "void";
-    inline constexpr std::string_view sign1 = "std::string, unsigned long long";
-    inline constexpr std::string_view sign2 = "_Bool";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace getFirstName {
-    inline constexpr std::string_view id = "getFirstName";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace getInstanceCount {
-    inline constexpr std::string_view id = "getInstanceCount";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace createConst {
-    inline constexpr std::string_view id = "createConst";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace updateAddress {
-    inline constexpr std::string_view id = "updateAddress";
-    inline constexpr std::string_view sign0 = "void";
-    inline constexpr std::string_view sign1 = "void";
-    inline constexpr std::string_view sign2 = "std::string";
-    inline constexpr std::string_view sign3 = "std::string";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace createPtr {
-    inline constexpr std::string_view id = "createPtr";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace getDefaults {
-    inline constexpr std::string_view id = "getDefaults";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace deletePtr {
-    inline constexpr std::string_view id = "deletePtr";
-    inline constexpr std::string_view sign0 = "const Person *";
-}}}}
-
-namespace type {
-namespace Person {
-namespace fn {
-namespace updateLastName {
-    inline constexpr std::string_view id = "updateLastName";
-    inline constexpr std::string_view sign0 = "std::string";
-}}}}
-
-
-namespace type {
-namespace Animal {
-    inline constexpr std::string_view id = "Animal";
-}}
-
-namespace type {
-namespace Animal {
-namespace fn {
-namespace getFamilyName {
-    inline constexpr std::string_view id = "getFamilyName";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Animal {
-namespace fn {
-namespace setAnimalName {
-    inline constexpr std::string_view id = "setAnimalName";
-    inline constexpr std::string_view sign0 = "std::string &";
-    inline constexpr std::string_view sign1 = "std::basic_string<char> &&";
-    inline constexpr std::string_view sign2 = "const std::string &";
-    inline constexpr std::string_view sign3 = "const std::string &";
-}}}}
-
-namespace type {
-namespace Animal {
-namespace fn {
-namespace setFamilyName {
-    inline constexpr std::string_view id = "setFamilyName";
-    inline constexpr std::string_view sign0 = "const std::string";
-}}}}
-
-namespace type {
-namespace Animal {
-namespace fn {
-namespace getInstanceCount {
-    inline constexpr std::string_view id = "getInstanceCount";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-namespace type {
-namespace Animal {
-namespace fn {
-namespace updateZooKeeper {
-    inline constexpr std::string_view id = "updateZooKeeper";
-    inline constexpr std::string_view sign0 = "std::string &";
-    inline constexpr std::string_view sign1 = "std::basic_string<char> &&";
-    inline constexpr std::string_view sign2 = "const std::string &";
-}}}}
-
-
-namespace type {
-namespace StrWrap {
-    inline constexpr std::string_view id = "StrWrap";
-}}
-
-namespace type {
-namespace StrWrap {
-namespace fn {
-namespace sstr {
-    inline constexpr std::string_view id = "sstr";
-    inline constexpr std::string_view sign0 = "void";
-}}}}
-
-
-namespace type {
-namespace StrWrapA {
-    inline constexpr std::string_view id = "StrWrapA";
-}}
-
-
-namespace type {
-namespace StrWrapB {
-    inline constexpr std::string_view id = "StrWrapB";
-}}
-
-
-namespace type {
-namespace StrWrapC {
-    inline constexpr std::string_view id = "StrWrapC";
-}}
-
-
-namespace type {
-namespace StrWrapD {
-    inline constexpr std::string_view id = "StrWrapD";
-}}
-
-
-namespace type {
-namespace StrConstOverload {
-    inline constexpr std::string_view id = "StrConstOverload";
-}}
-
-namespace type {
-namespace StrConstOverload {
-namespace fn {
-namespace reverseString {
-    inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view sign0 = "void";
-    inline constexpr std::string_view sign1 = "void";
-}}}}
-
-
-namespace type {
-namespace StrConst {
-    inline constexpr std::string_view id = "StrConst";
-}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace revStrOverloadValCRef {
-    inline constexpr std::string_view id = "revStrOverloadValCRef";
-    inline constexpr std::string_view sign0 = "std::string_view";
-    inline constexpr std::string_view sign1 = "const std::string_view &";
-}}}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace reverseString {
-    inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view sign0 = "void";
-    inline constexpr std::string_view sign1 = "const char *";
-    inline constexpr std::string_view sign2 = "std::string";
-    inline constexpr std::string_view sign3 = "std::string &";
-    inline constexpr std::string_view sign4 = "std::basic_string<char> &&";
-    inline constexpr std::string_view sign5 = "const std::string &";
-    inline constexpr std::string_view sign6 = "std::string *";
-    inline constexpr std::string_view sign7 = "const std::string *";
-}}}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace revStrConstRefArg {
-    inline constexpr std::string_view id = "revStrConstRefArg";
-    inline constexpr std::string_view sign0 = "const std::string_view &";
-}}}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace revStrRValueRefArg {
-    inline constexpr std::string_view id = "revStrRValueRefArg";
-    inline constexpr std::string_view sign0 = "std::basic_string_view<char> &&";
-}}}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace revStrNonConstRefArg {
-    inline constexpr std::string_view id = "revStrNonConstRefArg";
-    inline constexpr std::string_view sign0 = "std::string_view &";
-}}}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace revStrOverloadRefAndCRef {
-    inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
-    inline constexpr std::string_view sign0 = "std::string_view &";
-    inline constexpr std::string_view sign1 = "const std::string_view &";
-}}}}
-
-namespace type {
-namespace StrConst {
-namespace fn {
-namespace revStrOverloadValRef {
-    inline constexpr std::string_view id = "revStrOverloadValRef";
-    inline constexpr std::string_view sign0 = "std::string_view";
-    inline constexpr std::string_view sign1 = "std::string_view &";
 }}}}
 
 
