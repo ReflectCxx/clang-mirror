@@ -4,7 +4,7 @@
 
 namespace clmirror
 {
-    ASTCodeGenerator::ASTCodeGenerator(const std::string& pSrcFile)
+    ASTCodeBuffer::ASTCodeBuffer(const std::string& pSrcFile)
         : m_errorsFound(false)
         , m_srcFile(pSrcFile)
         , m_recordsMap(RtlRecordsMap())
@@ -13,7 +13,7 @@ namespace clmirror
     { }
 
 
-    ASTCodeMeta& ASTCodeGenerator::addFunctionCodeMeta(RtlFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
+    ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(RtlFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
     {
         auto itr = pFnMetaMap.find(pFnMeta.m_function);
         if (itr == pFnMetaMap.end()) {
@@ -25,7 +25,7 @@ namespace clmirror
     }
 
 
-    ASTMetaType& ASTCodeGenerator::getRecordCodeMeta(RtlRecordsMap& pFnMetaMap, const std::string& pTypeStr)
+    ASTMetaType& ASTCodeBuffer::getRecordCodeMeta(RtlRecordsMap& pFnMetaMap, const std::string& pTypeStr)
     {
         const auto& itr = pFnMetaMap.find(pTypeStr);
         if (itr == pFnMetaMap.end())
@@ -41,7 +41,7 @@ namespace clmirror
     }
 
 
-    void ASTCodeGenerator::addFunction(MetaKind pMetaKind, const std::string& pHeaderFile, const std::string& pRecord,
+    void ASTCodeBuffer::addFunction(MetaKind pMetaKind, const std::string& pHeaderFile, const std::string& pRecord,
                                        const std::string& pFnName, const std::string& pParamTypes)
     {
         if (pMetaKind == MetaKind::NonMemberFn)
@@ -53,7 +53,7 @@ namespace clmirror
                     .m_function = pFnName,
                     .m_argTypes = std::vector<std::string>()
             });
-            codeMeta.m_argTypes.push_back(pParamTypes);
+            codeMeta.m_argTypes.push_back(pParamTypes.empty() ? "void" : pParamTypes);
         }
         else if (pMetaKind != MetaKind::None)
         {
@@ -65,7 +65,7 @@ namespace clmirror
                     .m_function = pFnName,
                     .m_argTypes = std::vector<std::string>()
             });
-            codeMeta.m_argTypes.push_back(pParamTypes);
+            codeMeta.m_argTypes.push_back(pParamTypes.empty() ? "void" : pParamTypes);
         }
         m_incFiles.insert(pHeaderFile);
     }

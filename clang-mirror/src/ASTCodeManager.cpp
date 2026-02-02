@@ -12,7 +12,7 @@
 
 namespace clmirror 
 {
-    ASTCodeManager::ASTCodeManager() 
+    ASTCodeManager::ASTCodeManager()
     {
     }
 
@@ -36,9 +36,9 @@ namespace clmirror
 
     void ASTCodeManager::compilationFailedFor(const std::string& pSrcFile)
     {
-        auto codegen = getCodeGenerator(pSrcFile);
-        if (codegen) {
-            codegen->m_errorsFound = true;
+        auto codeBuffer = getCodeBuffer(pSrcFile);
+        if (codeBuffer) {
+            codeBuffer->m_errorsFound = true;
         }
     }
 
@@ -95,27 +95,27 @@ namespace clmirror
     }
 
 
-    ASTCodeGenerator* ASTCodeManager::getCodeGenerator(const std::string& pSrcFile, bool pCreate /*= false*/)
+    ASTCodeBuffer* ASTCodeManager::getCodeBuffer(const std::string& pSrcFile, bool pCreate /*= false*/)
     {
         static std::mutex mutex;
         std::lock_guard<std::mutex> lock(mutex);
 
         if (pCreate) {
-            auto codegen = [&]()-> ASTCodeGenerator*
+            auto codeBuffer = [&]()-> ASTCodeBuffer*
             {
                 const auto& itr = m_codeGens.find(pSrcFile);
                 if (itr == m_codeGens.end()) 
                 {
-                    auto codegen = new ASTCodeGenerator(pSrcFile);
-                    m_codeGens.insert(std::make_pair(pSrcFile, codegen));
-                    return codegen;
+                    auto codeBuffer = new ASTCodeBuffer(pSrcFile);
+                    m_codeGens.insert(std::make_pair(pSrcFile, codeBuffer));
+                    return codeBuffer;
                 }
                 else {
-                    auto& codegen = itr->second;
-                    return codegen;
+                    auto& codeBuffer = itr->second;
+                    return codeBuffer;
                 }
             }();
-            return codegen;
+            return codeBuffer;
         }
         else {
             const auto& itr = m_codeGens.find(pSrcFile);
@@ -126,8 +126,8 @@ namespace clmirror
 
     void ASTCodeManager::dumpRegistrations(const std::string& pSrcFile, std::size_t pIndex)
     {
-        auto codegen = getCodeGenerator(pSrcFile);
-        if (codegen && !codegen->isCompilationFailed()) 
+        auto codeBuffer = getCodeBuffer(pSrcFile);
+        if (codeBuffer && !codeBuffer->isCompilationFailed()) 
         {
             auto fspath = getOutDir() / (std::string(FILE_REG_PREFIX) + std::to_string(pIndex) + ".cpp");
             std::fstream fout(fspath, std::ios::out);

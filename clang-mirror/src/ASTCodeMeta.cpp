@@ -28,7 +28,14 @@ namespace clmirror
         syntaxStr.append("\nnamespace " + fnName + " {")
                  .append("\n    inline constexpr std::string_view id = \"")
                  .append(m_function)
-                 .append("\";\n}");
+                 .append("\";");
+
+        for (std::size_t i = 0; i < m_argTypes.size(); i++) {
+            syntaxStr.append("\n    inline constexpr std::string_view sign" + std::to_string(i) + " = \"")
+                     .append(m_argTypes[i])
+                     .append("\";");
+        }
+        syntaxStr.append("\n}");
 
         for (auto& _ : typenames) {
             syntaxStr.append("}");
@@ -51,11 +58,14 @@ namespace clmirror
                  .append("\nnamespace " + m_function + " {")
                  .append("\n    inline constexpr std::string_view id = \"")
                  .append(m_function)
-                 .append("\";")
-                 .append("\n    inline constexpr std::string_view sign = \"")
-                 .append(toSignatureSyntax())
-                 .append("\";")
-                 .append("\n}}");
+                 .append("\";");
+
+        for (std::size_t i = 0; i < m_argTypes.size(); i++) {
+            syntaxStr.append("\n    inline constexpr std::string_view sign" + std::to_string(i) + " = \"")
+                     .append(m_argTypes[i])
+                     .append("\";");
+        }
+        syntaxStr.append("\n}}");
 
         for (auto& _ : typenames) {
             syntaxStr.append("}");

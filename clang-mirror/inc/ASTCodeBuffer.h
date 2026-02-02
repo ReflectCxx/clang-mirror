@@ -15,7 +15,7 @@ namespace clmirror
 
 namespace clmirror
 {
-	class ASTCodeGenerator
+	class ASTCodeBuffer
 	{
 		bool m_errorsFound;
 		const std::string m_srcFile;
@@ -23,7 +23,7 @@ namespace clmirror
 		RtlFunctionsMap m_freeFnsMap;
 		std::unordered_set<std::string> m_incFiles;
 
-		ASTCodeGenerator(const std::string& pSrcFile);
+		ASTCodeBuffer(const std::string& pSrcFile);
 
 		static ASTMetaType& getRecordCodeMeta(RtlRecordsMap& pFnMetaMap, const std::string& pTypeStr);
 
@@ -31,10 +31,10 @@ namespace clmirror
 
 	public:
 
-		ASTCodeGenerator(ASTCodeGenerator&&) = default;
-		ASTCodeGenerator(const ASTCodeGenerator&) = default;
-		ASTCodeGenerator& operator=(ASTCodeGenerator&&) = delete;
-		ASTCodeGenerator& operator=(const ASTCodeGenerator&) = delete;
+		ASTCodeBuffer(ASTCodeBuffer&&) = default;
+		ASTCodeBuffer(const ASTCodeBuffer&) = default;
+		ASTCodeBuffer& operator=(ASTCodeBuffer&&) = delete;
+		ASTCodeBuffer& operator=(const ASTCodeBuffer&) = delete;
 
 		GETTER_BOOL(CompilationFailed, m_errorsFound)
 		GETTER_CREF(std::string, SrcFile, m_srcFile)

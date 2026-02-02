@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 namespace clmirror {
-	class ASTCodeGenerator;
+	class ASTCodeBuffer;
 }
 
 namespace clmirror 
@@ -14,7 +14,7 @@ namespace clmirror
 	class ASTCodeManager
 	{
 		std::string m_outPath;
-		std::unordered_map<std::string, ASTCodeGenerator*> m_codeGens;
+		std::unordered_map<std::string, ASTCodeBuffer*> m_codeGens;
 
 		std::filesystem::path getOutDir();
 
@@ -31,7 +31,7 @@ namespace clmirror
 		ASTCodeManager& operator=(ASTCodeManager&&) = delete;
 		ASTCodeManager& operator=(const ASTCodeManager&) = delete;
 		
-		ASTCodeGenerator* getCodeGenerator(const std::string& pSrcFile, bool pCreate = false);
+		ASTCodeBuffer* getCodeBuffer(const std::string& pSrcFile, bool pCreate = false);
 
 		static ASTCodeManager& instance();
 

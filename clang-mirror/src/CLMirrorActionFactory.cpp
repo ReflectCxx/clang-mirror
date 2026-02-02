@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 #include "ASTParser.h"
-#include "ASTVisitor.h"
+#include "CLMirrorASTVisitor.h"
 #include "CLMirrorActionFactory.h"
 
 #include "clang/AST/ASTConsumer.h"
@@ -25,7 +25,7 @@ namespace {
 
 		virtual void HandleTranslationUnit(clang::ASTContext& Context)
 		{
-			clmirror::ASTVisitor visitor(m_currentSrcFile);
+			clmirror::CLMirrorASTVisitor visitor(m_currentSrcFile);
 			visitor.TraverseDecl(Context.getTranslationUnitDecl());
 		}
 	};

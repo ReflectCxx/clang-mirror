@@ -8,7 +8,7 @@ namespace clang::tooling {
 }
 
 namespace clmirror {
-	class ASTCodeGenerator;
+	class ASTCodeBuffer;
 }
 
 namespace clmirror

@@ -7,18 +7,18 @@
 #include "ASTCodeManager.h"
 #include "ASTCodeBuffer.h"
 #include "ASTDeclsUtils.h"
-#include "ASTVisitor.h"
+#include "CLMirrorASTVisitor.h"
 
 using namespace clang;
 
 namespace clmirror
 {
-    ASTVisitor::ASTVisitor(const std::string& pSrcFile)
+    CLMirrorASTVisitor::CLMirrorASTVisitor(const std::string& pSrcFile)
         : m_srcFile(pSrcFile)
 	{ }
 
 
-    bool ASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
+    bool CLMirrorASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
     {
         if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
             pFnDecl->isDeleted() ||
@@ -98,10 +98,10 @@ namespace clmirror
                 functionName = pFnDecl->getQualifiedNameAsString();
             }
 
-            auto codegen = ASTCodeManager::instance().getCodeGenerator(m_srcFile, true);
+            auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
 
-            codegen->addFunction(metaKind, declSrcFile, recordStr, functionName, StringUtils::getSignatureStr(parmTypes));
+            codeBuffer->addFunction(metaKind, declSrcFile, recordStr, functionName, StringUtils::getSignatureStr(parmTypes));
         }
         return true;
     }

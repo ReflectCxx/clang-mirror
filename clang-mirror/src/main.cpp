@@ -27,7 +27,7 @@ int main(int argc, const char** argv)
     const auto& tsEnd = std::chrono::duration_cast<clmirror::Second> (clmirror::Clock::now() - tsBegin).count();
     clmirror::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
 
-    //cxx::type::Animal::fn::updateZooKeeper::sign
+    //cxx::type::Animal::fn::setAnimalName::
 
     return 0;
 }
