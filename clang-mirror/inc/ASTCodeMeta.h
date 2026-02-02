@@ -22,7 +22,6 @@ namespace clmr
     {
         const ASTObj ast;
         std::vector<std::string> signatures;
-        std::string toRegistrationDeclSyntax() const;
     };
 
     struct ASTRecordMeta

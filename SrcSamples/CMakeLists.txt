@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Set the project name
-project(CxxTestProps)
+project(SrcSamples)
 
 set(CMAKE_CXX_STANDARD 20)
 

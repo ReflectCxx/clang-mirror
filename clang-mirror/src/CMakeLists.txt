@@ -7,7 +7,6 @@ set(CLREFLECT_SRCS
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorActionFactory.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorDiagnosticConsumer.cpp"
 	
-	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeMeta.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTDeclsUtils.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeBuffer.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodePrinter.cpp"

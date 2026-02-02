@@ -11,7 +11,7 @@ namespace clmr
 
             const auto& methodMap = itr.second.methods;
             const auto& fnMeta = methodMap.begin()->second;
-            pOut << fnMeta.toRegistrationDeclSyntax() << "\n";
+            pOut << printInitDeclarations(fnMeta) << "\n";
         }
     }
 
@@ -121,6 +121,23 @@ namespace clmr
         for (auto& _ : typenames) {
             codeStr.append("}");
         }
+        return codeStr;
+    }
+
+
+    std::string ASTCodePrinter::printInitDeclarations(const ASTCodeMeta& pMeta)
+    {
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.record);
+
+        std::string codeStr = "\nnamespace " + std::string(NS_REGISTRATION) + " {";
+        for (const auto& typeStr : typenames) {
+            codeStr.append("\nnamespace " + typeStr + " {");
+        }
+        codeStr.append("\n    " + std::string(DECL_INIT_REGIS) + "\n");
+        for (auto& _ : typenames) {
+            codeStr.append("}");
+        }
+        codeStr.append("}");
         return codeStr;
     }
 
