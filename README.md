@@ -59,7 +59,7 @@ auto classPerson = cxx::mirror().getRecord(classId);  // Type-safe lookup.
 
 ## Why clang-mirror?
 
-Without `clang-mirror` (Manual Registration required):
+Without `clang-mirror`, Manual Registration required:
 ```cpp
 rtl::type().record<Person>("Person").build();
 rtl::type().member<Person>().method("getName").build(&Person::getName);
@@ -67,7 +67,7 @@ rtl::type().member<Person>().method("updateAddress").build(&Person::updateAddres
 // ...
 ```
 
-With `clang-mirror` (Automated):
+With `clang-mirror`, Automated:
 ```bash
 clang-mirror --input src/ --out-dir=build/
 ```
