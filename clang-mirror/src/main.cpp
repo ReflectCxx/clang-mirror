@@ -8,7 +8,7 @@
 #include "ClangDriver.h"
 #include "ASTCodeManager.h"
 
-//#include "E:/RTL/clang-mirror/TestProjectSrc/rtl/cxxmirror/rtl_registered_ids.h"
+#include "E:/RTL/clang-mirror/SrcSamples/rtl/cxxmirror/rtl_registered_ids.h"
 
 int main(int argc, const char** argv)
 {
@@ -27,7 +27,7 @@ int main(int argc, const char** argv)
     const auto& tsEnd = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - tsBegin).count();
     clmr::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
 
-    //cxx::type::Animal::fn::setAnimalName::
+    cxx::type::Animal::fn::setAnimalName::sign1;
 
     return 0;
 }

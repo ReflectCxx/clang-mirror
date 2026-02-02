@@ -66,12 +66,12 @@ namespace clmr
 
         for (const auto& itr : m_codeGens) {
             if (!itr.second->isCompilationFailed()) {
-                ASTCodePrinter::printFreeFunctionIds(itr.second->getFreeFunctionsMap(), pOut);
+                ASTCodePrinter::printFreeFunctions(itr.second->getFreeFunctionsMap(), pOut);
             }
         }
         for (const auto& itr : m_codeGens) {
             if (!itr.second->isCompilationFailed()) {
-                ASTCodePrinter::printRecordTypeIds(itr.second->getRecordsMap(), pOut);
+                ASTCodePrinter::printTypeRecords(itr.second->getRecordsMap(), pOut);
             }
         }
         pOut << "\n}";

@@ -10,8 +10,8 @@
 #include "Logger.h"
 #include "Constants.h"
 #include "ASTCodeManager.h"
-#include "ClMirrorActionFactory.h"
-#include "ClMirrorDiagnosticConsumer.h"
+#include "CLMirrorActionFactory.h"
+#include "CLMirrorDiagnosticConsumer.h"
 
 
 using namespace llvm;
