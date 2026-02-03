@@ -16,11 +16,12 @@ namespace clmr
 		std::string m_outPath;
 		std::unordered_map<std::string, ASTCodeBuffer*> m_codeGens;
 
+		template<EmitKind>
 		std::filesystem::path getOutDir();
 
-		void dumpMetadataIds(std::fstream& pOut);
-		void dumpRegistrationDecls(std::fstream& pOut);
-		void dumpCxxMirrorHeader(std::fstream& pOut);
+		void emitMetadataIds(std::fstream& pOut);
+		void emitRegistrationDecls(std::fstream& pOut);
+		void emitCxxMirrorHeader(std::fstream& pOut);
 
 		ASTCodeManager();
 		~ASTCodeManager();
@@ -36,7 +37,7 @@ namespace clmr
 
 		static ASTCodeManager& instance();
 
-		void createCxxMirror();
+		void emitCxxMirror();
 
 		void setOutDir(const std::string& pOutDir);
 

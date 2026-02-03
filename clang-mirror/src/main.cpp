@@ -7,7 +7,7 @@
 #include "Logger.h"
 #include "ClangDriver.h"
 #include "ASTCodeManager.h"
-#include "E:/RTL/clang-mirror/SrcSamples\rtl\cxx\cxx_registered_ids.h"
+//#include "E:/RTL/clang-mirror/SrcSamples\rtl\cxx\cxx_registered_ids.h"
 
 int main(int argc, const char** argv)
 {
@@ -15,7 +15,7 @@ int main(int argc, const char** argv)
 
     if (clmr::ClangDriver::compileSourceFiles(argc, argv))
     {
-        clmr::ASTCodeManager::instance().createCxxMirror();
+        clmr::ASTCodeManager::instance().emitCxxMirror();
     }
     else
     {
@@ -25,7 +25,7 @@ int main(int argc, const char** argv)
     const auto& tsEnd = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - tsBegin).count();
     clmr::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
 
-    auto overloads = cxx::type::Person::fn::getProfile::signatures;
+    //auto overloads = cxx::type::Person::fn::getProfile::signatures;
 
     return 0;
 }

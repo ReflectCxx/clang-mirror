@@ -43,12 +43,20 @@ namespace clmr
         }
     }
 
+    template<EmitKind EK>
     std::filesystem::path ASTCodeManager::getOutDir()
     {
-        static auto dumpDir = [&]() {
+        static auto dumpDir = [&]() 
+        {
+            std::filesystem::path dumpDir;
+            if constexpr (EK == EmitKind::CxxMirrorH || EK == EmitKind::CxxMirrorCpp) {
+                dumpDir = std::filesystem::path(m_outPath) / NS_RTL;
+            }
+            else {
+                dumpDir = std::filesystem::path(m_outPath) / NS_RTL / NS_CXX;
+            }
 
             std::error_code errc;
-            std::filesystem::path dumpDir = std::filesystem::path(m_outPath) / NS_RTL / NS_CXX;
             std::filesystem::create_directories(dumpDir, errc);
             if (errc) {
                 Logger::outException("Failed to create output directory: " + errc.message());
@@ -59,7 +67,7 @@ namespace clmr
         return dumpDir;
     }
 
-    void ASTCodeManager::dumpMetadataIds(std::fstream& pOut)
+    void ASTCodeManager::emitMetadataIds(std::fstream& pOut)
     {
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"
@@ -78,7 +86,7 @@ namespace clmr
         pOut << "\n}";
     }
 
-    void ASTCodeManager::dumpRegistrationDecls(std::fstream& pOut)
+    void ASTCodeManager::emitRegistrationDecls(std::fstream& pOut)
     {
         pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
 
@@ -95,10 +103,10 @@ namespace clmr
         }
     }
 
-    void ASTCodeManager::dumpCxxMirrorHeader(std::fstream& pOut)
+    void ASTCodeManager::emitCxxMirrorHeader(std::fstream& pOut)
     {
-        const auto& incrtl = "rtl/rtl_access.h";
-        const auto& inccxx = std::string(NS_CXX).append("/").append(FILE_REG_IDS);
+        std::string incrtl = "rtl/rtl_access.h";
+        std::string inccxx = std::string(NS_CXX).append("/").append(FILE_REG_IDS_H);
 
         pOut << "\n#pragma once\n"
                 "\n#include \"" << incrtl << "\""
@@ -142,10 +150,9 @@ namespace clmr
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) 
         {
-            const auto& fname = std::string(NS_CXX).append("_").append(FILE_REG_PREFIX)
-                                                   .append(std::to_string(pIndex))
-                                                   .append(".cpp");
-            auto fspath = getOutDir() / fname;
+            std::string fname = std::string(FILE_REG_PREFIX).append(std::to_string(pIndex))
+                                                            .append(".cpp");
+            auto fspath = getOutDir<EmitKind::RegistrationInitCpp>() / fname;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
@@ -153,8 +160,8 @@ namespace clmr
             }
 
             fout << "\n"
-                    "\n#include \"" << std::string(FILE_REG_IDS) << "\""
-                    "\n#include \"" << std::string(FILE_REG_DECLS) << "\"";
+                    "\n#include \"" << std::string(FILE_REG_IDS_H) << "\""
+                    "\n#include \"" << std::string(FILE_REG_INIT_H) << "\"";
 
             fout.flush();
             fout.close();
@@ -168,19 +175,20 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::createCxxMirror()
+    void ASTCodeManager::emitCxxMirror()
     {
-        using fnT = std::function<void(ASTCodeManager&, std::fstream&)>;
-        auto dumper = [this](std::string_view pFile, fnT pWriterFn)
+        using EmiterT = std::function<void(ASTCodeManager&, std::fstream&)>;
+
+        auto fwrite = [this]<EmitKind EK>(EmiterT emit, std::string_view file)
         {
-            auto fspath = getOutDir() / std::string(pFile);
+            auto fspath = getOutDir<EK>() / file;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
                 return;
             }
 
-            pWriterFn(*this, fout);
+            emit(*this, fout);
             fout.flush();
             fout.close();
 
@@ -191,9 +199,9 @@ namespace clmr
             Logger::outgen(fspath.string());
         };
 
-        dumper(FILE_REG_IDS, &ASTCodeManager::dumpMetadataIds);
-        dumper(FILE_REG_DECLS, &ASTCodeManager::dumpRegistrationDecls);
-        dumper(FILE_CXX_MIRROR_H, &ASTCodeManager::dumpCxxMirrorHeader);
+        fwrite.template operator() <EmitKind::RegistrationIdH> (&ASTCodeManager::emitMetadataIds, FILE_REG_IDS_H);
+        fwrite.template operator() <EmitKind::RegistrationInitH> (&ASTCodeManager::emitRegistrationDecls, FILE_REG_INIT_H);
+        fwrite.template operator() <EmitKind::CxxMirrorH> (&ASTCodeManager::emitCxxMirrorHeader, FILE_CXX_MIRROR_H);
 
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
