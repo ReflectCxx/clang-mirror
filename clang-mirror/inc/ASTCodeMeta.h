@@ -18,10 +18,16 @@ namespace clmr
         std::string function;
     };
 
+    struct ASTFnSign
+    {
+        std::string returnType;
+        std::string paramsType;
+    };
+
     struct ASTCodeMeta
     {
         const ASTObj ast;
-        std::vector<std::string> signatures;
+        std::vector<ASTFnSign> signatures;
     };
 
     struct ASTRecordMeta

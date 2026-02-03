@@ -26,22 +26,6 @@ namespace clmr
         }
         return true;
     }
-	
-	
-    bool ASTDeclsUtils::isMemberFunctionOrInNamespace(clang::FunctionDecl* pFnDecl)
-    {
-        if (llvm::isa<clang::CXXRecordDecl>(pFnDecl->getParent())) {
-            return true;
-        }
-        auto currentDecl = pFnDecl->getParent();
-        while (currentDecl) {
-            if (const clang::NamespaceDecl* namespaceDecl = llvm::dyn_cast<clang::NamespaceDecl>(currentDecl)) {
-                return true;
-            }
-            currentDecl = currentDecl->getParent();
-        }
-        return false;
-    }
 
 
 	bool ASTDeclsUtils::isDeclFrmCurrentSource(const std::string& pCurSrcFile, clang::Decl* pDecl)
@@ -119,31 +103,43 @@ namespace clmr
     }
 
 
-    const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType, std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
+
+    const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType,
+                                                                           std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
     {
         const Type* type = pQType.getTypePtrOrNull();
         if (!type) {
             return std::nullopt;
         }
 
-        switch (pQType->getTypeClass())
+        switch (type->getTypeClass())
         {
         case Type::TypeClass::Typedef: {
-            return pQType.getAsString();
+
+            const auto* tdType = dyn_cast<TypedefType>(type);
+            if (!tdType) {
+                return std::nullopt;
+            }
+            const TypedefNameDecl* decl = tdType->getDecl();
+            return decl->getQualifiedNameAsString();
         }
         case Type::TypeClass::Elaborated: {
+
             const ElaboratedType* nxtType = dyn_cast<ElaboratedType>(type);
             return getTypeDefAliasForType(nxtType->getNamedType(), pTemplateTypeDefs);
         }
         case Type::TypeClass::LValueReference: {
+
             const LValueReferenceType* nxtType = dyn_cast<LValueReferenceType>(type);
             return getTypeDefAliasForType(nxtType->getPointeeType(), pTemplateTypeDefs);
         }
         case Type::TypeClass::Pointer: {
+
             const PointerType* nxtType = dyn_cast<PointerType>(type);
             return getTypeDefAliasForType(nxtType->getPointeeType(), pTemplateTypeDefs);
         }
         case Type::TypeClass::TemplateSpecialization: {
+
             const TemplateSpecializationType* templateSpclType = dyn_cast<TemplateSpecializationType>(type);
             for (const auto& templateArg : templateSpclType->template_arguments())
             {
@@ -153,10 +149,25 @@ namespace clmr
                     auto typeDefStr = getTypeDefAliasForType(templateArg.getAsType(), tempTypeDefs);
                     if (typeDefStr.has_value())
                     {
-                        const auto& qt = templateArg.getAsType().getUnqualifiedType().getNonReferenceType().getCanonicalType();
-                        std::string typeStr = (qt->isPointerType() ? qt->getPointeeType().getUnqualifiedType() : qt).getAsString();
-                        StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
-                        for (auto itr : pTemplateTypeDefs) {
+                        QualType qt = templateArg.getAsType()
+                                                 .getUnqualifiedType()
+                                                 .getNonReferenceType()
+                                                 .getCanonicalType();
+                        std::string typeStr;
+                        if (const auto* RT = qt->getAs<RecordType>()) {
+                            typeStr = RT->getDecl()->getQualifiedNameAsString();
+                        }
+                        else if (const auto* ET = qt->getAs<EnumType>()) {
+                            typeStr = ET->getDecl()->getQualifiedNameAsString();
+                        }
+                        else if (const auto* TT = qt->getAs<TypedefType>()) {
+                            typeStr = TT->getDecl()->getQualifiedNameAsString();
+                        }
+                        else {
+                            typeStr = qt.getAsString();
+                        }
+
+                        for (auto& itr : pTemplateTypeDefs) {
                             const auto& tmpTypeStr = itr.first;
                             const auto& tmpTypeDefStr = itr.second;
                             StringUtils::replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
@@ -170,4 +181,59 @@ namespace clmr
         default: return std::nullopt;
         }
     }
+
+
+
+
+    //const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType, std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
+    //{
+    //    const Type* type = pQType.getTypePtrOrNull();
+    //    if (!type) {
+    //        return std::nullopt;
+    //    }
+
+    //    switch (pQType->getTypeClass())
+    //    {
+    //    case Type::TypeClass::Typedef: {
+    //        return pQType.getAsString();
+    //    }
+    //    case Type::TypeClass::Elaborated: {
+    //        const ElaboratedType* nxtType = dyn_cast<ElaboratedType>(type);
+    //        return getTypeDefAliasForType(nxtType->getNamedType(), pTemplateTypeDefs);
+    //    }
+    //    case Type::TypeClass::LValueReference: {
+    //        const LValueReferenceType* nxtType = dyn_cast<LValueReferenceType>(type);
+    //        return getTypeDefAliasForType(nxtType->getPointeeType(), pTemplateTypeDefs);
+    //    }
+    //    case Type::TypeClass::Pointer: {
+    //        const PointerType* nxtType = dyn_cast<PointerType>(type);
+    //        return getTypeDefAliasForType(nxtType->getPointeeType(), pTemplateTypeDefs);
+    //    }
+    //    case Type::TypeClass::TemplateSpecialization: {
+    //        const TemplateSpecializationType* templateSpclType = dyn_cast<TemplateSpecializationType>(type);
+    //        for (const auto& templateArg : templateSpclType->template_arguments())
+    //        {
+    //            if (templateArg.getKind() == TemplateArgument::ArgKind::Type)
+    //            {
+    //                std::unordered_map<std::string, std::string> tempTypeDefs;
+    //                auto typeDefStr = getTypeDefAliasForType(templateArg.getAsType(), tempTypeDefs);
+    //                if (typeDefStr.has_value())
+    //                {
+    //                    const auto& qt = templateArg.getAsType().getUnqualifiedType().getNonReferenceType().getCanonicalType();
+    //                    std::string typeStr = (qt->isPointerType() ? qt->getPointeeType().getUnqualifiedType() : qt).getAsString();
+    //                    StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
+    //                    for (auto& itr : pTemplateTypeDefs) {
+    //                        const auto& tmpTypeStr = itr.first;
+    //                        const auto& tmpTypeDefStr = itr.second;
+    //                        StringUtils::replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
+    //                    }
+    //                    pTemplateTypeDefs.insert(std::make_pair(typeStr, typeDefStr.value()));
+    //                }
+    //            }
+    //        }
+    //        return std::nullopt;
+    //    }
+    //    default: return std::nullopt;
+    //    }
+    //}
 }

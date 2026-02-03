@@ -13,7 +13,6 @@ namespace clmr {
     {
         static bool isInUserCode(clang::NamedDecl* pNameDecl);
         static bool isDeclFrmCurrentSource(const std::string& pCurSrcFile, clang::Decl* pDecl);
-        static bool isMemberFunctionOrInNamespace(clang::FunctionDecl* pFuncDecl);
 
         static std::string extractParentTypeName(clang::FunctionDecl* pFuncDecl);
         static std::string extractParameterType(clang::ParmVarDecl* pParmVarDecl);

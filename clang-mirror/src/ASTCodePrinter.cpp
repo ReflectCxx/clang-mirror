@@ -108,7 +108,10 @@ namespace clmr
         auto size = pMeta.signatures.size();
         for (std::size_t i = 0; i < size; i++) 
         {
-            codeStr.append("        \"sign" + std::to_string(i) + ": (" + pMeta.signatures[i] + ")");
+            codeStr.append("        \"sign" + std::to_string(i) + ": ")
+                   .append(pMeta.signatures[i].returnType)
+                   .append("(" + pMeta.signatures[i].paramsType + ")");
+
             if (i < size - 1) {
                 codeStr.append(",\"\n");
             }

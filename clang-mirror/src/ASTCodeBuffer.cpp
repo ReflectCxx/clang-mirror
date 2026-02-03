@@ -47,18 +47,24 @@ namespace clmr
         {
             auto& codeMeta = addFunctionCodeMeta(m_freeFnsMap, ASTCodeMeta{
                     .ast = pAst,
-                    .signatures = std::vector<std::string>()
+                    .signatures = std::vector<ASTFnSign>()
             });
-            codeMeta.signatures.push_back(pParams.empty() ? "void" : pParams);
+            codeMeta.signatures.push_back({ 
+                .returnType = pReturn, 
+                .paramsType = (pParams.empty() ? "void" : pParams) 
+            });
         }
         else if (pAst.metaKind != MetaKind::None)
         {
             auto& typeMeta = getRecordCodeMeta(m_recordsMap, pAst.record);
             auto& codeMeta = addFunctionCodeMeta(typeMeta.methods, ASTCodeMeta{
                     .ast = pAst,
-                    .signatures = std::vector<std::string>()
+                    .signatures = std::vector<ASTFnSign>()
             });
-            codeMeta.signatures.push_back(pParams.empty() ? "void" : pParams);
+            codeMeta.signatures.push_back({ 
+                .returnType = pReturn, 
+                .paramsType = (pParams.empty() ? "void" : pParams)
+            });
         }
         m_incFiles.insert(pAst.header);
     }
