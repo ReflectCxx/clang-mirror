@@ -20,6 +20,7 @@ namespace clmr
 
 		void dumpMetadataIds(std::fstream& pOut);
 		void dumpRegistrationDecls(std::fstream& pOut);
+		void dumpCxxMirrorHeader(std::fstream& pOut);
 
 		ASTCodeManager();
 		~ASTCodeManager();

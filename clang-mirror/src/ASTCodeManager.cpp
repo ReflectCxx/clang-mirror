@@ -95,6 +95,18 @@ namespace clmr
         }
     }
 
+    void ASTCodeManager::dumpCxxMirrorHeader(std::fstream& pOut)
+    {
+        const auto& incrtl = "rtl/rtl_access.h";
+        const auto& inccxx = std::string(NS_CXX).append("/").append(FILE_REG_IDS);
+
+        pOut << "\n#pragma once\n"
+                "\n#include \"" << incrtl << "\""
+                "\n#include \"" << inccxx << "\"\n"
+                "\nnamespace rtl { class CxxMirror; }"
+                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
+    }
+
 
     ASTCodeBuffer* ASTCodeManager::getCodeBuffer(const std::string& pSrcFile, bool pCreate /*= false*/)
     {
@@ -130,10 +142,9 @@ namespace clmr
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) 
         {
-            auto fname = std::string(NS_CXX) + "_" + 
-                         std::string(FILE_REG_PREFIX) + 
-                         std::to_string(pIndex) + ".cpp";
-            
+            const auto& fname = std::string(NS_CXX).append("_").append(FILE_REG_PREFIX)
+                                                   .append(std::to_string(pIndex))
+                                                   .append(".cpp");
             auto fspath = getOutDir() / fname;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
@@ -162,7 +173,7 @@ namespace clmr
         using fnT = std::function<void(ASTCodeManager&, std::fstream&)>;
         auto dumper = [this](std::string_view pFile, fnT pWriterFn)
         {
-            auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(pFile));
+            auto fspath = getOutDir() / std::string(pFile);
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
@@ -182,6 +193,7 @@ namespace clmr
 
         dumper(FILE_REG_IDS, &ASTCodeManager::dumpMetadataIds);
         dumper(FILE_REG_DECLS, &ASTCodeManager::dumpRegistrationDecls);
+        dumper(FILE_CXX_MIRROR_H, &ASTCodeManager::dumpCxxMirrorHeader);
 
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
