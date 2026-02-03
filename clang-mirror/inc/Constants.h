@@ -26,11 +26,7 @@ namespace clmr {
 	inline constexpr std::string_view CLASS = "class";
 	inline constexpr std::string_view STRUCT = "struct";
 	
-	inline constexpr std::string_view File_RegisteredIdsH = "registered_ids.h";
-	inline constexpr std::string_view File_RegisteredInitH = "registrations.h";
-	inline constexpr std::string_view FILE_REG_PREFIX = "registrations_";
-	inline constexpr std::string_view File_CxxMirrorH = "cxxmirror.h";
-	inline constexpr std::string_view FILE_CXX_MIRROR_S = "cxxmirror.cpp";
+
 
 	inline constexpr std::string_view NS_CXX = "cxx";
 	inline constexpr std::string_view NS_RTL = "rtl";
@@ -53,6 +49,14 @@ namespace clmr
 		MemberFnConst,
 		MemberFnStatic,
 		MemberFnNonConst
+	};
+
+	struct File {
+		static constexpr std::string_view regIDsHeader = "registered_ids.h";
+		static constexpr std::string_view regInitHeader = "registrations.h";
+		static constexpr std::string_view regInitSrcPrefix = "registrations_";
+		static constexpr std::string_view cxxMirrorHeader = "cxxmirror.h";
+		static constexpr std::string_view cxxMirrorSrc = "cxxmirror.cpp";
 	};
 
 	struct ASTRecordMeta;

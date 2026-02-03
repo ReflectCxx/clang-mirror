@@ -61,7 +61,7 @@ namespace clmr
     }
 
 
-    std::filesystem::path ASTCodeManager::inRtlDir(std::string pPath)
+    std::filesystem::path ASTCodeManager::inRootDir(std::string pPath)
     {
         static auto dir = [&]()
         {
@@ -81,7 +81,7 @@ namespace clmr
     void ASTCodeManager::emitCxxMirrorHeader(std::fstream& pOut)
     {
         std::string incrtl = "rtl/rtl_access.h";
-        std::string inccxx = std::string(NS_CXX).append("/").append(File_RegisteredIdsH);
+        std::string inccxx = std::string(NS_CXX).append("/").append(File::nameIDsHeader);
 
         pOut << "\n#pragma once\n"
                 "\n#include \"" << incrtl << "\""
@@ -163,7 +163,7 @@ namespace clmr
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) 
         {
-            std::string fname = std::string(FILE_REG_PREFIX).append(std::to_string(pIndex))
+            std::string fname = std::string(File::regInitSrcPrefix).append(std::to_string(pIndex))
                                                             .append(".cpp");
             auto fspath = inCxxDir(m_outPath) / fname;
             std::fstream fout(fspath, std::ios::out);
@@ -173,8 +173,8 @@ namespace clmr
             }
 
             fout << "\n"
-                    "\n#include \"" << std::string(File_RegisteredIdsH) << "\""
-                    "\n#include \"" << std::string(File_RegisteredInitH) << "\"";
+                    "\n#include \"" << std::string(File::nameIDsHeader) << "\""
+                    "\n#include \"" << std::string(File::nameRegHeader) << "\"";
 
             fout.flush();
             fout.close();
@@ -193,7 +193,7 @@ namespace clmr
         using DirT = std::function<std::filesystem::path(std::string)>;
         using EmiterT = std::function<void(ASTCodeManager&, std::fstream&)>;
 
-        auto fwrite = [this](EmiterT emit, std::string_view file, DirT getDir)
+        auto fwrite = [this](EmiterT emit, DirT getDir, std::string_view file)
         {
             auto fspath = getDir(m_outPath) / file;
             std::fstream fout(fspath, std::ios::out);
@@ -213,14 +213,14 @@ namespace clmr
             Logger::outgen(fspath.string());
         };
 
-        fwrite(&ASTCodeManager::emitMetadataIds, File_RegisteredIdsH,
-               &ASTCodeManager::inCxxDir);
+        fwrite(&ASTCodeManager::emitMetadataIds,
+               &ASTCodeManager::inCxxDir, File::nameIDsHeader);
 
-        fwrite(&ASTCodeManager::emitRegistrationDecls, File_RegisteredInitH,
-               &ASTCodeManager::inCxxDir);
+        fwrite(&ASTCodeManager::emitRegistrationDecls,
+               &ASTCodeManager::inCxxDir, File::nameRegHeader);
 
-        fwrite(&ASTCodeManager::emitCxxMirrorHeader, File_CxxMirrorH,
-               &ASTCodeManager::inRtlDir);
+        fwrite(&ASTCodeManager::emitCxxMirrorHeader,
+               &ASTCodeManager::inRootDir, File::cxxMirHeader);
 
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
