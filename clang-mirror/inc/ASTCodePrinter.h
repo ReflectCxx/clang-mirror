@@ -14,12 +14,12 @@ namespace clmr
 	{
 		static std::string getIncludesForRegistrations();
 
-		static void printTypeRecords(const CxxRecordsMap& pRecodsMap, std::fstream& pOut);
-		static void printFreeFunctions(const CxxFunctionsMap& pFunctionsMap, std::fstream& pOut);
-		static void printMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::fstream& pOut);
+		static void printTypeRecords(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void printFreeFunctions(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);
+		static void printMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut);
 
-		static void printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut);
-		static void printRegistrationDecls(const CxxFunctionsMap& pRecodsMap, std::fstream& pOut);
+		static void printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void printRegistrationDecls(const CxxFunctionsMap& pRecodsMap, std::ofstream& pOut);
 
 	private:
 

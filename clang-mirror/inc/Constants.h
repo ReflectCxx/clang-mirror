@@ -52,10 +52,10 @@ namespace clmr
 	};
 
 	struct File {
-		static constexpr std::string_view regIDsHeader = "registered_ids.h";
-		static constexpr std::string_view regInitHeader = "registrations.h";
+		static constexpr std::string_view nameIDsHeader = "registered_ids.h";
+		static constexpr std::string_view nameRegHeader = "registrations.h";
 		static constexpr std::string_view regInitSrcPrefix = "registrations_";
-		static constexpr std::string_view cxxMirrorHeader = "cxxmirror.h";
+		static constexpr std::string_view cxxMirHeader = "cxxmirror.h";
 		static constexpr std::string_view cxxMirrorSrc = "cxxmirror.cpp";
 	};
 

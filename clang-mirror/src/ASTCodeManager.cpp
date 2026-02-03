@@ -78,7 +78,7 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::emitCxxMirrorHeader(std::fstream& pOut)
+    void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut)
     {
         std::string incrtl = "rtl/rtl_access.h";
         std::string inccxx = std::string(NS_CXX).append("/").append(File::nameIDsHeader);
@@ -91,7 +91,7 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::emitMetadataIds(std::fstream& pOut)
+    void ASTCodeManager::emitMetadataIds(std::ofstream& pOut)
     {
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"
@@ -111,7 +111,7 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::emitRegistrationDecls(std::fstream& pOut)
+    void ASTCodeManager::emitRegistrationDecls(std::ofstream& pOut)
     {
         pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
 
@@ -166,7 +166,7 @@ namespace clmr
             std::string fname = std::string(File::regInitSrcPrefix).append(std::to_string(pIndex))
                                                             .append(".cpp");
             auto fspath = inCxxDir(m_outPath) / fname;
-            std::fstream fout(fspath, std::ios::out);
+            std::ofstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
                 return;
@@ -187,27 +187,25 @@ namespace clmr
         }
     }
 
-
     void ASTCodeManager::emitCxxMirror()
     {
-        using DirT = std::function<std::filesystem::path(std::string)>;
-        using EmiterT = std::function<void(ASTCodeManager&, std::fstream&)>;
+        using DirT = std::filesystem::path(*)(std::string);
+        using EmitterT = void(ASTCodeManager::*)(std::ofstream&);
 
-        auto fwrite = [this](EmiterT emit, DirT getDir, std::string_view file)
+        auto fwrite = [this](EmitterT emit, DirT getDir, std::string_view file)
         {
             auto fspath = getDir(m_outPath) / file;
-            std::fstream fout(fspath, std::ios::out);
-            if (!fout.is_open()) {
-                Logger::outException("Error opening file:" + fspath.string());
+            std::ofstream fout(fspath);
+
+            if (!fout) {
+                Logger::outException("Error opening file: " + fspath.string());
                 return;
             }
 
-            emit(*this, fout);
-            fout.flush();
-            fout.close();
+            (this->*emit)(fout);
 
-            if (fout.fail() || fout.bad()) {
-                Logger::outException("Error closing file:" + fspath.string());
+            if (!fout) {
+                Logger::outException("Error writing file: " + fspath.string());
                 return;
             }
             Logger::outgen(fspath.string());

@@ -14,7 +14,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrinter::printRegistrationDecls(const CxxFunctionsMap& pFnsMap, std::fstream& pOut)
+    void ASTCodePrinter::printRegistrationDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
     {
         for (const auto& itr : pFnsMap) {
             if (!itr.second.signatures.empty()) {
@@ -26,7 +26,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut) 
+    void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut) 
     {
         if (!pRecodsMap.begin()->second.methods.empty()) {
             for (const auto& itr : pRecodsMap) {
@@ -42,7 +42,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrinter::printFreeFunctions(const CxxFunctionsMap& pFunctionsMap, std::fstream& pOut)
+    void ASTCodePrinter::printFreeFunctions(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut)
     {
         for (auto it = pFunctionsMap.begin(); it != pFunctionsMap.end(); ++it)
         {
@@ -79,7 +79,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrinter::printMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::fstream& pOut)
+    void ASTCodePrinter::printMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut)
     {
         for (auto it = pMethodsMap.begin(); it != pMethodsMap.end(); ++it)
         {
@@ -124,7 +124,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrinter::printTypeRecords(const CxxRecordsMap& pRecodsMap, std::fstream& pOut)
+    void ASTCodePrinter::printTypeRecords(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
     {
         for (const auto& itr : pRecodsMap) {
 

@@ -19,9 +19,9 @@ namespace clmr
 		static std::filesystem::path inRootDir(std::string pPath);
 		static std::filesystem::path inCxxDir(std::string pPath);
 
-		void emitMetadataIds(std::fstream& pOut);
-		void emitRegistrationDecls(std::fstream& pOut);
-		void emitCxxMirrorHeader(std::fstream& pOut);
+		void emitMetadataIds(std::ofstream& pOut);
+		void emitRegistrationDecls(std::ofstream& pOut);
+		void emitCxxMirrorHeader(std::ofstream& pOut);
 
 		ASTCodeManager();
 		~ASTCodeManager();
