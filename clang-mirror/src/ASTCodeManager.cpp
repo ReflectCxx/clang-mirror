@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 #include <unordered_set>
+#include <functional>
 
 #include "Logger.h"
 #include "ASTCodeBuffer.h"
@@ -158,15 +159,17 @@ namespace clmr
 
     void ASTCodeManager::createCxxMirror()
     {
+        using fnT = std::function<void(ASTCodeManager&, std::fstream&)>;
+        auto createFile = [this](std::string_view pFile, fnT pWriterFn)
         {
-            auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(FILE_REG_IDS));
+            auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(pFile));
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
                 return;
             }
 
-            dumpMetadataIds(fout);
+            pWriterFn(*this, fout);
             fout.flush();
             fout.close();
 
@@ -175,25 +178,11 @@ namespace clmr
                 return;
             }
             Logger::outgen(fspath.string());
-        } 
-        {
-            auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(FILE_REG_DECLS));
-            std::fstream fout(fspath, std::ios::out);
-            if (!fout.is_open()) {
-                Logger::outException("Error opening file:" + fspath.string());
-                return;
-            }
+        };
 
-            dumpRegistrationDecls(fout);
-            fout.flush();
-            fout.close();
+        createFile(FILE_REG_IDS, &ASTCodeManager::dumpMetadataIds);
+        createFile(FILE_REG_DECLS, &ASTCodeManager::dumpRegistrationDecls);
 
-            if (fout.fail() || fout.bad()) {
-                Logger::outException("Error closing file:" + fspath.string());
-                return;
-            }
-            Logger::outgen(fspath.string());
-        }
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
 }
