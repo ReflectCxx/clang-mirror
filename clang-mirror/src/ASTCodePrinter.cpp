@@ -5,14 +5,35 @@
 
 namespace clmr
 {
+    std::string ASTCodePrinter::getIncludesForRegistrations()
+    {
+        return std::string("\n#pragma once"
+                           "\n#include <vector>\n"
+                           "\nnamespace " + std::string(NS_RTL) + 
+                           " { class Function; }\n");
+    }
+
+
+    void ASTCodePrinter::printRegistrationDecls(const CxxFunctionsMap& pRecodsMap, std::fstream& pOut)
+    {
+        pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
+        for (const auto& itr : pRecodsMap) {
+            pOut << printFnInitDeclarations(itr.second);
+        }
+        pOut << "}\n\n";
+    }
+
+
     void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut) 
     {
+        pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
         for (const auto& itr : pRecodsMap) {
 
             const auto& methodMap = itr.second.methods;
             const auto& fnMeta = methodMap.begin()->second;
-            pOut << printInitDeclarations(fnMeta) << "\n";
+            pOut << printTypeInitDeclarations(fnMeta);
         }
+        pOut << "}\n\n";
     }
 
 
@@ -105,6 +126,21 @@ namespace clmr
         }
     }
 
+    
+    std::string ASTCodePrinter::printFnInitDeclarations(const ASTCodeMeta& pMeta)
+    {
+        std::string codeStr;
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.function);
+        for (const auto& typeStr : typenames) {
+            codeStr.append("\nnamespace " + typeStr + " {");
+        }
+        codeStr.append("\n    " + std::string(DECL_INIT_REGIS) + ";\n");
+        for (auto& _ : typenames) {
+            codeStr.append("}");
+        }
+        return codeStr;
+    }
+
 
     std::string ASTCodePrinter::printTypeIdDeclaration(const ASTCodeMeta& pMeta)
     {
@@ -125,19 +161,19 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrinter::printInitDeclarations(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrinter::printTypeInitDeclarations(const ASTCodeMeta& pMeta)
     {
+        std::string codeStr;
         std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.record);
-
-        std::string codeStr = "\nnamespace " + std::string(NS_REGISTRATION) + " {";
         for (const auto& typeStr : typenames) {
             codeStr.append("\nnamespace " + typeStr + " {");
         }
-        codeStr.append("\n    " + std::string(DECL_INIT_REGIS) + "\n");
+
+        codeStr.append("\n    " + std::string(DECL_INIT_REGIS) + ";\n");
+
         for (auto& _ : typenames) {
             codeStr.append("}");
         }
-        codeStr.append("}");
         return codeStr;
     }
 

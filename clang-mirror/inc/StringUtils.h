@@ -20,6 +20,7 @@ namespace clmr {
             return signStr;
         }
 
+
         static void replaceSubString(std::string& pSrcStr, const std::string& pSubstr, const std::string& pReplacestr)
         {
             if (pReplacestr.find(pSubstr) != std::string::npos) {
@@ -35,12 +36,30 @@ namespace clmr {
             } while (pos != std::string::npos);
         }
 
+
+        static std::vector<std::string> splitQualifiedName(const std::string& qname)
+        {
+            std::vector<std::string> parts;
+            size_t start = 0;
+            while (true)
+            {
+                size_t pos = qname.find("::", start);
+                if (pos == std::string::npos) {
+                    parts.emplace_back(qname.substr(start));
+                    break;
+                }
+                parts.emplace_back(qname.substr(start, pos - start));
+                start = pos + 2;
+            }
+            return parts;
+        }
+
+
         static void removeSubStrings(std::string& pSrcStr, const std::vector<std::string_view>& pKeyStrs)
         {
             for (const auto& keyStr : pKeyStrs)
             {
-                if (!keyStr.empty())
-                {
+                if (!keyStr.empty()){
                     size_t pos = pSrcStr.find(keyStr);
                     while (pos != std::string::npos)
                     {
@@ -54,24 +73,6 @@ namespace clmr {
                     }
                 }
             }
-        }
-
-        static std::vector<std::string> splitQualifiedName(const std::string& qname)
-        {
-            std::vector<std::string> parts;
-            size_t start = 0;
-            while (true)
-            {
-                size_t pos = qname.find("::", start);
-                if (pos == std::string::npos)
-                {
-                    parts.emplace_back(qname.substr(start));
-                    break;
-                }
-                parts.emplace_back(qname.substr(start, pos - start));
-                start = pos + 2;
-            }
-            return parts;
         }
     };
 }

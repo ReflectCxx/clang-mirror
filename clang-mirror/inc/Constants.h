@@ -36,9 +36,9 @@ namespace clmr {
 	inline constexpr std::string_view NS_RTL = "rtl";
 	inline constexpr std::string_view NS_TYPE = "type";
 	inline constexpr std::string_view NS_FUNCTION = "fn";
-	inline constexpr std::string_view NS_REGISTRATION = "registration";
+	inline constexpr std::string_view NS_REGISTRATION = "regis";
 	
-	inline constexpr std::string_view DECL_INIT_REGIS = "static void init(std::vector<rtl::Function>&);";
+	inline constexpr std::string_view DECL_INIT_REGIS = "static void init(std::vector<rtl::Function>&)";
 	inline constexpr std::string_view DEFN_INIT_REGIS = "static void init(std::vector<rtl::Function>& fns)";
 }
 

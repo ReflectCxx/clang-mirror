@@ -79,12 +79,17 @@ namespace clmr
 
     void ASTCodeManager::dumpRegistrationDecls(std::fstream& pOut)
     {
-        pOut << "\n#pragma once"
-                "\n#include <vector>\n"
-                "\nnamespace " + std::string(NS_RTL) + " { class Function; }\n"
-                "\nnamespace " + std::string(NS_CXX) + " {\n"
-                "\nnamespace " + std::string(NS_REGISTRATION) + " {"
-                "\n    " + std::string(DECL_INIT_REGIS) + "\n}\n";
+        pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
+
+                //"\nnamespace " + std::string(NS_CXX) + " {\n"
+                //"\nnamespace " + std::string(NS_REGISTRATION) + " {"
+                //"\n    " + std::string(DECL_INIT_REGIS) + "\n}\n";
+
+        for (const auto& itr : m_codeGens) {
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printRegistrationDecls(itr.second->getFreeFunctionsMap(), pOut);
+            }
+        }
 
         for (const auto& itr : m_codeGens) {
             if (!itr.second->isCompilationFailed()) {
@@ -136,7 +141,7 @@ namespace clmr
             auto fspath = getOutDir() / fname;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
-                Logger::outException("Error opening file for writing!");
+                Logger::outException("Error opening file:" + fspath.string());
                 return;
             }
 
@@ -162,7 +167,7 @@ namespace clmr
             auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(FILE_REG_IDS));
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
-                Logger::outException("Error opening file for writing!");
+                Logger::outException("Error opening file:" + fspath.string());
                 return;
             }
 
@@ -180,7 +185,7 @@ namespace clmr
             auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(FILE_REG_DECLS));
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
-                Logger::outException("Error opening file for writing!");
+                Logger::outException("Error opening file:" + fspath.string());
                 return;
             }
 
