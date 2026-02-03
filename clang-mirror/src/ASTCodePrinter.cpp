@@ -102,13 +102,21 @@ namespace clmr
         std::string codeStr;
         codeStr.append("\n    inline constexpr std::string_view id = \"")
                .append(pMeta.ast.function)
-               .append("\";");
+               .append("\";")
+               .append("\n    inline constexpr std::string_view signatures = \"{\"\n");
 
-        for (std::size_t i = 0; i < pMeta.signatures.size(); i++) {
-            codeStr.append("\n    inline constexpr std::string_view sign" + std::to_string(i) + " = \"")
-                   .append(pMeta.signatures[i])
-                   .append("\";");
+        auto size = pMeta.signatures.size();
+        for (std::size_t i = 0; i < size; i++) 
+        {
+            codeStr.append("        \"sign" + std::to_string(i) + ": (" + pMeta.signatures[i] + ")");
+            if (i < size - 1) {
+                codeStr.append(",\"\n");
+            }
+            else {
+                codeStr.append("\"");
+            }
         }
+        codeStr.append("\n    \"}\";");
         return codeStr;
     }
 
