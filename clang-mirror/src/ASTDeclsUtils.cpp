@@ -8,6 +8,16 @@ using namespace clang;
 
 namespace clmr 
 {
+    void ASTDeclsUtils::polishTypeStr(std::string& pTypeStr)
+    {
+        StringUtils::replaceSubString(pTypeStr, "std::basic_string_view<char>", "std::string_view");
+        StringUtils::replaceSubString(pTypeStr, "std::basic_string<char>", "std::string");
+        StringUtils::replaceSubString(pTypeStr, "_Bool", "bool");
+        //StringUtils::replaceSubString(pTypeStr, " &&", "&&");
+        //StringUtils::replaceSubString(pTypeStr, " &", "&");
+        //StringUtils::replaceSubString(pTypeStr, " *", "*");
+    }
+
     bool ASTDeclsUtils::isInUserCode(NamedDecl* pDecl)
     {
         if (!pDecl) {
@@ -94,12 +104,13 @@ namespace clmr
         }
         auto typeStr = pQType.getCanonicalType().getAsString();
         StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
-        for (auto itr : templateArgsTypeDefs)
+        for (const auto& itr : templateArgsTypeDefs)
         {
             const auto& tmpTypeStr = itr.first;
             const auto& tmpTypeDefStr = itr.second;
             StringUtils::replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
         }
+        polishTypeStr(typeStr);
         return typeStr;
     }
 
@@ -181,59 +192,4 @@ namespace clmr
         default: return std::nullopt;
         }
     }
-
-
-
-
-    //const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType, std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
-    //{
-    //    const Type* type = pQType.getTypePtrOrNull();
-    //    if (!type) {
-    //        return std::nullopt;
-    //    }
-
-    //    switch (pQType->getTypeClass())
-    //    {
-    //    case Type::TypeClass::Typedef: {
-    //        return pQType.getAsString();
-    //    }
-    //    case Type::TypeClass::Elaborated: {
-    //        const ElaboratedType* nxtType = dyn_cast<ElaboratedType>(type);
-    //        return getTypeDefAliasForType(nxtType->getNamedType(), pTemplateTypeDefs);
-    //    }
-    //    case Type::TypeClass::LValueReference: {
-    //        const LValueReferenceType* nxtType = dyn_cast<LValueReferenceType>(type);
-    //        return getTypeDefAliasForType(nxtType->getPointeeType(), pTemplateTypeDefs);
-    //    }
-    //    case Type::TypeClass::Pointer: {
-    //        const PointerType* nxtType = dyn_cast<PointerType>(type);
-    //        return getTypeDefAliasForType(nxtType->getPointeeType(), pTemplateTypeDefs);
-    //    }
-    //    case Type::TypeClass::TemplateSpecialization: {
-    //        const TemplateSpecializationType* templateSpclType = dyn_cast<TemplateSpecializationType>(type);
-    //        for (const auto& templateArg : templateSpclType->template_arguments())
-    //        {
-    //            if (templateArg.getKind() == TemplateArgument::ArgKind::Type)
-    //            {
-    //                std::unordered_map<std::string, std::string> tempTypeDefs;
-    //                auto typeDefStr = getTypeDefAliasForType(templateArg.getAsType(), tempTypeDefs);
-    //                if (typeDefStr.has_value())
-    //                {
-    //                    const auto& qt = templateArg.getAsType().getUnqualifiedType().getNonReferenceType().getCanonicalType();
-    //                    std::string typeStr = (qt->isPointerType() ? qt->getPointeeType().getUnqualifiedType() : qt).getAsString();
-    //                    StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
-    //                    for (auto& itr : pTemplateTypeDefs) {
-    //                        const auto& tmpTypeStr = itr.first;
-    //                        const auto& tmpTypeDefStr = itr.second;
-    //                        StringUtils::replaceSubString(typeStr, tmpTypeStr, tmpTypeDefStr);
-    //                    }
-    //                    pTemplateTypeDefs.insert(std::make_pair(typeStr, typeDefStr.value()));
-    //                }
-    //            }
-    //        }
-    //        return std::nullopt;
-    //    }
-    //    default: return std::nullopt;
-    //    }
-    //}
 }
