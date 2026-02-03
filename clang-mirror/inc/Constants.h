@@ -26,16 +26,18 @@ namespace clmr {
 	inline constexpr std::string_view CLASS = "class";
 	inline constexpr std::string_view STRUCT = "struct";
 	
-	inline constexpr std::string_view FILE_REG_IDS = "rtl_registered_ids.h";
-	inline constexpr std::string_view FILE_REG_DECLS = "rtl_registrations.h";
-	inline constexpr std::string_view FILE_REG_PREFIX = "rtl_registrations_";
-	inline constexpr std::string_view FILE_CXX_MIRROR_H = "cxx_mirror.h";
-	inline constexpr std::string_view FILE_CXX_MIRROR_S = "cxx_mirror.cpp";
+	inline constexpr std::string_view FILE_REG_IDS = "registered_ids.h";
+	inline constexpr std::string_view FILE_REG_DECLS = "registrations.h";
+	inline constexpr std::string_view FILE_REG_PREFIX = "registrations_";
+	inline constexpr std::string_view FILE_CXX_MIRROR_H = "cxxmirror.h";
+	inline constexpr std::string_view FILE_CXX_MIRROR_S = "cxxmirror.cpp";
 
 	inline constexpr std::string_view NS_CXX = "cxx";
+	inline constexpr std::string_view NS_RTL = "rtl";
 	inline constexpr std::string_view NS_TYPE = "type";
 	inline constexpr std::string_view NS_FUNCTION = "fn";
 	inline constexpr std::string_view NS_REGISTRATION = "registration";
+	
 	inline constexpr std::string_view DECL_INIT_REGIS = "static void init(std::vector<rtl::Function>&);";
 	inline constexpr std::string_view DEFN_INIT_REGIS = "static void init(std::vector<rtl::Function>& fns)";
 }

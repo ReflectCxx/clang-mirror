@@ -47,7 +47,7 @@ namespace clmr
         static auto dumpDir = [&]() {
 
             std::error_code errc;
-            std::filesystem::path dumpDir = std::filesystem::path(m_outPath) / "rtl" / "cxxmirror";
+            std::filesystem::path dumpDir = std::filesystem::path(m_outPath) / NS_RTL / NS_CXX;
             std::filesystem::create_directories(dumpDir, errc);
             if (errc) {
                 Logger::outException("Failed to create output directory: " + errc.message());
@@ -81,7 +81,7 @@ namespace clmr
     {
         pOut << "\n#pragma once"
                 "\n#include <vector>\n"
-                "\nnamespace " + std::string(NS_CXX) + " { class Function; }\n"
+                "\nnamespace " + std::string(NS_RTL) + " { class Function; }\n"
                 "\nnamespace " + std::string(NS_CXX) + " {\n"
                 "\nnamespace " + std::string(NS_REGISTRATION) + " {"
                 "\n    " + std::string(DECL_INIT_REGIS) + "\n}\n";
@@ -129,7 +129,11 @@ namespace clmr
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) 
         {
-            auto fspath = getOutDir() / (std::string(FILE_REG_PREFIX) + std::to_string(pIndex) + ".cpp");
+            auto fname = std::string(NS_CXX) + "_" + 
+                         std::string(FILE_REG_PREFIX) + 
+                         std::to_string(pIndex) + ".cpp";
+            
+            auto fspath = getOutDir() / fname;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file for writing!");
@@ -144,7 +148,7 @@ namespace clmr
             fout.close();
 
             if (fout.fail() || fout.bad()) {
-                Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
+                Logger::outException("Error closing file:" + fspath.string());
                 return;
             }
             Logger::outgen(fspath.string());
@@ -155,8 +159,8 @@ namespace clmr
     void ASTCodeManager::createCxxMirror()
     {
         {
-            auto fpath = getOutDir() / std::string(FILE_REG_IDS);
-            std::fstream fout(fpath, std::ios::out);
+            auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(FILE_REG_IDS));
+            std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file for writing!");
                 return;
@@ -167,14 +171,14 @@ namespace clmr
             fout.close();
 
             if (fout.fail() || fout.bad()) {
-                Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
+                Logger::outException("Error closing file:" + fspath.string());
                 return;
             }
-            Logger::outgen(fpath.string());
+            Logger::outgen(fspath.string());
         } 
         {
-            auto fpath = getOutDir() / std::string(FILE_REG_DECLS);
-            std::fstream fout(fpath, std::ios::out);
+            auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(FILE_REG_DECLS));
+            std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file for writing!");
                 return;
@@ -185,10 +189,10 @@ namespace clmr
             fout.close();
 
             if (fout.fail() || fout.bad()) {
-                Logger::outException("Error closing file:" + std::string(FILE_REG_IDS));
+                Logger::outException("Error closing file:" + fspath.string());
                 return;
             }
-            Logger::outgen(fpath.string());
+            Logger::outgen(fspath.string());
         }
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
