@@ -26,10 +26,10 @@ namespace clmr {
 	inline constexpr std::string_view CLASS = "class";
 	inline constexpr std::string_view STRUCT = "struct";
 	
-	inline constexpr std::string_view FILE_REG_IDS_H = "registered_ids.h";
-	inline constexpr std::string_view FILE_REG_INIT_H = "registrations.h";
+	inline constexpr std::string_view File_RegisteredIdsH = "registered_ids.h";
+	inline constexpr std::string_view File_RegisteredInitH = "registrations.h";
 	inline constexpr std::string_view FILE_REG_PREFIX = "registrations_";
-	inline constexpr std::string_view FILE_CXX_MIRROR_H = "cxxmirror.h";
+	inline constexpr std::string_view File_CxxMirrorH = "cxxmirror.h";
 	inline constexpr std::string_view FILE_CXX_MIRROR_S = "cxxmirror.cpp";
 
 	inline constexpr std::string_view NS_CXX = "cxx";
@@ -53,16 +53,6 @@ namespace clmr
 		MemberFnConst,
 		MemberFnStatic,
 		MemberFnNonConst
-	};
-
-	enum class EmitKind
-	{
-		None,
-		CxxMirrorH,
-		CxxMirrorCpp,
-		RegistrationIdH,
-		RegistrationInitH,
-		RegistrationInitCpp
 	};
 
 	struct ASTRecordMeta;

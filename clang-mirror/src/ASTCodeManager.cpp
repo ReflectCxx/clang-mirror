@@ -11,7 +11,7 @@
 #include "ASTCodeManager.h"
 
 
-namespace clmr 
+namespace clmr
 {
     ASTCodeManager::ASTCodeManager()
     {
@@ -43,29 +43,53 @@ namespace clmr
         }
     }
 
-    template<EmitKind EK>
-    std::filesystem::path ASTCodeManager::getOutDir()
-    {
-        static auto dumpDir = [&]() 
-        {
-            std::filesystem::path dumpDir;
-            if constexpr (EK == EmitKind::CxxMirrorH || EK == EmitKind::CxxMirrorCpp) {
-                dumpDir = std::filesystem::path(m_outPath) / NS_RTL;
-            }
-            else {
-                dumpDir = std::filesystem::path(m_outPath) / NS_RTL / NS_CXX;
-            }
 
-            std::error_code errc;
-            std::filesystem::create_directories(dumpDir, errc);
-            if (errc) {
-                Logger::outException("Failed to create output directory: " + errc.message());
+    std::filesystem::path ASTCodeManager::inCxxDir(std::string pPath)
+    {
+        static auto dir = [&]()
+        {
+            std::error_code err;
+            std::filesystem::path dir = std::filesystem::path(pPath) / NS_RTL / NS_CXX;
+            std::filesystem::create_directories(dir, err);
+            if (err) {
+                Logger::outException("Failed to create output directory: " + err.message());
                 std::abort();
             }
-            return dumpDir;
+            return dir;
         }();
-        return dumpDir;
+        return dir;
     }
+
+
+    std::filesystem::path ASTCodeManager::inRtlDir(std::string pPath)
+    {
+        static auto dir = [&]()
+        {
+            std::error_code err;
+            std::filesystem::path dir = std::filesystem::path(pPath) / NS_RTL;
+            std::filesystem::create_directories(dir, err);
+            if (err) {
+                Logger::outException("Failed to create output directory: " + err.message());
+                std::abort();
+            }
+            return dir;
+        }();
+        return dir;
+    }
+
+
+    void ASTCodeManager::emitCxxMirrorHeader(std::fstream& pOut)
+    {
+        std::string incrtl = "rtl/rtl_access.h";
+        std::string inccxx = std::string(NS_CXX).append("/").append(File_RegisteredIdsH);
+
+        pOut << "\n#pragma once\n"
+                "\n#include \"" << incrtl << "\""
+                "\n#include \"" << inccxx << "\"\n"
+                "\nnamespace rtl { class CxxMirror; }"
+                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
+    }
+
 
     void ASTCodeManager::emitMetadataIds(std::fstream& pOut)
     {
@@ -86,6 +110,7 @@ namespace clmr
         pOut << "\n}";
     }
 
+
     void ASTCodeManager::emitRegistrationDecls(std::fstream& pOut)
     {
         pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
@@ -101,18 +126,6 @@ namespace clmr
                 ASTCodePrinter::printRegistrationDecls(itr.second->getRecordsMap(), pOut);
             }
         }
-    }
-
-    void ASTCodeManager::emitCxxMirrorHeader(std::fstream& pOut)
-    {
-        std::string incrtl = "rtl/rtl_access.h";
-        std::string inccxx = std::string(NS_CXX).append("/").append(FILE_REG_IDS_H);
-
-        pOut << "\n#pragma once\n"
-                "\n#include \"" << incrtl << "\""
-                "\n#include \"" << inccxx << "\"\n"
-                "\nnamespace rtl { class CxxMirror; }"
-                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
     }
 
 
@@ -152,7 +165,7 @@ namespace clmr
         {
             std::string fname = std::string(FILE_REG_PREFIX).append(std::to_string(pIndex))
                                                             .append(".cpp");
-            auto fspath = getOutDir<EmitKind::RegistrationInitCpp>() / fname;
+            auto fspath = inCxxDir(m_outPath) / fname;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
@@ -160,8 +173,8 @@ namespace clmr
             }
 
             fout << "\n"
-                    "\n#include \"" << std::string(FILE_REG_IDS_H) << "\""
-                    "\n#include \"" << std::string(FILE_REG_INIT_H) << "\"";
+                    "\n#include \"" << std::string(File_RegisteredIdsH) << "\""
+                    "\n#include \"" << std::string(File_RegisteredInitH) << "\"";
 
             fout.flush();
             fout.close();
@@ -177,11 +190,12 @@ namespace clmr
 
     void ASTCodeManager::emitCxxMirror()
     {
+        using DirT = std::function<std::filesystem::path(std::string)>;
         using EmiterT = std::function<void(ASTCodeManager&, std::fstream&)>;
 
-        auto fwrite = [this]<EmitKind EK>(EmiterT emit, std::string_view file)
+        auto fwrite = [this](EmiterT emit, std::string_view file, DirT getDir)
         {
-            auto fspath = getOutDir<EK>() / file;
+            auto fspath = getDir(m_outPath) / file;
             std::fstream fout(fspath, std::ios::out);
             if (!fout.is_open()) {
                 Logger::outException("Error opening file:" + fspath.string());
@@ -199,9 +213,14 @@ namespace clmr
             Logger::outgen(fspath.string());
         };
 
-        fwrite.template operator() <EmitKind::RegistrationIdH> (&ASTCodeManager::emitMetadataIds, FILE_REG_IDS_H);
-        fwrite.template operator() <EmitKind::RegistrationInitH> (&ASTCodeManager::emitRegistrationDecls, FILE_REG_INIT_H);
-        fwrite.template operator() <EmitKind::CxxMirrorH> (&ASTCodeManager::emitCxxMirrorHeader, FILE_CXX_MIRROR_H);
+        fwrite(&ASTCodeManager::emitMetadataIds, File_RegisteredIdsH,
+               &ASTCodeManager::inCxxDir);
+
+        fwrite(&ASTCodeManager::emitRegistrationDecls, File_RegisteredInitH,
+               &ASTCodeManager::inCxxDir);
+
+        fwrite(&ASTCodeManager::emitCxxMirrorHeader, File_CxxMirrorH,
+               &ASTCodeManager::inRtlDir);
 
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
