@@ -27,9 +27,9 @@ namespace clmr
 		static std::string printMethodNamespace(const ASTCodeMeta& pMeta);
 		
 		static std::string printFnIdDeclarations(const ASTCodeMeta& pMeta);
-		static std::string printFnInitDeclarations(const ASTCodeMeta& pMeta);
+		static std::string printFnInitDeclarations(const std::string& pFnName);
 
 		static std::string printTypeIdDeclaration(const ASTCodeMeta& pMeta);
-		static std::string printTypeInitDeclarations(const ASTCodeMeta& pMeta);
+		static std::string printTypeInitDeclarations(const std::string& pRecordName);
 	};
 }

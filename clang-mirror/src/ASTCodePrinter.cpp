@@ -14,26 +14,31 @@ namespace clmr
     }
 
 
-    void ASTCodePrinter::printRegistrationDecls(const CxxFunctionsMap& pRecodsMap, std::fstream& pOut)
+    void ASTCodePrinter::printRegistrationDecls(const CxxFunctionsMap& pFnsMap, std::fstream& pOut)
     {
-        pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
-        for (const auto& itr : pRecodsMap) {
-            pOut << printFnInitDeclarations(itr.second);
+        for (const auto& itr : pFnsMap) {
+            if (!itr.second.signatures.empty()) {
+                pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
+                pOut << printFnInitDeclarations(itr.second.ast.function);
+                pOut << "}\n\n";
+            }
         }
-        pOut << "}\n\n";
     }
 
 
     void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::fstream& pOut) 
     {
-        pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
-        for (const auto& itr : pRecodsMap) {
+        if (!pRecodsMap.begin()->second.methods.empty()) {
+            for (const auto& itr : pRecodsMap) {
 
-            const auto& methodMap = itr.second.methods;
-            const auto& fnMeta = methodMap.begin()->second;
-            pOut << printTypeInitDeclarations(fnMeta);
+                const auto& methodMap = itr.second.methods;
+                const auto& fnMeta = methodMap.begin()->second;
+
+                pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
+                pOut << printTypeInitDeclarations(fnMeta.ast.record);
+                pOut << "}\n\n";
+            }
         }
-        pOut << "}\n\n";
     }
 
 
@@ -127,10 +132,10 @@ namespace clmr
     }
 
     
-    std::string ASTCodePrinter::printFnInitDeclarations(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrinter::printFnInitDeclarations(const std::string& pFnName)
     {
         std::string codeStr;
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.function);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pFnName);
         for (const auto& typeStr : typenames) {
             codeStr.append("\nnamespace " + typeStr + " {");
         }
@@ -161,10 +166,10 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrinter::printTypeInitDeclarations(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrinter::printTypeInitDeclarations(const std::string& pRecordName)
     {
         std::string codeStr;
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.record);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pRecordName);
         for (const auto& typeStr : typenames) {
             codeStr.append("\nnamespace " + typeStr + " {");
         }

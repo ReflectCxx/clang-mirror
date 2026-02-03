@@ -81,10 +81,6 @@ namespace clmr
     {
         pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
 
-                //"\nnamespace " + std::string(NS_CXX) + " {\n"
-                //"\nnamespace " + std::string(NS_REGISTRATION) + " {"
-                //"\n    " + std::string(DECL_INIT_REGIS) + "\n}\n";
-
         for (const auto& itr : m_codeGens) {
             if (!itr.second->isCompilationFailed()) {
                 ASTCodePrinter::printRegistrationDecls(itr.second->getFreeFunctionsMap(), pOut);
@@ -96,7 +92,6 @@ namespace clmr
                 ASTCodePrinter::printRegistrationDecls(itr.second->getRecordsMap(), pOut);
             }
         }
-        pOut << "\n}";
     }
 
 
