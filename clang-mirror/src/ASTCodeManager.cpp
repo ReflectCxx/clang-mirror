@@ -160,7 +160,7 @@ namespace clmr
     void ASTCodeManager::createCxxMirror()
     {
         using fnT = std::function<void(ASTCodeManager&, std::fstream&)>;
-        auto createFile = [this](std::string_view pFile, fnT pWriterFn)
+        auto dumper = [this](std::string_view pFile, fnT pWriterFn)
         {
             auto fspath = getOutDir() / (std::string(NS_CXX) + "_" + std::string(pFile));
             std::fstream fout(fspath, std::ios::out);
@@ -180,8 +180,8 @@ namespace clmr
             Logger::outgen(fspath.string());
         };
 
-        createFile(FILE_REG_IDS, &ASTCodeManager::dumpMetadataIds);
-        createFile(FILE_REG_DECLS, &ASTCodeManager::dumpRegistrationDecls);
+        dumper(FILE_REG_IDS, &ASTCodeManager::dumpMetadataIds);
+        dumper(FILE_REG_DECLS, &ASTCodeManager::dumpRegistrationDecls);
 
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
