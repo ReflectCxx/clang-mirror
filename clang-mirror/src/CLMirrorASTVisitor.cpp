@@ -174,7 +174,7 @@ namespace clmr
             const auto& params = pFnDecl->parameters();
             const auto& fnQName = pFnDecl->getQualifiedNameAsString();
             for (unsigned index = 0; index < params.size(); index++) {
-                parmTypes.push_back(ASTDeclsUtils::extractParameterType(params[index]));
+                parmTypes.push_back(ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType()));
             }
 
             std::string functionName;
@@ -207,8 +207,7 @@ namespace clmr
 
             auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
 
-            const std::string returnStr = pFnDecl->getReturnType().getAsString();
-                //extractTypeAsString(pFnDecl->getReturnType(), pFnDecl->getASTContext());
+            const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
 
             codeBuffer->addFunction({ 

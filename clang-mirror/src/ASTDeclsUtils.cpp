@@ -67,14 +67,15 @@ namespace clmr
         return os.str();
     }
 	
-    std::string ASTDeclsUtils::extractParameterType(clang::ParmVarDecl* pParmVarDecl)
+
+    std::string ASTDeclsUtils::extractQualifiedTypeName(const clang::QualType& pQType)
     {
         std::unordered_map<std::string, std::string> templateArgsTypeDefs;
-        auto typedefStrValue = getTypeDefAliasForType(pParmVarDecl->getOriginalType(), templateArgsTypeDefs);
+        auto typedefStrValue = getTypeDefAliasForType(pQType, templateArgsTypeDefs);
         if (typedefStrValue.has_value())
         {
             std::string typedefOrgTypeKey;
-            const auto& qt = pParmVarDecl->getOriginalType().getCanonicalType().getNonReferenceType();
+            const auto& qt = pQType.getCanonicalType().getNonReferenceType();
             if (qt->isFunctionPointerType()) {
                 typedefOrgTypeKey = qt.getAsString();
                 if (qt.getQualifiers().hasConst()) {
@@ -91,7 +92,7 @@ namespace clmr
             }
             templateArgsTypeDefs.insert(make_pair(typedefOrgTypeKey, typedefStrValue.value()));
         }
-        auto typeStr = pParmVarDecl->getOriginalType().getCanonicalType().getAsString();
+        auto typeStr = pQType.getCanonicalType().getAsString();
         StringUtils::removeSubStrings(typeStr, { ENUM, CLASS, STRUCT });
         for (auto itr : templateArgsTypeDefs)
         {
@@ -101,7 +102,6 @@ namespace clmr
         }
         return typeStr;
     }
-
 
 
     const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType,

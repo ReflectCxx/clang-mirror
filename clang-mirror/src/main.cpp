@@ -25,7 +25,7 @@ int main(int argc, const char** argv)
     const auto& tsEnd = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - tsBegin).count();
     clmr::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
 
-    auto overloads = cxx::fn::reverseString::signatures;
+    auto overloads = cxx::type::Person::fn::getProfile::signatures;
 
     return 0;
 }
