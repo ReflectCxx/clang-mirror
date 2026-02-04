@@ -49,6 +49,7 @@ namespace clmr {
         dump(&CMgr::emitRegisteredIds, &CMgr::toClmrDir, File::nameIDsHeader);
         dump(&CMgr::emitRegistrationFns, &CMgr::toClmrDir, File::nameRegHeader);
         dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
+        dump(&CMgr::emitCxxMirrorSource, &CMgr::toRootDir, File::nameCxxSource);
 
         Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }
@@ -72,8 +73,7 @@ namespace clmr {
 
     std::filesystem::path ASTCodeManager::toClmrDir(std::string_view pPath)
     {
-        static auto dir = [&]()
-        {
+        static auto dir = [&]() {
             std::error_code err;
             std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRtl / File::dirClmr;
             std::filesystem::create_directories(dir, err);
@@ -89,8 +89,7 @@ namespace clmr {
 
     std::filesystem::path ASTCodeManager::toRootDir(std::string_view pPath)
     {
-        static auto dir = [&]()
-        {
+        static auto dir = [&]() {
             std::error_code err;
             std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRtl;
             std::filesystem::create_directories(dir, err);
@@ -187,12 +186,11 @@ namespace clmr {
 
     void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut)
     {
-        std::string incrtl = "rtl/rtl_access.h";
-        std::string inccxx = std::string(File::dirClmr).append("/").append(File::nameIDsHeader);
+        std::string incIds = std::string(File::dirClmr).append("/").append(File::nameIDsHeader);
 
         pOut << "\n#pragma once\n"
-                "\n#include \"" << incrtl << "\""
-                "\n#include \"" << inccxx << "\"\n"
+                "\n#include \"" << File::incRtlAccess << "\""
+                "\n#include \"" << incIds << "\"\n"
                 "\nnamespace rtl { class CxxMirror; }"
                 "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
     }
@@ -223,5 +221,29 @@ namespace clmr {
         pOut << "\n"
                 "\n#include \"" << std::string(File::nameIDsHeader) << "\""
                 "\n#include \"" << std::string(File::nameRegHeader) << "\"";
+    }
+
+
+    void ASTCodeManager::emitCxxMirrorSource(std::ofstream& pOut)
+    {
+        std::string incDecls = std::string(File::dirClmr).append("/").append(File::nameRegHeader);
+
+        pOut << "\n"
+                "\n#include <vector>"
+                "\n"
+                "\n#include \"" << File::incRtlBuilder << "\""
+                "\n#include \"" << incDecls << "\""
+                "\n"
+                "\nnamespace cxx { \n"
+                "\n    const rtl::CxxMirror& mirror()"
+                "\n    {"
+                "\n        static auto mirror = rtl::CxxMirror([]() {"
+                "\n"
+                "\n            std::vector<rtl::Function> fns;"
+                "\n"
+                "\n        }());"
+                "\n        return mirror;"
+                "\n    }"
+                "\n}";
     }
 }
