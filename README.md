@@ -32,8 +32,8 @@ Just `#include ` the generated file and access your entire codebase reflectively
 #include "cxx_mirror.h"  // The generated header.
 // ...
 
-auto classId = cxx::type::Person::id;  // Compile-checked, generated via AST.
-auto classPerson = cxx::mirror().getRecord(classId);  // Type-safe lookup.
+auto typId = cxx::type::Person::id;  // Compile-checked, generated via AST.
+auto classPerson = cxx::mirror().getRecord(typId);  // Type-safe lookup.
 // ...
 
 {
