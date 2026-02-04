@@ -28,11 +28,11 @@ namespace clmr
 		static std::string printRecordNamespaceFnIDs(const ASTCodeMeta& pMeta);
 		
 		static std::string printFreeFnsIDs(const ASTCodeMeta& pMeta);
-		static std::string printFreeFnsInitDefs(const std::string& pFnName);
+		static std::string printFreeFnsInitDefs(const ASTCodeMeta& pMeta);
 		static std::string printFreeFnsInitDecls(const std::string& pFnName);
-
+		
 		static std::string printTypeRecordIDs(const ASTCodeMeta& pMeta);
-		static std::string printTypeRecordInitDefs(const std::string& pRecordName);
-		static std::string printTypeRecordInitDecls(const std::string& pRecordName);
+		static std::string printTypeRecordInitDefs(const ASTRecordMeta& pMeta);
+		static std::string printTypeRecordInitDecls(const std::string& pRecord);
 	};
 }
