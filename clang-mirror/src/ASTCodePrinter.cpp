@@ -3,16 +3,52 @@
 #include "ASTCodePrinter.h"
 #include "StringUtils.h"
 
+
 namespace clmr
 {
-    void ASTCodePrint::outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
+    void ASTCodePrint::closeNS(std::string& pCodeStr, std::size_t pCount)
     {
-        for (const auto& itr : pFnsMap) {
-            if (!itr.second.signatures.empty()) {
-                pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
-                pOut << printFreeFnsInitDecls(itr.second.ast.function);
-                pOut << "}\n\n";
-            }
+        for (int i = 0; i < pCount; i++) {
+            pCodeStr.append("}");
+        }
+    }
+
+    std::size_t ASTCodePrint::openNS(std::string& pCodeStr, const std::string& pType)
+    {
+        std::vector<std::string> typnames = StringUtils::splitQualifiedName(pType);
+        for (const auto& typeStr : typnames) {
+            pCodeStr.append("\nnamespace " + typeStr + " {");
+        }
+        return typnames.size();
+    }
+
+
+    std::string clmr::ASTCodePrint::getSignaturesJSON(const std::vector<ASTFnSign>& pSigns)
+    {
+        auto size = pSigns.size();
+        std::string codeStr = "\"{\"\n";
+
+        for (std::size_t i = 0; i < size; i++) 
+        {
+            codeStr.append("        \"sign" + std::to_string(i) + ": ")
+                   .append(pSigns[i].returnType)
+                   .append("(" + pSigns[i].paramsType + ")")
+                   .append((i < size - 1) ? ",\"\n" : "\"");
+        }
+        return codeStr.append("\n    \"}\"");
+    }
+}
+
+
+
+namespace clmr
+{
+    void ASTCodePrint::outRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
+    {
+        for (const auto& itr : pRecodsMap) {
+            pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
+            pOut << printRecordInitDefs(itr.second);
+            pOut << "}\n\n";
         }
     }
 
@@ -29,17 +65,19 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
     {
-        for (const auto& itr : pRecodsMap) {
-            pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
-            pOut << printTypeRecordInitDefs(itr.second);
-            pOut << "}\n\n";
+        for (const auto& itr : pFnsMap) {
+            if (!itr.second.signatures.empty()) {
+                pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
+                pOut << printFreeFnsInitDecls(itr.second.ast.function);
+                pOut << "}\n\n";
+            }
         }
     }
 
 
-    void ASTCodePrint::outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut) 
+    void ASTCodePrint::outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
     {
         if (!pRecodsMap.begin()->second.methods.empty()) {
             for (const auto& itr : pRecodsMap) {
@@ -48,7 +86,7 @@ namespace clmr
                 const auto& fnMeta = methodMap.begin()->second;
 
                 pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
-                pOut << printTypeRecordInitDecls(fnMeta.ast.record);
+                pOut << printRecordInitDecls(fnMeta.ast.record);
                 pOut << "}\n\n";
             }
         }
@@ -62,33 +100,14 @@ namespace clmr
             const auto& metaFn = it->second;
             if (metaFn.ast.metaKind == MetaKind::NonMemberFn) {
 
-                std::string codeStr = "\nnamespace " + std::string(NS_FUNCTION) + " {";
-                codeStr.append(printNamespaceFnIDs(metaFn))
+                std::string codeStr;
+                codeStr.append("\nnamespace ").append(NS_FUNCTION).append(" {")
+                       .append(printNamespaceFnIDs(metaFn))
                        .append("}");
 
                 pOut << codeStr << "\n";
             }
         }
-    }
-
-
-    std::string ASTCodePrint::printRecordNamespaceFnIDs(const ASTCodeMeta& pMeta)
-    {
-        std::string codeStr;
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.record);
-        for (const auto& typeStr : typenames) {
-            codeStr.append("\nnamespace " + typeStr + " {");
-        }
-
-        codeStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
-               .append("\nnamespace " + pMeta.ast.function + " {")
-               .append(printFreeFnsIDs(pMeta))
-               .append("\n}}");
-
-        for (auto& _ : typenames) {
-            codeStr.append("}");
-        }
-        return codeStr;
     }
 
 
@@ -100,40 +119,13 @@ namespace clmr
             if (metaFn.ast.metaKind != MetaKind::Ctor) {
 
                 std::string codeStr;
-                codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
+                codeStr.append("\nnamespace ").append(NS_TYPE).append(" {")
                        .append(printRecordNamespaceFnIDs(it->second))
                        .append("}");
 
                 pOut << codeStr << "\n";
             }
         }
-    }
-
-
-    std::string ASTCodePrint::printFreeFnsIDs(const ASTCodeMeta& pMeta)
-    {
-        std::string codeStr;
-        codeStr.append("\n    inline constexpr std::string_view id = \"")
-               .append(pMeta.ast.function)
-               .append("\";")
-               .append("\n    inline constexpr std::string_view signatures = \"{\"\n");
-
-        auto size = pMeta.signatures.size();
-        for (std::size_t i = 0; i < size; i++) 
-        {
-            codeStr.append("        \"sign" + std::to_string(i) + ": ")
-                   .append(pMeta.signatures[i].returnType)
-                   .append("(" + pMeta.signatures[i].paramsType + ")");
-
-            if (i < size - 1) {
-                codeStr.append(",\"\n");
-            }
-            else {
-                codeStr.append("\"");
-            }
-        }
-        codeStr.append("\n    \"}\";");
-        return codeStr;
     }
 
 
@@ -146,13 +138,43 @@ namespace clmr
 
             std::string codeStr;
             codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
-                   .append(printTypeRecordIDs(fnMeta))
+                   .append(printRecordIDs(fnMeta))
                    .append("}");
 
             pOut << codeStr << "\n";
             outMemberFunctionIDs(methodMap, pOut);
             pOut << "\n";
         }
+    }
+}
+
+
+
+namespace clmr
+{
+    std::string ASTCodePrint::printFreeFnsIDs(const ASTCodeMeta& pMeta)
+    {
+        return std::string("\n    inline constexpr std::string_view id = \"")
+              .append(pMeta.ast.function)
+              .append("\";")
+              .append("\n    inline constexpr std::string_view signatures = ")
+              .append(getSignaturesJSON(pMeta.signatures))
+              .append(";");
+    }
+
+
+    std::string ASTCodePrint::printRecordNamespaceFnIDs(const ASTCodeMeta& pMeta)
+    {
+        std::string codeStr;
+        int nscount = openNS(codeStr, pMeta.ast.record);
+
+        codeStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
+               .append("\nnamespace " + pMeta.ast.function + " {")
+               .append(printFreeFnsIDs(pMeta))
+               .append("\n}}");
+
+        closeNS(codeStr, nscount);
+        return codeStr;
     }
 
     
@@ -188,19 +210,36 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::printTypeRecordInitDefs(const ASTRecordMeta& pMeta)
+    std::string ASTCodePrint::printRecordInitDefs(const ASTRecordMeta& pMeta)
     {
         std::string codeStr;
-        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.typeStr);
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.record);
         for (const auto& typeStr : typenames) {
             codeStr.append("\nnamespace " + typeStr + " {");
         }
 
-        codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + " {")
-               .append("\n\n        fns.push_back(rtl::type().record<").append(pMeta.typeStr)
-               .append(">(\"")
-               .append(pMeta.typeStr)
-               .append("\").build());");
+        auto idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
+                                        .append("::").append(pMeta.record)
+                                        .append("::").append(VAR_ID);
+
+        codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + " {\n\n")
+               .append("        fns.push_back(rtl::type().record<" + pMeta.record + ">(" + idStr + ")"
+                     "\n                                 .build());");
+
+        for (auto& it : pMeta.methods) 
+        {
+            auto name = (pMeta.record + "::" + it.first);
+            auto fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
+                                             .append("::").append(pMeta.record)
+                                             .append("::").append(NS_FUNCTION)
+                                             .append("::").append(VAR_ID);
+
+            if (it.second.signatures.size() == 1) {
+                codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.record).append(">()"
+                                 "\n                                 .method(").append(fIdStr).append(")"
+                                 "\n                      ").append(".build(&").append(name).append("));");
+            }
+        }
 
         codeStr.append("\n    }\n");
         for (auto& _ : typenames) {
@@ -210,7 +249,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::printTypeRecordIDs(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::printRecordIDs(const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
         std::vector<std::string> typenames = StringUtils::splitQualifiedName(pMeta.ast.record);
@@ -229,7 +268,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::printTypeRecordInitDecls(const std::string& pRecordName)
+    std::string ASTCodePrint::printRecordInitDecls(const std::string& pRecordName)
     {
         std::string codeStr;
         std::vector<std::string> typenames = StringUtils::splitQualifiedName(pRecordName);
@@ -244,6 +283,8 @@ namespace clmr
         }
         return codeStr;
     }
+
+
 
 
     std::string ASTCodePrint::printNamespaceFnIDs(const ASTCodeMeta& pMeta)

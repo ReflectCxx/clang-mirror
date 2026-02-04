@@ -34,7 +34,7 @@ namespace clmr
     {
         using MemberFnsMap = std::unordered_map<std::string, clmr::ASTCodeMeta>;
 
-        std::string typeStr;
+        std::string record;
         MemberFnsMap methods;
 	};
 }

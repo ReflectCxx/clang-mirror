@@ -31,7 +31,7 @@ namespace clmr
         if (itr == pFnMetaMap.end())
         {
             return pFnMetaMap.emplace(pTypeStr, ASTRecordMeta{
-                    .typeStr = pTypeStr,
+                    .record = pTypeStr,
                     .methods = ASTRecordMeta::MemberFnsMap()
             }).first->second;
         }

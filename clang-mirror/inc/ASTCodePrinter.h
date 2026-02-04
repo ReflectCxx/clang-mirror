@@ -31,8 +31,12 @@ namespace clmr
 		static std::string printFreeFnsInitDefs(const ASTCodeMeta& pMeta);
 		static std::string printFreeFnsInitDecls(const std::string& pFnName);
 		
-		static std::string printTypeRecordIDs(const ASTCodeMeta& pMeta);
-		static std::string printTypeRecordInitDefs(const ASTRecordMeta& pMeta);
-		static std::string printTypeRecordInitDecls(const std::string& pRecord);
+		static std::string printRecordIDs(const ASTCodeMeta& pMeta);
+		static std::string printRecordInitDefs(const ASTRecordMeta& pMeta);
+		static std::string printRecordInitDecls(const std::string& pRecord);
+
+		static void closeNS(std::string& pCodeStr, std::size_t pCount);
+		static std::size_t openNS(std::string& pCodeStr, const std::string& pType);
+		static std::string getSignaturesJSON(const std::vector<ASTFnSign>& pSigns);
 	};
 }

@@ -27,7 +27,7 @@ namespace clmr {
 	inline constexpr std::string_view STRUCT = "struct";
 	
 
-
+	inline constexpr std::string_view VAR_ID = "id";
 	inline constexpr std::string_view NS_CXX = "cxx";
 	inline constexpr std::string_view NS_RTL = "rtl";
 	inline constexpr std::string_view NS_TYPE = "type";
