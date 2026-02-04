@@ -43,36 +43,39 @@ namespace clmr {
         }
     }
 
-    
-    void ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
-    {
-        auto codeBuffer = getCodeBuffer(pSrcFile);
-        if (codeBuffer && !codeBuffer->isCompilationFailed()) {
-
-            auto fname = std::string(File::regInitSrcPrefix).append(std::to_string(pIndex))
-                                                            .append(".cpp");
-            dump(&ASTCodeManager::emitRegistrationCpp, &ASTCodeManager::toCxxDir, fname);
-        }
-    }
-
-
     void ASTCodeManager::emitCxxMirror()
     {
         using CMgr = ASTCodeManager;
-        dump(&CMgr::emitRegisteredIds, &CMgr::toCxxDir, File::nameIDsHeader);
-        dump(&CMgr::emitRegistrationFns, &CMgr::toCxxDir, File::nameRegHeader);
-        dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::cxxMirHeader);
+        dump(&CMgr::emitRegisteredIds, &CMgr::toClmrDir, File::nameIDsHeader);
+        dump(&CMgr::emitRegistrationFns, &CMgr::toClmrDir, File::nameRegHeader);
+        dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
 
         Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }
 
 
-    std::filesystem::path ASTCodeManager::toCxxDir(std::string_view pPath)
+    void ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
+    {
+        auto codeBuffer = getCodeBuffer(pSrcFile);
+        if (codeBuffer && !codeBuffer->isCompilationFailed()) {
+
+            std::string fname = std::string(File::prefixRegs);
+            fname.append(std::to_string(pIndex))
+                 .append("_")
+                 .append(std::filesystem::path(pSrcFile).stem().string())
+                 .append(".cpp");
+
+            dump(&ASTCodeManager::emitRegistrationCpp, &ASTCodeManager::toClmrDir, fname);
+        }
+    }
+
+
+    std::filesystem::path ASTCodeManager::toClmrDir(std::string_view pPath)
     {
         static auto dir = [&]()
         {
             std::error_code err;
-            std::filesystem::path dir = std::filesystem::path(pPath) / NS_RTL / NS_CXX;
+            std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRtl / File::dirClmr;
             std::filesystem::create_directories(dir, err);
             if (err) {
                 Logger::outException("Failed to create output directory: " + err.message());
@@ -89,7 +92,7 @@ namespace clmr {
         static auto dir = [&]()
         {
             std::error_code err;
-            std::filesystem::path dir = std::filesystem::path(pPath) / NS_RTL;
+            std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRtl;
             std::filesystem::create_directories(dir, err);
             if (err) {
                 Logger::outException("Failed to create output directory: " + err.message());
@@ -185,7 +188,7 @@ namespace clmr {
     void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut)
     {
         std::string incrtl = "rtl/rtl_access.h";
-        std::string inccxx = std::string(NS_CXX).append("/").append(File::nameIDsHeader);
+        std::string inccxx = std::string(File::dirClmr).append("/").append(File::nameIDsHeader);
 
         pOut << "\n#pragma once\n"
                 "\n#include \"" << incrtl << "\""

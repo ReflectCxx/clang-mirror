@@ -17,7 +17,7 @@ namespace clmr
 		std::unordered_map<std::string, ASTCodeBuffer*> m_codeGens;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
-		static std::filesystem::path toCxxDir(std::string_view pPath);
+		static std::filesystem::path toClmrDir(std::string_view pPath);
 
 		void emitRegisteredIds(std::ofstream& pOut);
 		void emitRegistrationFns(std::ofstream& pOut);

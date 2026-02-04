@@ -52,11 +52,13 @@ namespace clmr
 	};
 
 	struct File {
-		static constexpr std::string_view nameIDsHeader = "registered_ids.h";
-		static constexpr std::string_view nameRegHeader = "registrations.h";
-		static constexpr std::string_view regInitSrcPrefix = "registrations_";
-		static constexpr std::string_view cxxMirHeader = "cxxmirror.h";
-		static constexpr std::string_view cxxMirrorSrc = "cxxmirror.cpp";
+		static constexpr std::string_view dirRtl = "rtl";
+		static constexpr std::string_view dirClmr = "clmr";
+		static constexpr std::string_view prefixRegs = "reg_defs";
+		static constexpr std::string_view nameIDsHeader = "reg_ids.h";
+		static constexpr std::string_view nameRegHeader = "reg_decls.h";
+		static constexpr std::string_view nameCxxHeader = "cxxmirror.h";
+		static constexpr std::string_view nameCxxSource = "cxxmirror.cpp";
 	};
 
 	struct ASTRecordMeta;
