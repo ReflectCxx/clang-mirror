@@ -168,10 +168,22 @@ namespace clmr {
 
 
 
-
 namespace clmr {
 
-    void ASTCodeManager::emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*_)
+    void ASTCodeManager::emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
+    {
+        pOut << "\n"
+                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
+                "\n#include \"" << std::string(File::nameRegHeader) << "\""
+                "\n"
+                "\n";
+
+        ASTCodePrint::outFreeFnsInitDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
+        ASTCodePrint::outRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
+    }
+
+
+    void ASTCodeManager::emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*)
     {
         pOut << std::string("\n#pragma once"
                             "\n#include <vector>\n"
@@ -180,18 +192,18 @@ namespace clmr {
         pOut<< "\n";
         for (const auto& itr : m_codeGens) {
             if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outRegistrationDecls(itr.second->getFreeFunctionsMap(), pOut);
+                ASTCodePrint::outFreeFnsDecls(itr.second->getFreeFunctionsMap(), pOut);
             }
         }
         for (const auto& itr : m_codeGens) {
             if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outRegistrationDecls(itr.second->getRecordsMap(), pOut);
+                ASTCodePrint::outRecordInitDecls(itr.second->getRecordsMap(), pOut);
             }
         }
     }
 
 
-    void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*_)
+    void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
         std::string incIds = std::string(File::dirClmr).append("/").append(File::nameIDsHeader);
 
@@ -203,7 +215,7 @@ namespace clmr {
     }
 
 
-    void ASTCodeManager::emitRegisteredIds(std::ofstream& pOut, ASTCodeBuffer*_)
+    void ASTCodeManager::emitRegisteredIds(std::ofstream& pOut, ASTCodeBuffer*)
     {
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"
@@ -223,20 +235,7 @@ namespace clmr {
     }
 
 
-    void ASTCodeManager::emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
-    {
-        pOut << "\n"
-                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
-                "\n#include \"" << std::string(File::nameRegHeader) << "\""
-                "\n"
-                "\n";
-
-        ASTCodePrint::outRegistrationDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
-        ASTCodePrint::outRegistrationDefs(pCodeBuffer->getRecordsMap(), pOut);
-    }
-
-
-    void ASTCodeManager::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*_)
+    void ASTCodeManager::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
     {
         std::string incDecls = std::string(File::dirClmr).append("/").append(File::nameRegHeader);
 

@@ -6,7 +6,7 @@
 
 namespace nsdate
 {
-	struct Date;
+	struct Date
 	{
 		Date();
 		Date(const Date& pOther);
