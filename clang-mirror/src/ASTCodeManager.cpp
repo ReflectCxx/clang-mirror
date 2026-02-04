@@ -220,7 +220,9 @@ namespace clmr {
     {
         pOut << "\n"
                 "\n#include \"" << std::string(File::nameIDsHeader) << "\""
-                "\n#include \"" << std::string(File::nameRegHeader) << "\"";
+                "\n#include \"" << std::string(File::nameRegHeader) << "\""
+                "\n"
+                "\n";
     }
 
 

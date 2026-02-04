@@ -25,6 +25,17 @@ namespace clmr
         }
     }
 
+    void ASTCodePrinter::printRegistrationDefns(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
+    {
+        for (const auto& itr : pFnsMap) {
+            if (!itr.second.signatures.empty()) {
+                pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
+                pOut << printFnInitDeclarations(itr.second.ast.function);
+                pOut << "}\n\n";
+            }
+        }
+    }
+
 
     void ASTCodePrinter::printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut) 
     {
@@ -150,7 +161,24 @@ namespace clmr
         for (const auto& typeStr : typenames) {
             codeStr.append("\nnamespace " + typeStr + " {");
         }
-        codeStr.append("\n    " + std::string(DECL_INIT_REGIS) + ";\n");
+        codeStr.append("\n    " + std::string(REGIS_INIT_DECL) + ";\n");
+        for (auto& _ : typenames) {
+            codeStr.append("}");
+        }
+        return codeStr;
+    }
+
+
+    std::string ASTCodePrinter::printFnInitDefinitions(const std::string& pFnName)
+    {
+        std::string codeStr;
+        std::vector<std::string> typenames = StringUtils::splitQualifiedName(pFnName);
+        for (const auto& typeStr : typenames) {
+            codeStr.append("\nnamespace " + typeStr + " {");
+        }
+
+        codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + ";\n");
+
         for (auto& _ : typenames) {
             codeStr.append("}");
         }
@@ -185,7 +213,7 @@ namespace clmr
             codeStr.append("\nnamespace " + typeStr + " {");
         }
 
-        codeStr.append("\n    " + std::string(DECL_INIT_REGIS) + ";\n");
+        codeStr.append("\n    " + std::string(REGIS_INIT_DECL) + ";\n");
 
         for (auto& _ : typenames) {
             codeStr.append("}");
