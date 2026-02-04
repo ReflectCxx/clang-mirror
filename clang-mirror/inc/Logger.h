@@ -19,7 +19,7 @@ namespace clmr {
 		static void outException(const std::string& pMsg);
 		static void resetDoneCounter(const int pTotalCount);
 		static void outProgress(const std::string& pMsg, bool pUpdate = true);
-		static void outReflectError(const std::string& pSrcFile,
+		static void outError(const std::string& pSrcFile,
 									const std::vector<std::string>& pUnreflectedFuncs, 
 									const std::vector<ErrorTuple>& pMissingHeaders);
 	};

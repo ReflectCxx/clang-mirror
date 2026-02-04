@@ -70,7 +70,7 @@ namespace clmr
 			}
 			else {
 				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
-				Logger::outReflectError(srcFilePath, std::vector<std::string>(), errors);
+				Logger::outError(srcFilePath, std::vector<std::string>(), errors);
 			}
 		}
 

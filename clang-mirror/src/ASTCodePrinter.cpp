@@ -177,7 +177,7 @@ namespace clmr
 
         codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + " {")
                .append("\n")
-               .append("\n    }");
+               .append("\n    }\n");
 
         for (auto& _ : typenames) {
             codeStr.append("}");

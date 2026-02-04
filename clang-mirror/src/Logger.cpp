@@ -66,7 +66,7 @@ namespace clmr {
 		std::cout << GREEN << "\n[" << formatProgress() << "]\t" << TEAL << "compiling: " << RESET << pMsg;
 	}
 
-	void Logger::outReflectError(const std::string& pSrcFile, const std::vector<std::string>& pUnreflectedFuncs, const std::vector<ErrorTuple>& pErrors)
+	void Logger::outError(const std::string& pSrcFile, const std::vector<std::string>& pUnreflectedFuncs, const std::vector<ErrorTuple>& pErrors)
 	{
 		std::lock_guard<std::mutex> lock(g_mutex);
 

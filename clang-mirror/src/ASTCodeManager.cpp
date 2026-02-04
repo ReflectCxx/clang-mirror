@@ -153,7 +153,7 @@ namespace clmr {
                 Logger::outException("Error writing file: " + fspath.string());
             }
             else {
-                Logger::outException("Compilation error occured.");
+                Logger::out("Compilation error occured.");
             }
             return;
         }
