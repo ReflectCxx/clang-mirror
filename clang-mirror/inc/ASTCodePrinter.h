@@ -24,19 +24,20 @@ namespace clmr
 
 	private:
 
-		static std::string printNamespaceFnIDs(const ASTCodeMeta& pMeta);
-		static std::string printRecordNamespaceFnIDs(const ASTCodeMeta& pMeta);
+		static std::string freeFunctionsNsIDs(const ASTCodeMeta& pMeta);
+		static std::string memberFunctionsNsIDs(const ASTCodeMeta& pMeta);
 		
-		static std::string printFreeFnsIDs(const ASTCodeMeta& pMeta);
-		static std::string printFreeFnsInitDefs(const ASTCodeMeta& pMeta);
-		static std::string printFreeFnsInitDecls(const std::string& pFnName);
+		static std::string freeFunctionIDs(const ASTCodeMeta& pMeta);
+		static std::string freeFunctionInitDefs(const ASTCodeMeta& pMeta);
+		static std::string freeFunctionInitDecls(const std::string& pFnName);
 		
-		static std::string printRecordIDs(const ASTCodeMeta& pMeta);
-		static std::string printRecordInitDefs(const ASTRecordMeta& pMeta);
-		static std::string printRecordInitDecls(const std::string& pRecord);
+		static std::string recordTypeIDs(const ASTCodeMeta& pMeta);
+		static std::string recordTypeInitDefs(const ASTRecordMeta& pMeta);
+		static std::string recordTypeInitDecls(const std::string& pRecord);
 
 		static void closeNS(std::string& pCodeStr, std::size_t pCount);
 		static std::size_t openNS(std::string& pCodeStr, const std::string& pType);
 		static std::string getSignaturesJSON(const std::vector<ASTFnSign>& pSigns);
+		static std::string getMethodRegistrationExpr(const ASTCodeMeta& pCodeMeta);
 	};
 }
