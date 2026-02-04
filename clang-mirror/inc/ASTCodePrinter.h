@@ -10,18 +10,16 @@ namespace clmr {
 
 namespace clmr
 {
-	struct ASTCodePrinter
+	struct ASTCodePrint
 	{
-		static std::string getIncludesForRegistrations();
+		static void outTypeRecords(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void outFreeFunctions(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);
+		static void outMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut);
 
-		static void printTypeRecords(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
-		static void printFreeFunctions(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);
-		static void printMemberFunctions(const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut);
-
-		static void printRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
-		static void printRegistrationDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
-		static void printRegistrationDefns(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
-		static void printRegistrationDefns(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
+		static void outRegistrationDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void outRegistrationDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
+		static void outRegistrationDefns(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void outRegistrationDefns(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
 
 	private:
 

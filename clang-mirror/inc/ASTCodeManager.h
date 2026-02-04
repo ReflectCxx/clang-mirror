@@ -19,13 +19,13 @@ namespace clmr
 		static std::filesystem::path toRootDir(std::string_view pPath);
 		static std::filesystem::path toClmrDir(std::string_view pPath);
 
-		void emitRegisteredIds(std::ofstream& pOut);
-		void emitRegistrationFns(std::ofstream& pOut);
-		void emitCxxMirrorHeader(std::ofstream& pOut);
-		void emitCxxMirrorSource(std::ofstream& pOut);
-		void emitRegistrationCpp(std::ofstream& pOut);
+		bool emitRegisteredIds(std::ofstream& pOut);
+		bool emitRegistrationFns(std::ofstream& pOut);
+		bool emitCxxMirrorHeader(std::ofstream& pOut);
+		bool emitCxxMirrorSource(std::ofstream& pOut);
+		bool emitRegistrationCpp(std::ofstream& pOut);
 
-		using Emitter = void(ASTCodeManager::*)(std::ofstream&);
+		using Emitter = bool(ASTCodeManager::*)(std::ofstream&);
 		using GetDir = std::filesystem::path(*)(std::string_view);
 
 		void dump(Emitter pEmiter, GetDir pGetDir, std::string_view pFile);
