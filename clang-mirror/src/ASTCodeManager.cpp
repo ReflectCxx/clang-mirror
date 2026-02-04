@@ -192,7 +192,7 @@ namespace clmr
         using DirT = std::filesystem::path(*)(std::string);
         using EmitterT = void(ASTCodeManager::*)(std::ofstream&);
 
-        auto fwrite = [this](EmitterT emit, DirT getDir, std::string_view file)
+        auto fw = [this](EmitterT emit, DirT getDir, std::string_view file)
         {
             auto fspath = getDir(m_outPath) / file;
             std::ofstream fout(fspath);
@@ -211,14 +211,14 @@ namespace clmr
             Logger::outgen(fspath.string());
         };
 
-        fwrite(&ASTCodeManager::emitMetadataIds,
-               &ASTCodeManager::inCxxDir, File::nameIDsHeader);
+        fw(&ASTCodeManager::emitMetadataIds,
+           &ASTCodeManager::inCxxDir, File::nameIDsHeader);
 
-        fwrite(&ASTCodeManager::emitRegistrationDecls,
-               &ASTCodeManager::inCxxDir, File::nameRegHeader);
+        fw(&ASTCodeManager::emitRegistrationDecls,
+           &ASTCodeManager::inCxxDir, File::nameRegHeader);
 
-        fwrite(&ASTCodeManager::emitCxxMirrorHeader,
-               &ASTCodeManager::inRootDir, File::cxxMirHeader);
+        fw(&ASTCodeManager::emitCxxMirrorHeader,
+           &ASTCodeManager::inRootDir, File::cxxMirHeader);
 
         Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
     }
