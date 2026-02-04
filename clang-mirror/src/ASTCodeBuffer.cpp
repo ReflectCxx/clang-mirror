@@ -25,13 +25,13 @@ namespace clmr
     }
 
 
-    ASTRecordMeta& ASTCodeBuffer::getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr)
+    ASTRecordMeta& ASTCodeBuffer::getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pRecordStr)
     {
-        const auto& itr = pFnMetaMap.find(pTypeStr);
+        const auto& itr = pFnMetaMap.find(pRecordStr);
         if (itr == pFnMetaMap.end())
         {
-            return pFnMetaMap.emplace(pTypeStr, ASTRecordMeta{
-                    .record = pTypeStr,
+            return pFnMetaMap.emplace(pRecordStr, ASTRecordMeta{
+                    .record = pRecordStr,
                     .methods = ASTRecordMeta::MemberFnsMap()
             }).first->second;
         }

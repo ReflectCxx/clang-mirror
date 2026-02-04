@@ -39,9 +39,33 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::getMethodRegistrationExpr(const ASTCodeMeta& pCodeMeta)
+    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pFnName, const std::string& pFnID, const ASTCodeMeta& pMeta)
     {
-        return std::string();
+        std::string suffix = "";
+        if (pMeta.ast.metaKind == MetaKind::MemberFnConst) {
+            suffix = "Const";
+        }
+        else if (pMeta.ast.metaKind == MetaKind::MemberFnStatic) {
+            suffix = "Static";
+        }
+
+        std::string codeStr;
+        if (pMeta.signatures.size() == 1) {
+            codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.ast.record).append(">()"
+                             "\n                                 .method").append(suffix).append("(").append(pFnID).append(")"
+                             "\n                                 ").append(".build(&").append(pFnName).append("));");
+        }
+        else {
+            for (auto& sign : pMeta.signatures)
+            {
+                  codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.ast.record).append(">()"
+                                   "\n                                 .method").append(suffix)
+                                                                                .append("<").append(sign.paramsType).append(">")
+                                                                                .append("(").append(pFnID).append(")"
+                                   "\n                                 ").append(".build(&").append(pFnName).append("));");
+            }
+        }
+        return codeStr;
     }
 }
 
@@ -276,24 +300,11 @@ namespace clmr
             auto fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                              .append("::").append(pMeta.record)
                                              .append("::").append(NS_FUNCTION)
+                                             .append("::").append(codeMeta.ast.function)
                                              .append("::").append(VAR_ID);
 
-            if (codeMeta.ast.metaKind != MetaKind::Ctor && codeMeta.ast.metaKind != MetaKind::NonMemberFn)
-            {
-                if (codeMeta.ast.metaKind == MetaKind::MemberFnNonConst) {
-                    if (it.second.signatures.size() == 1) {
-                        codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.record).append(">()"
-                                         "\n                                 .method(").append(fIdStr).append(")"
-                                         "\n                                 ").append(".build(&").append(name).append("));");
-                    }
-                    else {
-                        for (auto& sign : it.second.signatures) {
-                            codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.record).append(">()"
-                                             "\n                                 .method<").append(sign.paramsType).append(">(").append(fIdStr).append(")"
-                                             "\n                                 ").append(".build(&").append(name).append("));");
-                        }
-                    }
-                }
+            if (codeMeta.ast.metaKind != MetaKind::Ctor && codeMeta.ast.metaKind != MetaKind::NonMemberFn) {
+                codeStr.append(getMethodRegistrationExpr(name, fIdStr, codeMeta));
             }
         }
         codeStr.append("\n    }\n");
