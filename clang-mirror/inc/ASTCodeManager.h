@@ -16,12 +16,18 @@ namespace clmr
 		std::string m_outPath;
 		std::unordered_map<std::string, ASTCodeBuffer*> m_codeGens;
 
-		static std::filesystem::path inRootDir(std::string pPath);
-		static std::filesystem::path inCxxDir(std::string pPath);
+		static std::filesystem::path toRootDir(std::string_view pPath);
+		static std::filesystem::path toCxxDir(std::string_view pPath);
 
-		void emitMetadataIds(std::ofstream& pOut);
-		void emitRegistrationDecls(std::ofstream& pOut);
+		void emitRegisteredIds(std::ofstream& pOut);
+		void emitRegistrationFns(std::ofstream& pOut);
 		void emitCxxMirrorHeader(std::ofstream& pOut);
+		void emitRegistrationsCpp(std::ofstream& pOut);
+
+		using Emitter = void(ASTCodeManager::*)(std::ofstream&);
+		using GetDir = std::filesystem::path(*)(std::string_view);
+
+		void dump(Emitter pEmiter, GetDir pGetDir, std::string_view pFile);
 
 		ASTCodeManager();
 		~ASTCodeManager();
@@ -43,6 +49,6 @@ namespace clmr
 
 		void compilationFailedFor(const std::string& pSrcFile);
 
-		void dumpRegistrations(const std::string& pSrcFile, std::size_t pIndex);
+		void emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex);
 	};
 }

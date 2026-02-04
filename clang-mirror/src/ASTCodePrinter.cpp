@@ -18,7 +18,7 @@ namespace clmr
     {
         for (const auto& itr : pFnsMap) {
             if (!itr.second.signatures.empty()) {
-                pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
+                pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
                 pOut << printFnInitDeclarations(itr.second.ast.function);
                 pOut << "}\n\n";
             }
@@ -34,7 +34,7 @@ namespace clmr
                 const auto& methodMap = itr.second.methods;
                 const auto& fnMeta = methodMap.begin()->second;
 
-                pOut << "\nnamespace " + std::string(NS_REGISTRATION) + " {";
+                pOut << "\nnamespace " + std::string(NS_REGISTER) + " {";
                 pOut << printTypeInitDeclarations(fnMeta.ast.record);
                 pOut << "}\n\n";
             }

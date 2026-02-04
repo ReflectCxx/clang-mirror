@@ -43,8 +43,32 @@ namespace clmr
         }
     }
 
+    
+    void ASTCodeManager::emitCxxMirror()
+    {
+        using CMgr = ASTCodeManager;
 
-    std::filesystem::path ASTCodeManager::inCxxDir(std::string pPath)
+        dump(&CMgr::emitRegisteredIds, &CMgr::toCxxDir, File::nameIDsHeader);
+        dump(&CMgr::emitRegistrationFns, &CMgr::toCxxDir, File::nameRegHeader);
+        dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::cxxMirHeader);
+        Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
+    }
+
+
+    void ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
+    {
+        using CMgr = ASTCodeManager;
+        auto codeBuffer = getCodeBuffer(pSrcFile);
+        if (codeBuffer && !codeBuffer->isCompilationFailed()) {
+
+            std::string fname(File::regInitSrcPrefix);
+            fname.append(std::to_string(pIndex)).append(".cpp");    
+            dump(&CMgr::emitRegistrationsCpp, &CMgr::toCxxDir, fname);
+        }
+    }
+
+
+    std::filesystem::path ASTCodeManager::toCxxDir(std::string_view pPath)
     {
         static auto dir = [&]()
         {
@@ -61,7 +85,7 @@ namespace clmr
     }
 
 
-    std::filesystem::path ASTCodeManager::inRootDir(std::string pPath)
+    std::filesystem::path ASTCodeManager::toRootDir(std::string_view pPath)
     {
         static auto dir = [&]()
         {
@@ -91,7 +115,15 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::emitMetadataIds(std::ofstream& pOut)
+    void ASTCodeManager::emitRegistrationsCpp(std::ofstream& pOut)
+    {
+        pOut << "\n"
+                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
+                "\n#include \"" << std::string(File::nameRegHeader) << "\"";
+    }
+
+
+    void ASTCodeManager::emitRegisteredIds(std::ofstream& pOut)
     {
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"
@@ -111,7 +143,7 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::emitRegistrationDecls(std::ofstream& pOut)
+    void ASTCodeManager::emitRegistrationFns(std::ofstream& pOut)
     {
         pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
 
@@ -158,68 +190,35 @@ namespace clmr
     }
 
 
-    void ASTCodeManager::dumpRegistrations(const std::string& pSrcFile, std::size_t pIndex)
+    void ASTCodeManager::dump(Emitter pEmiter, GetDir pGetDir, std::string_view pFile)
     {
-        auto codeBuffer = getCodeBuffer(pSrcFile);
-        if (codeBuffer && !codeBuffer->isCompilationFailed()) 
-        {
-            std::string fname = std::string(File::regInitSrcPrefix).append(std::to_string(pIndex))
-                                                            .append(".cpp");
-            auto fspath = inCxxDir(m_outPath) / fname;
-            std::ofstream fout(fspath, std::ios::out);
-            if (!fout.is_open()) {
-                Logger::outException("Error opening file:" + fspath.string());
-                return;
-            }
+        std::filesystem::path fspath = pGetDir(m_outPath) / pFile;
+        std::filesystem::path temp = fspath;
+        temp += ".tmp";
 
-            fout << "\n"
-                    "\n#include \"" << std::string(File::nameIDsHeader) << "\""
-                    "\n#include \"" << std::string(File::nameRegHeader) << "\"";
-
-            fout.flush();
-            fout.close();
-
-            if (fout.fail() || fout.bad()) {
-                Logger::outException("Error closing file:" + fspath.string());
-                return;
-            }
-            Logger::outgen(fspath.string());
+        std::ofstream fout(temp);
+        if (!fout) {
+            Logger::outException("Error opening file: " + fspath.string());
+            return;
         }
-    }
 
-    void ASTCodeManager::emitCxxMirror()
-    {
-        using DirT = std::filesystem::path(*)(std::string);
-        using EmitterT = void(ASTCodeManager::*)(std::ofstream&);
+        (this->*pEmiter)(fout);
 
-        auto fw = [this](EmitterT emit, DirT getDir, std::string_view file)
-        {
-            auto fspath = getDir(m_outPath) / file;
-            std::ofstream fout(fspath);
+        if (!fout) {
+            fout.close();
+            std::filesystem::remove(temp);
+            Logger::outException("Error writing file: " + fspath.string());
+            return;
+        }
+        fout.close(); // ensure buffers flushed
 
-            if (!fout) {
-                Logger::outException("Error opening file: " + fspath.string());
-                return;
-            }
-
-            (this->*emit)(fout);
-
-            if (!fout) {
-                Logger::outException("Error writing file: " + fspath.string());
-                return;
-            }
-            Logger::outgen(fspath.string());
-        };
-
-        fw(&ASTCodeManager::emitMetadataIds,
-           &ASTCodeManager::inCxxDir, File::nameIDsHeader);
-
-        fw(&ASTCodeManager::emitRegistrationDecls,
-           &ASTCodeManager::inCxxDir, File::nameRegHeader);
-
-        fw(&ASTCodeManager::emitCxxMirrorHeader,
-           &ASTCodeManager::inRootDir, File::cxxMirHeader);
-
-        Logger::out("Number of reflectable entities generated: " + std::to_string(m_codeGens.size()));
+        std::error_code ec;
+        std::filesystem::remove(fspath, ec);      // Required, `rename` does not replace existing file on Windows.
+        std::filesystem::rename(temp, fspath, ec);
+        if (ec) {
+            Logger::outException("Error replacing file: " + fspath.string());
+            return;
+        }
+        Logger::outgen(fspath.string());
     }
 }

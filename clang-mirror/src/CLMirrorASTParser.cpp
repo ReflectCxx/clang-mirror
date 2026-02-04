@@ -66,7 +66,7 @@ namespace clmr
 
 			const auto& errors = diagConsumer.getCompilationErrors();
 			if (errors.empty()) {
-				ASTCodeManager::instance().dumpRegistrations(srcFilePath, index);
+				ASTCodeManager::instance().emitRegistrationSource(srcFilePath, index);
 			}
 			else {
 				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
