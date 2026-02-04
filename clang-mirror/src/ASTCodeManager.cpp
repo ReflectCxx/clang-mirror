@@ -1,3 +1,5 @@
+
+
 #include <iostream>
 #include <mutex>
 #include <fstream>
@@ -11,28 +13,26 @@
 #include "ASTCodeManager.h"
 
 
-namespace clmr
-{
-    ASTCodeManager::ASTCodeManager()
-    {
-    }
+namespace clmr {
 
-    ASTCodeManager::~ASTCodeManager() 
-    {
+    ASTCodeManager::ASTCodeManager()
+    { }
+
+    ASTCodeManager::~ASTCodeManager() {
         for (auto& itr : m_codeGens) {
             delete itr.second;
         }
+    }
+
+    void ASTCodeManager::setOutDir(const std::string& pOutDir)
+    {
+        m_outPath = pOutDir;
     }
 
     ASTCodeManager& ASTCodeManager::instance()
     {
         static ASTCodeManager instance;
         return instance;
-    }
-
-    void ASTCodeManager::setOutDir(const std::string& pOutDir)
-    {
-        m_outPath = pOutDir;
     }
 
     void ASTCodeManager::compilationFailedFor(const std::string& pSrcFile)
@@ -44,27 +44,26 @@ namespace clmr
     }
 
     
-    void ASTCodeManager::emitCxxMirror()
-    {
-        using CMgr = ASTCodeManager;
-
-        dump(&CMgr::emitRegisteredIds, &CMgr::toCxxDir, File::nameIDsHeader);
-        dump(&CMgr::emitRegistrationFns, &CMgr::toCxxDir, File::nameRegHeader);
-        dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::cxxMirHeader);
-        Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
-    }
-
-
     void ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
     {
-        using CMgr = ASTCodeManager;
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) {
 
-            std::string fname(File::regInitSrcPrefix);
-            fname.append(std::to_string(pIndex)).append(".cpp");    
-            dump(&CMgr::emitRegistrationsCpp, &CMgr::toCxxDir, fname);
+            auto fname = std::string(File::regInitSrcPrefix).append(std::to_string(pIndex))
+                                                            .append(".cpp");
+            dump(&ASTCodeManager::emitRegistrationCpp, &ASTCodeManager::toCxxDir, fname);
         }
+    }
+
+
+    void ASTCodeManager::emitCxxMirror()
+    {
+        using CMgr = ASTCodeManager;
+        dump(&CMgr::emitRegisteredIds, &CMgr::toCxxDir, File::nameIDsHeader);
+        dump(&CMgr::emitRegistrationFns, &CMgr::toCxxDir, File::nameRegHeader);
+        dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::cxxMirHeader);
+
+        Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }
 
 
@@ -99,65 +98,6 @@ namespace clmr
             return dir;
         }();
         return dir;
-    }
-
-
-    void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut)
-    {
-        std::string incrtl = "rtl/rtl_access.h";
-        std::string inccxx = std::string(NS_CXX).append("/").append(File::nameIDsHeader);
-
-        pOut << "\n#pragma once\n"
-                "\n#include \"" << incrtl << "\""
-                "\n#include \"" << inccxx << "\"\n"
-                "\nnamespace rtl { class CxxMirror; }"
-                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
-    }
-
-
-    void ASTCodeManager::emitRegistrationsCpp(std::ofstream& pOut)
-    {
-        pOut << "\n"
-                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
-                "\n#include \"" << std::string(File::nameRegHeader) << "\"";
-    }
-
-
-    void ASTCodeManager::emitRegisteredIds(std::ofstream& pOut)
-    {
-        pOut << "\n#pragma once"
-                "\n#include <string_view>\n"
-                "\nnamespace " + std::string(NS_CXX) + " {\n";
-
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrinter::printFreeFunctions(itr.second->getFreeFunctionsMap(), pOut);
-            }
-        }
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrinter::printTypeRecords(itr.second->getRecordsMap(), pOut);
-            }
-        }
-        pOut << "\n}";
-    }
-
-
-    void ASTCodeManager::emitRegistrationFns(std::ofstream& pOut)
-    {
-        pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
-
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrinter::printRegistrationDecls(itr.second->getFreeFunctionsMap(), pOut);
-            }
-        }
-
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrinter::printRegistrationDecls(itr.second->getRecordsMap(), pOut);
-            }
-        }
     }
 
 
@@ -220,5 +160,65 @@ namespace clmr
             return;
         }
         Logger::outgen(fspath.string());
+    }
+}
+
+
+namespace clmr {
+
+    void ASTCodeManager::emitRegistrationFns(std::ofstream& pOut)
+    {
+        pOut << ASTCodePrinter::getIncludesForRegistrations() << "\n";
+        for (const auto& itr : m_codeGens) {
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printRegistrationDecls(itr.second->getFreeFunctionsMap(), pOut);
+            }
+        }
+        for (const auto& itr : m_codeGens) {
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printRegistrationDecls(itr.second->getRecordsMap(), pOut);
+            }
+        }
+    }
+
+
+    void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut)
+    {
+        std::string incrtl = "rtl/rtl_access.h";
+        std::string inccxx = std::string(NS_CXX).append("/").append(File::nameIDsHeader);
+
+        pOut << "\n#pragma once\n"
+                "\n#include \"" << incrtl << "\""
+                "\n#include \"" << inccxx << "\"\n"
+                "\nnamespace rtl { class CxxMirror; }"
+                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
+    }
+
+
+    void ASTCodeManager::emitRegisteredIds(std::ofstream& pOut)
+    {
+        pOut << "\n#pragma once"
+                "\n#include <string_view>\n"
+                "\nnamespace " + std::string(NS_CXX) + " {\n";
+
+        for (const auto& itr : m_codeGens) {
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printFreeFunctions(itr.second->getFreeFunctionsMap(), pOut);
+            }
+        }
+        for (const auto& itr : m_codeGens) {
+            if (!itr.second->isCompilationFailed()) {
+                ASTCodePrinter::printTypeRecords(itr.second->getRecordsMap(), pOut);
+            }
+        }
+        pOut << "\n}";
+    }
+
+
+    void ASTCodeManager::emitRegistrationCpp(std::ofstream& pOut)
+    {
+        pOut << "\n"
+                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
+                "\n#include \"" << std::string(File::nameRegHeader) << "\"";
     }
 }
