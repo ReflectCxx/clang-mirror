@@ -61,12 +61,12 @@ namespace clmr
         const auto& cbufs = ASTCodeManager::instance().getCodeBuffers();
         for (const auto& itr : cbufs) {
             if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outFreeFunctionIDs(itr.second->getFreeFunctionsMap(), pOut);
+                ASTCodePrint::outRegisteredFunctionIDs(itr.second->getFreeFunctionsMap(), pOut);
             }
         }
         for (const auto& itr : cbufs) {
             if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outTypeRecordIDs(itr.second->getRecordsMap(), pOut);
+                ASTCodePrint::outRegisteredTypeRecordIDs(itr.second->getRecordsMap(), pOut);
             }
         }
         pOut << "\n}";
@@ -75,13 +75,14 @@ namespace clmr
 
 	void ASTCodeGen::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
 	{
-		std::string incDecls = std::string(File::dirClmr).append("/").append(File::nameRegHeader);
+        auto rtlHeader = File::incRtlBuilder;
+        auto regIDHeader = std::string(File::dirClmr).append("/").append(File::nameRegHeader);
 
         pOut << "\n"
                 "\n#include <vector>"
                 "\n"
-                "\n#include \"" << File::incRtlBuilder << "\""
-                "\n#include \"" << incDecls << "\""
+                "\n#include \"" << rtlHeader << "\""
+                "\n#include \"" << regIDHeader << "\""
                 "\n"
                 "\nnamespace cxx { \n"
                 "\n    const rtl::CxxMirror& mirror()"

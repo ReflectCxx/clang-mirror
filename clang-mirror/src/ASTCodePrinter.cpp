@@ -41,7 +41,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pRecord, const std::string& pFnID, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pTypeID, const std::string& pFnID, const ASTCodeMeta& pMeta)
     {
         assert(!pMeta.signatures.empty());
         auto suffix = [](const ASTFnSign& sign, bool useTemplates)->std::string
@@ -64,17 +64,17 @@ namespace clmr
         if (pMeta.isCtor) {
             for (const auto& sign : pMeta.signatures) {
                 if (sign.metaKind == MetaKind::Ctor) {
-                    codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
+                    codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pTypeID).append(">()"
                                      "\n                                 .constructor").append(suffix(sign, true)).append("()"
                                                                         ".build());");
                 }
             }
         }
         else {
-            auto fnStr = (pRecord + "::" + pMeta.ast.function);
+            auto fnStr = (pTypeID + "::" + pMeta.ast.function);
             const bool useTemplate = (pMeta.signatures.size() > 1);
             for (const auto& sign : pMeta.signatures) {
-                codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
+                codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pTypeID).append(">()"
                                  "\n                                 .method").append(suffix(sign, useTemplate)).append("(").append(pFnID).append(")"
                                  "\n                                 ").append(".build(&").append(fnStr).append("));");
             }
@@ -137,7 +137,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outFreeFunctionIDs(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut)
+    void ASTCodePrint::outRegisteredFunctionIDs(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut)
     {
         for (auto it = pFunctionsMap.begin(); it != pFunctionsMap.end(); ++it)
         {
@@ -146,7 +146,7 @@ namespace clmr
 
                 std::string codeStr;
                 codeStr.append("\nnamespace ").append(NS_FUNCTION).append(" {")
-                       .append(freeFunctionsNsIDs(metaFn))
+                       .append(getFnIDsWithNameSpaces(metaFn))
                        .append("}");
 
                 pOut << codeStr << "\n";
@@ -155,7 +155,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outMemberFunctionIDs(const std::string& pRecord, const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outMethodIDsWithNamespaces(const std::string& pTypeID, const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut)
     {
         for (auto it = pMethodsMap.begin(); it != pMethodsMap.end(); ++it)
         {
@@ -164,7 +164,7 @@ namespace clmr
 
                 std::string codeStr;
                 codeStr.append("\nnamespace ").append(NS_TYPE).append(" {")
-                       .append(memberFunctionsNsIDs(pRecord, it->second))
+                       .append(getMethodIDDecleration(pTypeID, it->second))
                        .append("}");
 
                 pOut << codeStr << "\n";
@@ -173,7 +173,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outTypeRecordIDs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outRegisteredTypeRecordIDs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
     {
         for (const auto& itr : pRecodsMap) {
 
@@ -182,11 +182,11 @@ namespace clmr
 
             std::string codeStr;
             codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
-                   .append(recordTypeIDs(itr.first, fnMeta))
+                   .append(getTypeIDWithNamespaces(itr.first, fnMeta))
                    .append("}");
 
             pOut << codeStr << "\n";
-            outMemberFunctionIDs(itr.first, methodMap, pOut);
+            outMethodIDsWithNamespaces(itr.first, methodMap, pOut);
             pOut << "\n";
         }
     }
@@ -218,7 +218,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::freeFunctionIDs(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getFnIDDeclaration(const ASTCodeMeta& pMeta)
     {
         return std::string("\n    inline constexpr std::string_view id = \"")
                .append(pMeta.ast.function)
@@ -229,14 +229,14 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::memberFunctionsNsIDs(const std::string& pRecord, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getMethodIDDecleration(const std::string& pTypeID, const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pRecord);
+        int nscount = openNS(codeStr, pTypeID);
 
         codeStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
                .append("\nnamespace " + pMeta.ast.function + " {")
-               .append(freeFunctionIDs(pMeta))
+               .append(getFnIDDeclaration(pMeta))
                .append("\n}}");
 
         closeNS(codeStr, nscount);
@@ -244,13 +244,13 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::recordTypeIDs(const std::string& pRecord, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getTypeIDWithNamespaces(const std::string& pTypeID, const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pRecord);
+        int nscount = openNS(codeStr, pTypeID);
 
         codeStr.append("\n    inline constexpr std::string_view id = \"")
-               .append(pRecord)
+               .append(pTypeID)
                .append("\";\n");
 
         closeNS(codeStr, nscount);
@@ -258,7 +258,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::freeFunctionsNsIDs(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getFnIDsWithNameSpaces(const ASTCodeMeta& pMeta)
     {
         std::vector<std::string> typnames = StringUtils::splitQualifiedName(pMeta.ast.function);
         std::string fnName = typnames.back();
@@ -270,7 +270,7 @@ namespace clmr
         }
 
         codeStr.append("\nnamespace " + fnName + " {")
-               .append(freeFunctionIDs(pMeta))
+               .append(getFnIDDeclaration(pMeta))
                .append("\n}");
 
         closeNS(codeStr, typnames.size());
