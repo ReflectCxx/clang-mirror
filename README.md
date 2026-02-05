@@ -2,16 +2,9 @@
 
 `clang-mirror` generates compile-time AST-driven portable C++ code to enable runtime reflection in your project.
 
-For example, you have a these declared somewhere in your project:
+For example, you have a function declared somewhere in your project:
 ```c++
 std::string complexToStr(float real, float img);
-```
-```c++
-class Person {
-public:
-    std::string getName();
-//...
-};
 ```
 At runtime you can call the function by ID:
 ```c++
@@ -19,7 +12,7 @@ At runtime you can call the function by ID:
 //...
 
 {
-    // Find the function using its AST-generated, compile-time-checked ID.
+    // Find the function using its AST-generated, compile-checked, constexpr ID.
     auto cToStr = cxx::mirror().getFunction(cxx::fn::complexToStr::id)
                                ->argsT<float, float>()
                                .returnT<std::string>();
@@ -29,6 +22,31 @@ At runtime you can call the function by ID:
         std::string result = cToStr(61, 35);  // Works!
     }
 }
+```
+Reflect any `class`/`struct`:
+```c++
+class Person {
+public:
+    std::string getName();
+//...
+};
+```
+create instances and call member-functions:
+```c++
+
+// Navigate via Intellisense to locate the IDs.
+auto clsId = cxx::type::Person::id;
+auto fnId = cxx::type::Person::fn::getName::id;
+
+// Lookup the class by ID.
+auto classPerson = cxx::mirror().getRecord(clsId);
+auto getName = classPerson->getMethod(fnId);  // Query method, get metadata.
+
+// Runtime invocations. Get functor from metadata,
+auto method = getName->targetT<Person>()
+                     .argsT().returnT<std::string>();
+std::string name = method(personObj)();  // Person::getName() called.
+
 ```
 
 ## What It Does?
@@ -57,20 +75,7 @@ Just `#include ` the generated file and access your entire codebase reflectively
 #include "cxx_mirror.h"  // The generated header.
 // ...
 
-auto typId = cxx::type::Person::id;  // Compile-checked, generated via AST.
-auto classPerson = cxx::mirror().getRecord(typId);  // Type-safe lookup.
-// ...
 
-{
-    // If the ID is present, the method is registered (guaranteed!).
-    auto fnId = cxx::type::Person::fn::getName::id;
-    auto getName = classPerson->getMethod(fnId);  // Query method, get metadata.
-
-    // Runtime invocations. Get functor from metadata,
-    auto method = getName->targetT<Person>().argsT().returnT<std::string>();
-    std::string name = method(personObj)();  // Person::getName() called.
-}
-//...
 
 {
     auto fnId = cxx::type::Person::fn::updateAddress::id;  // Introspect via IntelliSense.
