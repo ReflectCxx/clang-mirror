@@ -9,10 +9,10 @@ namespace clmr
 {
 	struct ASTCodeGen
 	{
-		static void emitRegisteredIds(std::ofstream& pOut, ASTCodeBuffer*);
-		static void emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*);
 		static void emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*);
 		static void emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*);
-		static void emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer*);
+		static void emitRegisteredIDsHeader(std::ofstream& pOut, ASTCodeBuffer*);
+		static void emitRegistrationInitsHeader(std::ofstream& pOut, ASTCodeBuffer*);
+		static void emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer*);
 	};
 }

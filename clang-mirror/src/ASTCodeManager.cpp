@@ -40,8 +40,8 @@ namespace clmr {
         using CGen = ASTCodeGen;
         using CMgr = ASTCodeManager;
 
-        dump(&CGen::emitRegisteredIds, &CMgr::toClmrDir, File::nameIDsHeader);
-        dump(&CGen::emitRegistrationFns, &CMgr::toClmrDir, File::nameRegHeader);
+        dump(&CGen::emitRegisteredIDsHeader, &CMgr::toClmrDir, File::nameIDsHeader);
+        dump(&CGen::emitRegistrationInitsHeader, &CMgr::toClmrDir, File::nameRegHeader);
         dump(&CGen::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
         dump(&CGen::emitCxxMirrorSource, &CMgr::toRootDir, File::nameCxxSource);
 
@@ -60,7 +60,7 @@ namespace clmr {
                  .append(std::filesystem::path(pSrcFile).stem().string())
                  .append(".cpp");
 
-            dump(&ASTCodeGen::emitRegistrationCpp, &ASTCodeManager::toClmrDir, fname, codeBuffer);
+            dump(&ASTCodeGen::emitRegistrationInitsSource, &ASTCodeManager::toClmrDir, fname, codeBuffer);
         }
     }
 

@@ -6,7 +6,7 @@
 
 namespace clmr
 {
-	void ASTCodeGen::emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
+	void ASTCodeGen::emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
 	{
         pOut << "\n"
                 "\n#include \"" << std::string(File::nameIDsHeader) << "\""
@@ -31,7 +31,7 @@ namespace clmr
     }
 
 
-    void ASTCodeGen::emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*)
+    void ASTCodeGen::emitRegistrationInitsHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
         pOut << std::string("\n#pragma once"
                             "\n#include <vector>\n"
@@ -52,7 +52,7 @@ namespace clmr
     }
 
 
-    void ASTCodeGen::emitRegisteredIds(std::ofstream& pOut, ASTCodeBuffer*)
+    void ASTCodeGen::emitRegisteredIDsHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
         pOut << "\n#pragma once"
                 "\n#include <string_view>\n"

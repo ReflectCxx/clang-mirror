@@ -28,7 +28,7 @@ namespace clmr
 		void emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*);
 		void emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*);
 		void emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*);
-		void emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer*);
+		void emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer*);
 
 		using Emitter = void(*)(std::ofstream&, ASTCodeBuffer*);
 		using GetDir = std::filesystem::path(*)(std::string_view);
