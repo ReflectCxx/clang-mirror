@@ -42,7 +42,7 @@ auto fnId = cxx::type::Person::fn::getName::id;
 auto classPerson = cxx::mirror().getRecord(clsId);
 auto getName = classPerson->getMethod(fnId);  // Query method, get metadata.
 
-// Runtime invocations. Get functor from metadata,
+// Get functor from metadata,
 auto method = getName->targetT<Person>()
                      .argsT().returnT<std::string>();
 std::string name = method(personObj)();  // Person::getName() called.
