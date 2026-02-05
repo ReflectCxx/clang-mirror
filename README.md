@@ -31,7 +31,7 @@ public:
 //...
 };
 ```
-create instances and call member-functions:
+call member-function by ID:
 ```c++
 
 // Navigate via Intellisense to locate the IDs.
