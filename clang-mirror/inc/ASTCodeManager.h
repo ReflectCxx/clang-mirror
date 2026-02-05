@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <unordered_map>
 
+#include "Constants.h"
+
 namespace clmr {
 	class ASTCodeBuffer;
 }
@@ -14,8 +16,10 @@ namespace clmr
 {
 	class ASTCodeManager
 	{
+		using CodeBuffsT = std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>>;
+
 		std::string m_outPath;
-		std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>> m_codeGens;
+		CodeBuffsT m_codeGens;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
 		static std::filesystem::path toClmrDir(std::string_view pPath);
@@ -26,7 +30,7 @@ namespace clmr
 		void emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*);
 		void emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer*);
 
-		using Emitter = void(ASTCodeManager::*)(std::ofstream&, ASTCodeBuffer*);
+		using Emitter = void(*)(std::ofstream&, ASTCodeBuffer*);
 		using GetDir = std::filesystem::path(*)(std::string_view);
 
 		void dump(Emitter pEmiter, GetDir pGetDir, std::string_view pFile, ASTCodeBuffer* pCodeBff = nullptr);
@@ -40,6 +44,8 @@ namespace clmr
 		ASTCodeManager& operator=(ASTCodeManager&&) = delete;
 		ASTCodeManager& operator=(const ASTCodeManager&) = delete;
 		
+		GETTER_CREF(CodeBuffsT, CodeBuffers, m_codeGens)
+
 		ASTCodeBuffer* getCodeBuffer(const std::string& pSrcFile, bool pCreate = false);
 
 		static ASTCodeManager& instance();

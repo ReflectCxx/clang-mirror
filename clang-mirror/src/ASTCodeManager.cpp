@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "Logger.h"
+#include "ASTCodeGen.h"
 #include "ASTCodeBuffer.h"
 #include "ASTCodePrinter.h"
 #include "ASTCodeManager.h"
@@ -36,11 +37,13 @@ namespace clmr {
 
     void ASTCodeManager::emitCxxMirror()
     {
+        using CGen = ASTCodeGen;
         using CMgr = ASTCodeManager;
-        dump(&CMgr::emitRegisteredIds, &CMgr::toClmrDir, File::nameIDsHeader);
-        dump(&CMgr::emitRegistrationFns, &CMgr::toClmrDir, File::nameRegHeader);
-        dump(&CMgr::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
-        dump(&CMgr::emitCxxMirrorSource, &CMgr::toRootDir, File::nameCxxSource);
+
+        dump(&CGen::emitRegisteredIds, &CMgr::toClmrDir, File::nameIDsHeader);
+        dump(&CGen::emitRegistrationFns, &CMgr::toClmrDir, File::nameRegHeader);
+        dump(&CGen::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
+        dump(&CGen::emitCxxMirrorSource, &CMgr::toRootDir, File::nameCxxSource);
 
         Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }
@@ -57,7 +60,7 @@ namespace clmr {
                  .append(std::filesystem::path(pSrcFile).stem().string())
                  .append(".cpp");
 
-            dump(&ASTCodeManager::emitRegistrationCpp, &ASTCodeManager::toClmrDir, fname, codeBuffer);
+            dump(&ASTCodeGen::emitRegistrationCpp, &ASTCodeManager::toClmrDir, fname, codeBuffer);
         }
     }
 
@@ -124,7 +127,7 @@ namespace clmr {
             return;
         }
 
-        (this->*pEmiter)(fout, pCodeBuffer);
+        pEmiter(fout, pCodeBuffer);
 
         if (!fout) {
             fout.close();
@@ -132,7 +135,7 @@ namespace clmr {
             Logger::outException("Error writing file: " + fspath.string());
             return;
         }
-        fout.close(); // ensure buffers flushed
+        fout.close();
 
         std::error_code ec;
         std::filesystem::remove(fspath, ec);      // Required, `rename` does not replace existing file on Windows.
@@ -142,98 +145,5 @@ namespace clmr {
             return;
         }
         Logger::outgen(fspath.string());
-    }
-}
-
-
-
-namespace clmr {
-
-    void ASTCodeManager::emitRegistrationCpp(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
-    {
-        pOut << "\n"
-                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
-                "\n#include \"" << std::string(File::nameRegHeader) << "\""
-                "\n"
-                "\n";
-
-        ASTCodePrint::outFreeFnsInitDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
-        ASTCodePrint::outRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
-    }
-
-
-    void ASTCodeManager::emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*)
-    {
-        pOut << std::string("\n#pragma once"
-                            "\n#include <vector>\n"
-                            "\nnamespace " + std::string(NS_RTL) +
-                            " { class Function; }\n");
-        pOut<< "\n";
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outFreeFnsDecls(itr.second->getFreeFunctionsMap(), pOut);
-            }
-        }
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outRecordInitDecls(itr.second->getRecordsMap(), pOut);
-            }
-        }
-    }
-
-
-    void ASTCodeManager::emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*)
-    {
-        std::string incIds = std::string(File::dirClmr).append("/").append(File::nameIDsHeader);
-
-        pOut << "\n#pragma once\n"
-                "\n#include \"" << File::incRtlAccess << "\""
-                "\n#include \"" << incIds << "\"\n"
-                "\nnamespace rtl { class CxxMirror; }"
-                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
-    }
-
-
-    void ASTCodeManager::emitRegisteredIds(std::ofstream& pOut, ASTCodeBuffer*)
-    {
-        pOut << "\n#pragma once"
-                "\n#include <string_view>\n"
-                "\nnamespace " + std::string(NS_CXX) + " {\n";
-
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outFreeFunctionIDs(itr.second->getFreeFunctionsMap(), pOut);
-            }
-        }
-        for (const auto& itr : m_codeGens) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outTypeRecordIDs(itr.second->getRecordsMap(), pOut);
-            }
-        }
-        pOut << "\n}";
-    }
-
-
-    void ASTCodeManager::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
-    {
-        std::string incDecls = std::string(File::dirClmr).append("/").append(File::nameRegHeader);
-
-        pOut << "\n"
-                "\n#include <vector>"
-                "\n"
-                "\n#include \"" << File::incRtlBuilder << "\""
-                "\n#include \"" << incDecls << "\""
-                "\n"
-                "\nnamespace cxx { \n"
-                "\n    const rtl::CxxMirror& mirror()"
-                "\n    {"
-                "\n        static auto mirror = rtl::CxxMirror([]() {"
-                "\n"
-                "\n            std::vector<rtl::Function> fns;"
-                "\n"
-                "\n        }());"
-                "\n        return mirror;"
-                "\n    }"
-                "\n}";
     }
 }

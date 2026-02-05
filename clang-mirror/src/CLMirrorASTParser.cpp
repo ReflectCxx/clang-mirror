@@ -72,7 +72,6 @@ namespace clmr
 				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
 				Logger::outError(srcFilePath, std::vector<std::string>(), errors);
 			}
-			//break;
 		}
 
 		return 0;

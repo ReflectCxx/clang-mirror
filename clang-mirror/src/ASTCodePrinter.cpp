@@ -60,18 +60,20 @@ namespace clmr
             return str;
         };
 
-        auto fnStr = (pRecord + "::" + pMeta.ast.function);
-        const bool useTemplate = (pMeta.signatures.size() > 1);
-        
         std::string codeStr;
-        for (const auto& sign : pMeta.signatures)
-        {
-            if (sign.metaKind == MetaKind::Ctor) {
-                codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
-                                 "\n                                 .constructor").append(suffix(sign, useTemplate))
-                                                          .append("().build());");
+        if (pMeta.isCtor) {
+            for (const auto& sign : pMeta.signatures) {
+                if (sign.metaKind == MetaKind::Ctor) {
+                    codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
+                                     "\n                                 .constructor").append(suffix(sign, true)).append("()"
+                                                                        ".build());");
+                }
             }
-            else {
+        }
+        else {
+            auto fnStr = (pRecord + "::" + pMeta.ast.function);
+            const bool useTemplate = (pMeta.signatures.size() > 1);
+            for (const auto& sign : pMeta.signatures) {
                 codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
                                  "\n                                 .method").append(suffix(sign, useTemplate)).append("(").append(pFnID).append(")"
                                  "\n                                 ").append(".build(&").append(fnStr).append("));");
@@ -153,7 +155,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outMemberFunctionIDs(const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outMemberFunctionIDs(const std::string& pRecord, const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut)
     {
         for (auto it = pMethodsMap.begin(); it != pMethodsMap.end(); ++it)
         {
@@ -162,7 +164,7 @@ namespace clmr
 
                 std::string codeStr;
                 codeStr.append("\nnamespace ").append(NS_TYPE).append(" {")
-                       .append(memberFunctionsNsIDs(it->first, it->second))
+                       .append(memberFunctionsNsIDs(pRecord, it->second))
                        .append("}");
 
                 pOut << codeStr << "\n";
@@ -184,7 +186,7 @@ namespace clmr
                    .append("}");
 
             pOut << codeStr << "\n";
-            outMemberFunctionIDs(methodMap, pOut);
+            outMemberFunctionIDs(itr.first, methodMap, pOut);
             pOut << "\n";
         }
     }

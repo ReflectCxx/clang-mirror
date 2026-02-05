@@ -20,7 +20,7 @@ namespace clmr
 
 		static void outTypeRecordIDs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
 		static void outFreeFunctionIDs(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);
-		static void outMemberFunctionIDs(const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut);
+		static void outMemberFunctionIDs(const std::string& pRecord, const CxxFunctionsMap& pMethodsMap, std::ofstream& pOut);
 
 	private:
 

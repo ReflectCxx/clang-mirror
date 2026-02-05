@@ -8,6 +8,7 @@ set(CLREFLECT_INCS
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorActionFactory.h"
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorDiagnosticConsumer.h"
 	
+	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeGen.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeMeta.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTDeclsUtils.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeBuffer.h"
