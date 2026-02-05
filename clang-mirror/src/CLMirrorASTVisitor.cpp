@@ -76,9 +76,12 @@ namespace clmr
             std::string functionName;
             MetaKind metaKind = MetaKind::None;
 
-            if (llvm::isa<clang::CXXConstructorDecl>(pFnDecl))
+            if (const auto* ctor = llvm::dyn_cast<clang::CXXConstructorDecl>(pFnDecl))
             {
-                metaKind = MetaKind::Ctor;
+                if ( ctor->isUserProvided() && !ctor->isDefaultConstructor() && 
+                    !ctor->isCopyConstructor() && !ctor->isMoveConstructor()){
+                    metaKind = MetaKind::Ctor;
+                }
             }
             else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
             {
@@ -100,16 +103,16 @@ namespace clmr
                 functionName = pFnDecl->getQualifiedNameAsString();
             }
 
-            auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
+            if (metaKind != MetaKind::None) {
+                auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
+                const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+                const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
 
-            const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-            const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-
-            codeBuffer->addFunction(metaKind, {
-                    .header = headerStr,
-                    .record = recordStr,
-                    .function = functionName
-            }, returnStr, StringUtils::getParamTypesStr(parmTypes));
+                codeBuffer->addFunction(metaKind, {
+                        .header = headerStr,
+                        .function = functionName
+                }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
+            }
         }
         return true;
     }

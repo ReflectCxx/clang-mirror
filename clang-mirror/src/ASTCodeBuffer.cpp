@@ -32,7 +32,7 @@ namespace clmr
     }
 
 
-    void ASTCodeBuffer::addFunction(MetaKind pMK, const ASTObj& pAst, 
+    void ASTCodeBuffer::addFunction(MetaKind pMK, const ASTObj& pAst, const std::string& pRecord,
 			                        const std::string& pReturn, const std::string& pParams)
     {
         ASTCodeMeta* codeMeta = nullptr;
@@ -43,7 +43,7 @@ namespace clmr
             });
         }
         else if (pMK != MetaKind::None) {
-            auto& typeMeta = getRecordCodeMeta(m_recordsMap, pAst.record);
+            auto& typeMeta = getRecordCodeMeta(m_recordsMap, pRecord);
             codeMeta = &addFunctionCodeMeta(typeMeta.methods, ASTCodeMeta{ 
                 .isCtor = (pMK == MetaKind::Ctor),
                 .ast = pAst
@@ -53,8 +53,8 @@ namespace clmr
         if (codeMeta) {
             codeMeta->signatures.push_back({
                 .metaKind = pMK,
-                .returnType = pReturn,
-                .paramsType = (pParams.empty() ? "void" : pParams)
+                .returnStr = pReturn,
+                .paramsStr = (pParams.empty() ? "void" : pParams)
             });
             m_incFiles.insert(pAst.header);
         }

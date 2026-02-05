@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "ASTCodeMeta.h"
 #include "ASTCodePrinter.h"
 #include "StringUtils.h"
@@ -31,40 +33,48 @@ namespace clmr
         for (std::size_t i = 0; i < size; i++) 
         {
             codeStr.append("        \"sign" + std::to_string(i) + ": ")
-                   .append(pSigns[i].returnType)
-                   .append("(" + pSigns[i].paramsType + ")")
+                   .append(pSigns[i].returnStr)
+                   .append("(" + pSigns[i].paramsStr + ")")
                    .append((i < size - 1) ? ",\"\n" : "\"");
         }
         return codeStr.append("\n    \"}\"");
     }
 
 
-    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pFnName, const std::string& pFnID, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pRecord, const std::string& pFnID, const ASTCodeMeta& pMeta)
     {
-        auto suffix = [](MetaKind pMK) {
-            if (pMK == MetaKind::MemberFnConst) {
-                return "Const";
+        assert(!pMeta.signatures.empty());
+        auto suffix = [](const ASTFnSign& sign, bool useTemplates)->std::string
+        {
+            std::string str;
+            switch (sign.metaKind) {
+                case MetaKind::MemberFnConst: { str = "Const"; break; }
+                case MetaKind::MemberFnStatic: { str = "Static"; break; }
+                case MetaKind::Ctor: break;
+                case MetaKind::MemberFnNonConst: break;
+                default: { assert(false); return str; }
             }
-            else if (pMK == MetaKind::MemberFnStatic) {
-                return "Static";
+            if (useTemplates) {
+                str += "<" + sign.paramsStr + ">";
             }
+            return str;
         };
 
+        auto fnStr = (pRecord + "::" + pMeta.ast.function);
+        const bool useTemplate = (pMeta.signatures.size() > 1);
+        
         std::string codeStr;
-        if (pMeta.signatures.size() == 1) {
-            auto mk = pMeta.signatures.front().metaKind;
-            codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.ast.record).append(">()"
-                             "\n                                 .method").append(suffix(mk)).append("(").append(pFnID).append(")"
-                             "\n                                 ").append(".build(&").append(pFnName).append("));");
-        }
-        else {
-            for (auto& sign : pMeta.signatures)
-            {
-                  codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.ast.record).append(">()"
-                                   "\n                                 .method").append(suffix(sign.metaKind))
-                                                                                .append("<").append(sign.paramsType).append(">")
-                                                                                .append("(").append(pFnID).append(")"
-                                   "\n                                 ").append(".build(&").append(pFnName).append("));");
+        for (const auto& sign : pMeta.signatures)
+        {
+            if (sign.metaKind == MetaKind::Ctor) {
+                codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
+                                 "\n                                 .constructor").append(suffix(sign, useTemplate))
+                                                          .append("().build());");
+            }
+            else {
+                codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pRecord).append(">()"
+                                 "\n                                 .method").append(suffix(sign, useTemplate)).append("(").append(pFnID).append(")"
+                                 "\n                                 ").append(".build(&").append(fnStr).append("));");
             }
         }
         return codeStr;
@@ -118,7 +128,7 @@ namespace clmr
                 const auto& fnMeta = methodMap.begin()->second;
 
                 pOut << "\nnamespace " + std::string(NS_REGS) + " {";
-                pOut << recordTypeInitDecls(fnMeta.ast.record);
+                pOut << recordTypeInitDecls(itr.first);
                 pOut << "}\n\n";
             }
         }
@@ -152,7 +162,7 @@ namespace clmr
 
                 std::string codeStr;
                 codeStr.append("\nnamespace ").append(NS_TYPE).append(" {")
-                       .append(memberFunctionsNsIDs(it->second))
+                       .append(memberFunctionsNsIDs(it->first, it->second))
                        .append("}");
 
                 pOut << codeStr << "\n";
@@ -170,7 +180,7 @@ namespace clmr
 
             std::string codeStr;
             codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
-                   .append(recordTypeIDs(fnMeta))
+                   .append(recordTypeIDs(itr.first, fnMeta))
                    .append("}");
 
             pOut << codeStr << "\n";
@@ -217,10 +227,10 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::memberFunctionsNsIDs(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::memberFunctionsNsIDs(const std::string& pRecord, const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pMeta.ast.record);
+        int nscount = openNS(codeStr, pRecord);
 
         codeStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
                .append("\nnamespace " + pMeta.ast.function + " {")
@@ -232,13 +242,13 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::recordTypeIDs(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::recordTypeIDs(const std::string& pRecord, const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pMeta.ast.record);
+        int nscount = openNS(codeStr, pRecord);
 
         codeStr.append("\n    inline constexpr std::string_view id = \"")
-               .append(pMeta.ast.record)
+               .append(pRecord)
                .append("\";\n");
 
         closeNS(codeStr, nscount);
@@ -284,28 +294,26 @@ namespace clmr
     std::string ASTCodePrint::recordTypeInitDefs(const ASTRecordMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pMeta.record);
+        int nscount = openNS(codeStr, pMeta.recordStr);
 
-        auto idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
-                                        .append("::").append(pMeta.record)
-                                        .append("::").append(VAR_ID);
+        std::string idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
+                                               .append("::").append(pMeta.recordStr)
+                                               .append("::").append(VAR_ID);
 
         codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + " {\n\n")
-               .append("        fns.push_back(rtl::type().record<" + pMeta.record + ">(" + idStr + ")"
+               .append("        fns.push_back(rtl::type().record<" + pMeta.recordStr + ">(" + idStr + ")"
                      "\n                                 .build());");
 
         for (auto& it : pMeta.methods) {
 
             const ASTCodeMeta& codeMeta = it.second;
-
-            auto name = (pMeta.record + "::" + it.first);
             auto fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
-                                             .append("::").append(pMeta.record)
+                                             .append("::").append(pMeta.recordStr)
                                              .append("::").append(NS_FUNCTION)
                                              .append("::").append(codeMeta.ast.function)
                                              .append("::").append(VAR_ID);
 
-            codeStr.append(getMethodRegistrationExpr(name, fIdStr, codeMeta));
+            codeStr.append(getMethodRegistrationExpr(pMeta.recordStr, fIdStr, codeMeta));
         }
         codeStr.append("\n    }\n");
 

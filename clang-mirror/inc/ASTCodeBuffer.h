@@ -36,7 +36,7 @@ namespace clmr
 		GETTER_CREF(CxxFunctionsMap, FreeFunctionsMap, m_freeFnsMap)
 
 		void setErrorsFound(bool pErrorFound);
-		void addFunction(MetaKind pMK, const ASTObj& pAst, 
+		void addFunction(MetaKind pMK, const ASTObj& pAst, const std::string& pRecord,
 			             const std::string& pReturn, const std::string& pParams);
 	};
 }
