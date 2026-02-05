@@ -2,9 +2,16 @@
 
 `clang-mirror` generates compile-time AST-driven portable C++ code to enable runtime reflection in your project.
 
-For example, you have a function declared somewhere in your project:
+For example, you have a these declared somewhere in your project:
 ```c++
 std::string complexToStr(float real, float img);
+```
+```c++
+class Person {
+public:
+    std::string getName();
+//...
+};
 ```
 At runtime you can call the function by ID:
 ```c++
