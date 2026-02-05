@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <optional>
 #include <filesystem>
 #include <unordered_map>
@@ -14,7 +15,7 @@ namespace clmr
 	class ASTCodeManager
 	{
 		std::string m_outPath;
-		std::unordered_map<std::string, ASTCodeBuffer*> m_codeGens;
+		std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>> m_codeGens;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
 		static std::filesystem::path toClmrDir(std::string_view pPath);
@@ -30,8 +31,7 @@ namespace clmr
 
 		void dump(Emitter pEmiter, GetDir pGetDir, std::string_view pFile, ASTCodeBuffer* pCodeBff = nullptr);
 
-		ASTCodeManager();
-		~ASTCodeManager();
+		ASTCodeManager() = default;
 
 	public:
 

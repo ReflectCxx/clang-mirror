@@ -12,7 +12,6 @@ namespace clmr
 {
     struct ASTObj {
 
-        MetaKind metaKind;
         std::string header;
         std::string record;
         std::string function;
@@ -20,12 +19,14 @@ namespace clmr
 
     struct ASTFnSign
     {
+        MetaKind metaKind;
         std::string returnType;
         std::string paramsType;
     };
 
     struct ASTCodeMeta
     {
+        const bool isCtor;
         const ASTObj ast;
         std::vector<ASTFnSign> signatures;
     };

@@ -41,25 +41,27 @@ namespace clmr
 
     std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pFnName, const std::string& pFnID, const ASTCodeMeta& pMeta)
     {
-        std::string suffix = "";
-        if (pMeta.ast.metaKind == MetaKind::MemberFnConst) {
-            suffix = "Const";
-        }
-        else if (pMeta.ast.metaKind == MetaKind::MemberFnStatic) {
-            suffix = "Static";
-        }
+        auto suffix = [](MetaKind pMK) {
+            if (pMK == MetaKind::MemberFnConst) {
+                return "Const";
+            }
+            else if (pMK == MetaKind::MemberFnStatic) {
+                return "Static";
+            }
+        };
 
         std::string codeStr;
         if (pMeta.signatures.size() == 1) {
+            auto mk = pMeta.signatures.front().metaKind;
             codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.ast.record).append(">()"
-                             "\n                                 .method").append(suffix).append("(").append(pFnID).append(")"
+                             "\n                                 .method").append(suffix(mk)).append("(").append(pFnID).append(")"
                              "\n                                 ").append(".build(&").append(pFnName).append("));");
         }
         else {
             for (auto& sign : pMeta.signatures)
             {
                   codeStr.append("\n\n        fns.push_back(rtl::type().member<").append(pMeta.ast.record).append(">()"
-                                   "\n                                 .method").append(suffix)
+                                   "\n                                 .method").append(suffix(sign.metaKind))
                                                                                 .append("<").append(sign.paramsType).append(">")
                                                                                 .append("(").append(pFnID).append(")"
                                    "\n                                 ").append(".build(&").append(pFnName).append("));");
@@ -128,7 +130,7 @@ namespace clmr
         for (auto it = pFunctionsMap.begin(); it != pFunctionsMap.end(); ++it)
         {
             const auto& metaFn = it->second;
-            if (metaFn.ast.metaKind == MetaKind::NonMemberFn) {
+            if (metaFn.signatures.front().metaKind == MetaKind::NonMemberFn) {
 
                 std::string codeStr;
                 codeStr.append("\nnamespace ").append(NS_FUNCTION).append(" {")
@@ -146,7 +148,7 @@ namespace clmr
         for (auto it = pMethodsMap.begin(); it != pMethodsMap.end(); ++it)
         {
             const auto& metaFn = it->second;
-            if (metaFn.ast.metaKind != MetaKind::Ctor) {
+            if (!metaFn.isCtor) {
 
                 std::string codeStr;
                 codeStr.append("\nnamespace ").append(NS_TYPE).append(" {")
@@ -296,16 +298,14 @@ namespace clmr
 
             const ASTCodeMeta& codeMeta = it.second;
 
-            auto name = (pMeta.record + "::" + it.first.first);
+            auto name = (pMeta.record + "::" + it.first);
             auto fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                              .append("::").append(pMeta.record)
                                              .append("::").append(NS_FUNCTION)
                                              .append("::").append(codeMeta.ast.function)
                                              .append("::").append(VAR_ID);
 
-            if (codeMeta.ast.metaKind != MetaKind::Ctor && codeMeta.ast.metaKind != MetaKind::NonMemberFn) {
-                codeStr.append(getMethodRegistrationExpr(name, fIdStr, codeMeta));
-            }
+            codeStr.append(getMethodRegistrationExpr(name, fIdStr, codeMeta));
         }
         codeStr.append("\n    }\n");
 

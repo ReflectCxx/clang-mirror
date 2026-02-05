@@ -13,55 +13,50 @@ namespace clmr
     { }
 
 
-    ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
-    {
-        auto keyPair = std::make_pair(pFnMeta.ast.function, pFnMeta.ast.metaKind);
-        auto [itr, _] = pFnMetaMap.try_emplace(keyPair, pFnMeta);
-        return itr->second;
+    void ASTCodeBuffer::setErrorsFound(bool pErrorsFound) {
+        m_errorsFound = pErrorsFound;
     }
 
 
     ASTRecordMeta& ASTCodeBuffer::getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pRecordStr)
     {
-        const auto& itr = pFnMetaMap.find(pRecordStr);
-        if (itr == pFnMetaMap.end())
-        {
-            return pFnMetaMap.emplace(pRecordStr, ASTRecordMeta{
-                    .record = pRecordStr,
-                    .methods = CxxFunctionsMap()
-            }).first->second;
-        }
-        else {
-            return itr->second;
-        }
+        auto [itr, _] = pFnMetaMap.try_emplace(pRecordStr, ASTRecordMeta{ pRecordStr });
+        return itr->second;
     }
 
 
-    void ASTCodeBuffer::addFunction(const ASTObj& pAst, const std::string& pReturn, const std::string& pParams)
+    ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
     {
-        if (pAst.metaKind == MetaKind::NonMemberFn)
-        {
-            auto& codeMeta = addFunctionCodeMeta(m_freeFnsMap, ASTCodeMeta{
-                    .ast = pAst,
-                    .signatures = std::vector<ASTFnSign>()
-            });
-            codeMeta.signatures.push_back({ 
-                .returnType = pReturn, 
-                .paramsType = (pParams.empty() ? "void" : pParams) 
+        auto [itr, _] = pFnMetaMap.try_emplace(pFnMeta.ast.function, pFnMeta);
+        return itr->second;
+    }
+
+
+    void ASTCodeBuffer::addFunction(MetaKind pMK, const ASTObj& pAst, 
+			                        const std::string& pReturn, const std::string& pParams)
+    {
+        ASTCodeMeta* codeMeta = nullptr;
+        if (pMK == MetaKind::NonMemberFn) {
+            codeMeta = &addFunctionCodeMeta(m_freeFnsMap, ASTCodeMeta{ 
+                .isCtor = false,
+                .ast = pAst 
             });
         }
-        else if (pAst.metaKind != MetaKind::None)
-        {
+        else if (pMK != MetaKind::None) {
             auto& typeMeta = getRecordCodeMeta(m_recordsMap, pAst.record);
-            auto& codeMeta = addFunctionCodeMeta(typeMeta.methods, ASTCodeMeta{
-                    .ast = pAst,
-                    .signatures = std::vector<ASTFnSign>()
+            codeMeta = &addFunctionCodeMeta(typeMeta.methods, ASTCodeMeta{ 
+                .isCtor = (pMK == MetaKind::Ctor),
+                .ast = pAst
             });
-            codeMeta.signatures.push_back({ 
-                .returnType = pReturn, 
+        }
+
+        if (codeMeta) {
+            codeMeta->signatures.push_back({
+                .metaKind = pMK,
+                .returnType = pReturn,
                 .paramsType = (pParams.empty() ? "void" : pParams)
             });
+            m_incFiles.insert(pAst.header);
         }
-        m_incFiles.insert(pAst.header);
     }
 }

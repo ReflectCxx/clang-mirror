@@ -79,7 +79,6 @@ namespace clmr
             if (llvm::isa<clang::CXXConstructorDecl>(pFnDecl))
             {
                 metaKind = MetaKind::Ctor;
-                functionName = pFnDecl->getDeclName().getAsString();
             }
             else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
             {
@@ -106,8 +105,7 @@ namespace clmr
             const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
 
-            codeBuffer->addFunction({ 
-                    .metaKind = metaKind,
+            codeBuffer->addFunction(metaKind, {
                     .header = headerStr,
                     .record = recordStr,
                     .function = functionName

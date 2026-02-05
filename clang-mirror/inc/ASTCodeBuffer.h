@@ -5,13 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "Constants.h"
 #include "ASTCodeMeta.h"
-
-namespace clmr 
-{
-	class ASTCodeManager;
-}
 
 namespace clmr
 {
@@ -22,8 +16,6 @@ namespace clmr
 		CxxRecordsMap m_recordsMap;
 		CxxFunctionsMap m_freeFnsMap;
 		std::unordered_set<std::string> m_incFiles;
-
-		ASTCodeBuffer(const std::string& pSrcFile);
 
 		static ASTRecordMeta& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
 
@@ -36,13 +28,15 @@ namespace clmr
 		ASTCodeBuffer& operator=(ASTCodeBuffer&&) = delete;
 		ASTCodeBuffer& operator=(const ASTCodeBuffer&) = delete;
 
+		ASTCodeBuffer(const std::string& pSrcFile);
+
 		GETTER_BOOL(CompilationFailed, m_errorsFound)
 		GETTER_CREF(std::string, SrcFile, m_srcFile)
 		GETTER_CREF(CxxRecordsMap, RecordsMap, m_recordsMap)
 		GETTER_CREF(CxxFunctionsMap, FreeFunctionsMap, m_freeFnsMap)
 
-		void addFunction(const ASTObj& pAst, const std::string& pReturn, const std::string& pParams);
-
-		friend ASTCodeManager;
+		void setErrorsFound(bool pErrorFound);
+		void addFunction(MetaKind pMK, const ASTObj& pAst, 
+			             const std::string& pReturn, const std::string& pParams);
 	};
 }

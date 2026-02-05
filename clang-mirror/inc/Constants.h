@@ -67,18 +67,8 @@ namespace clmr
 	struct ASTRecordMeta;
 	struct ASTCodeMeta;
 
-	struct FnKeyHash {
-		size_t operator()(const std::pair<std::string, int>& k) const noexcept {
-			size_t h1 = std::hash<std::string>{}(k.first);
-			size_t h2 = std::hash<std::underlying_type_t<MetaKind>>{}
-							(static_cast<std::underlying_type_t<MetaKind>>(k.second));
-			return h1 ^ (h2 << 1);
-		}
-	};
-
-
 	using CxxRecordsMap = std::unordered_map<std::string, ASTRecordMeta>;
-	using CxxFunctionsMap = std::unordered_map<std::pair<std::string, MetaKind>, ASTCodeMeta, FnKeyHash>;
+	using CxxFunctionsMap = std::unordered_map<std::string, ASTCodeMeta>;
 
 	using Clock = std::chrono::high_resolution_clock;
 	using Second = std::chrono::duration<double, std::ratio<1> >;

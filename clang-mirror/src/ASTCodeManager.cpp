@@ -15,15 +15,6 @@
 
 namespace clmr {
 
-    ASTCodeManager::ASTCodeManager()
-    { }
-
-    ASTCodeManager::~ASTCodeManager() {
-        for (auto& itr : m_codeGens) {
-            delete itr.second;
-        }
-    }
-
     void ASTCodeManager::setOutDir(const std::string& pOutDir)
     {
         m_outPath = pOutDir;
@@ -39,7 +30,7 @@ namespace clmr {
     {
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer) {
-            codeBuffer->m_errorsFound = true;
+            codeBuffer->setErrorsFound(true);
         }
     }
 
@@ -105,30 +96,18 @@ namespace clmr {
 
     ASTCodeBuffer* ASTCodeManager::getCodeBuffer(const std::string& pSrcFile, bool pCreate /*= false*/)
     {
-        static std::mutex mutex;
-        std::lock_guard<std::mutex> lock(mutex);
+        auto it = m_codeGens.find(pSrcFile);
+        if (it != m_codeGens.end()) {
+            return it->second.get();
+        }
+        if (!pCreate) {
+            return nullptr;
+        }
 
-        if (pCreate) {
-            auto codeBuffer = [&]()-> ASTCodeBuffer*
-            {
-                const auto& itr = m_codeGens.find(pSrcFile);
-                if (itr == m_codeGens.end()) 
-                {
-                    auto codeBuffer = new ASTCodeBuffer(pSrcFile);
-                    m_codeGens.insert(std::make_pair(pSrcFile, codeBuffer));
-                    return codeBuffer;
-                }
-                else {
-                    auto& codeBuffer = itr->second;
-                    return codeBuffer;
-                }
-            }();
-            return codeBuffer;
-        }
-        else {
-            const auto& itr = m_codeGens.find(pSrcFile);
-            return (itr != m_codeGens.end() ? itr->second : nullptr);
-        }
+        auto uptr = std::make_unique<ASTCodeBuffer>(pSrcFile);
+        auto codeBuff = uptr.get();
+        m_codeGens.emplace(pSrcFile, std::move(uptr));
+        return codeBuff;
     }
 
 
