@@ -1,53 +1,61 @@
 # clang-mirror
 
-`clang-mirror` generates compile-time AST-driven portable C++ code to enable runtime reflection in your project.
+`clang-mirror` generates compile-time AST-driven portable C++ code to enable runtime reflection.
 
-For example, you have a function declared somewhere in your project:
+Example – given a function:
+
 ```c++
 std::string complexToStr(float real, float img);
 ```
-At runtime you can call the function by ID:
+
+You can call it at runtime by ID:
+
 ```c++
 #include "cxx_mirror.h"  // The generated header.
-//...
+// ...
 
 {
-    // Find the function using its AST-generated, compile-checked, constexpr ID.
+    // Find the function using its AST-generated, compile-time-checked, constexpr ID.
     auto cToStr = cxx::mirror().getFunction(cxx::fn::complexToStr::id)
                                ->argsT<float, float>()
                                .returnT<std::string>();
 
     // `cToStr` is a functor that encapsulates the underlying function pointer.
-    if(cToStr) {   // resolved successfully?
+    if (cToStr) {  // resolved successfully?
         std::string result = cToStr(61, 35);  // Works!
     }
 }
 ```
-Reflect any `class`/`struct`:
+
+Reflect any `class` or `struct`:
+
 ```c++
 class Person {
 public:
     std::string getName();
-//...
+// ...
 };
 ```
-call member-function by ID:
-```c++
 
+Call a member function by ID:
+
+```c++
 // Navigate via Intellisense to locate the IDs.
 auto clsId = cxx::type::Person::id;
-auto fnId = cxx::type::Person::fn::getName::id;
+auto fnId  = cxx::type::Person::fn::getName::id;
 
 // Lookup the class by ID.
 auto classPerson = cxx::mirror().getRecord(clsId);
-auto getName = classPerson->getMethod(fnId);  // Query method, get metadata.
+auto getName = classPerson->getMethod(fnId);  // Query method metadata.
 
-// Get functor from metadata,
+// Get functor from metadata.
 auto method = getName->targetT<Person>()
-                     .argsT().returnT<std::string>();
-std::string name = method(personObj)();  // Person::getName() called.
+                     .argsT()
+                     .returnT<std::string>();
 
+std::string name = method(personObj)();  // invokes Person::getName()
 ```
+
 
 ## What It Does?
 
