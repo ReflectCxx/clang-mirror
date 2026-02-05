@@ -32,9 +32,7 @@ namespace clmr
 
     struct ASTRecordMeta
     {
-        using MemberFnsMap = std::unordered_map<std::string, clmr::ASTCodeMeta>;
-
         std::string record;
-        MemberFnsMap methods;
+        CxxFunctionsMap methods;
 	};
 }

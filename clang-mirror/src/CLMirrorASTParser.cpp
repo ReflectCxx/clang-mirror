@@ -30,7 +30,7 @@ namespace clmr
 
 	const int CLMirrorASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
 	{
-		for (size_t index = pStartIndex + 1; index <= pEndIndex; index++)
+		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
 			const auto& srcFilePath = m_srcFiles.at(index).c_str();
 
@@ -72,7 +72,7 @@ namespace clmr
 				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
 				Logger::outError(srcFilePath, std::vector<std::string>(), errors);
 			}
-			break;
+			//break;
 		}
 
 		return 0;

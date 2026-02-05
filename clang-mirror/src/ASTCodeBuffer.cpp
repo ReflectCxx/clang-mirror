@@ -15,13 +15,9 @@ namespace clmr
 
     ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
     {
-        auto itr = pFnMetaMap.find(pFnMeta.ast.function);
-        if (itr == pFnMetaMap.end()) {
-            return pFnMetaMap.emplace(pFnMeta.ast.function, pFnMeta).first->second;
-        }
-        else {
-            return itr->second;
-        }
+        auto keyPair = std::make_pair(pFnMeta.ast.function, pFnMeta.ast.metaKind);
+        auto [itr, _] = pFnMetaMap.try_emplace(keyPair, pFnMeta);
+        return itr->second;
     }
 
 
@@ -32,7 +28,7 @@ namespace clmr
         {
             return pFnMetaMap.emplace(pRecordStr, ASTRecordMeta{
                     .record = pRecordStr,
-                    .methods = ASTRecordMeta::MemberFnsMap()
+                    .methods = CxxFunctionsMap()
             }).first->second;
         }
         else {

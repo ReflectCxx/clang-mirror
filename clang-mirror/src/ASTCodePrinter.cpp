@@ -296,7 +296,7 @@ namespace clmr
 
             const ASTCodeMeta& codeMeta = it.second;
 
-            auto name = (pMeta.record + "::" + it.first);
+            auto name = (pMeta.record + "::" + it.first.first);
             auto fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                              .append("::").append(pMeta.record)
                                              .append("::").append(NS_FUNCTION)
