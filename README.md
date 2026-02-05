@@ -79,7 +79,6 @@ Integration is straightforward: include the generated header (`cxx_mirror.h`) an
 
 * ✅ **Non-Intrusive** – No modifications to your source code required.
 
----
 
 ## Current Status
 
