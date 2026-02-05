@@ -52,29 +52,32 @@ auto getName = classPerson->getMethod(fnId);  // Query method metadata.
 auto method = getName->targetT<Person>()
                      .argsT()
                      .returnT<std::string>();
+					 
+// resolved successfully?
+if(method) {
+    std::string name = method(personObj)();  // invokes Person::getName()
+}
 
-std::string name = method(personObj)();  // invokes Person::getName()
 ```
-
 
 ## How it works?
 
-`clang-mirror` generates the boilerplate registration code to be used with "Reflection Template Library" to enable runtime reflection. 
-Along with that it also generates constexpr string IDs which are basically the names of the class class/struct, function or any member function as written by the developer,
-It also organises the IDs enclosed in the namespaces in which they are decleared in your project, can be navigated via Intellisense, giving you a sense of compile time introspection of entities in your project.
+`clang-mirror` automatically generates the boilerplate registration code required by the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to enable a runtime reflection system for C++ projects.
 
-You just have to include the generated header `cxx_mirror.h` and statically-link the source files with the project and it becomes Runtime-Reflecection ready.
 
+Given one or more source files, it uses the clang frontend to analyze the AST and extract developer-defined symbols – including classes, structs, free functions, and member functions. These symbols are then organized under the `cxx` namespace and emitted as `constexpr` string identifiers.
+
+The generated sources are compiled and linked statically alongside **RTL** as part of your build.
+
+Integration is straightforward: include the generated header (`cxx_mirror.h`) and link against the **RTL** library. Your project then becomes runtime-reflection ready. You can introspect registered types and invoke functions through **RTL**’s APIs, with full runtime resolution handled automatically.
 
 ## Key Features
 
-* ✅ **Zero Boilerplate** – Analyzes your codebase, generates everything.
+* ✅ **Standard C++** – Generates clean, portable C++20 code.
 
 * ✅ **Type-Safe** – Compile-time validation of reflection queries.
 
 * ✅ **Non-Intrusive** – No modifications to your source code required.
-
-* ✅ **Standard C++** – Generates clean, portable C++20 code.
 
 ---
 
