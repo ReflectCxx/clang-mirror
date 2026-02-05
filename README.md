@@ -18,7 +18,7 @@ At runtime you can call the function by ID:
                                .returnT<std::string>();
     // `cToStr` is a functor that encapsulates the underlying function pointer.
     if(cToStr) {   // resolved successfully?
-        std::string result = complexToStr(61, 35);  // Works!
+        std::string result = cToStr(61, 35);  // Works!
     }
 }
 ```
