@@ -12,8 +12,8 @@ namespace clmr
 {
 	struct ASTCodePrint
 	{
-		static void outRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
-		static void outFreeFnsInitDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
+		static void outTypeRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void outFunctionInitsDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
 		
 		static void outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
 		static void outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);

@@ -14,8 +14,8 @@ namespace clmr
                 "\n"
                 "\n";
 
-        ASTCodePrint::outFreeFnsInitDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
-        ASTCodePrint::outRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
+        ASTCodePrint::outFunctionInitsDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
+        ASTCodePrint::outTypeRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
 	}
 
 

@@ -87,7 +87,7 @@ namespace clmr
 
 namespace clmr
 {
-    void ASTCodePrint::outRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outTypeRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
     {
         for (const auto& itr : pRecodsMap) {
             pOut << "\nnamespace " + std::string(NS_REGS) + " {";
@@ -97,7 +97,7 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outFreeFnsInitDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
+    void ASTCodePrint::outFunctionInitsDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
     {
         for (const auto& itr : pFnsMap) {
             if (!itr.second.signatures.empty()) {

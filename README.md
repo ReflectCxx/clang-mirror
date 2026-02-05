@@ -57,60 +57,14 @@ std::string name = method(personObj)();  // invokes Person::getName()
 ```
 
 
-## What It Does?
+## How it works?
 
-Given your C++ code:
+`clang-mirror` generates the boilerplate registration code to be used with "Reflection Template Library" to enable runtime reflection. 
+Along with that it also generates constexpr string IDs which are basically the names of the class class/struct, function or any member function as written by the developer,
+It also organises the IDs enclosed in the namespaces in which they are decleared in your project, can be navigated via Intellisense, giving you a sense of compile time introspection of entities in your project.
 
-```cpp
-class Person {
-public:
-    std::string getName() const;
-    void updateAddress(std::string addr);
-};
-```
+You just have to include the generated header `cxx_mirror.h` and statically-link the source files with the project and it becomes Runtime-Reflecection ready.
 
-`clang-mirror` generates:
-
-* *Complete RTL registration code* – ready to compile.
-* *Type-safe reflection identifiers* – that always resolve.
-* *Namespace-organized metadata* – for all your types and functions.
-
-#### Result 👉
-
-Just `#include ` the generated file and access your entire codebase reflectively.
-
-```cpp
-#include "cxx_mirror.h"  // The generated header.
-// ...
-
-
-
-{
-    auto fnId = cxx::type::Person::fn::updateAddress::id;  // Introspect via IntelliSense.
-    auto updateAddress = classPerson->getMethod(fnId);  // Query method, get metadata.
-
-    // Invoke updateAddress(). Get functor from metadata,
-    auto method = updateAddress->targetT<Person>().argsT<std::string>().returnT();
-    method(personObj)("new address");  // Person::updateAddress("new address") called.
-}
-```
-
-## Why clang-mirror?
-
-Without `clang-mirror`, Manual Registration required:
-```cpp
-rtl::type().record<Person>("Person").build();
-rtl::type().member<Person>().method("getName").build(&Person::getName);
-rtl::type().member<Person>().method("updateAddress").build(&Person::updateAddress);
-// ...
-```
-
-With `clang-mirror`, Automated:
-```bash
-clang-mirror --input src/ --out-dir=build/
-```
-
-**Done.** All types, methods, and functions automatically registered and compile checked.
 
 ## Key Features
 
