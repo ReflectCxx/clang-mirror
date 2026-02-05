@@ -1,10 +1,27 @@
 # clang-mirror
 
-**Automatic generation of metadata to enable runtime reflection for C++ projects.**
+`clang-mirror` generates compile-time AST-driven portable C++ code to enable runtime reflection in your project.
 
-`clang-mirror` is a Clang-based tool that analyzes your C++ code and auto-generates the registration code needed to statically link with [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) and enable runtime reflection.
+For example, you have a function declared somewhere in your project:
+```c++
+std::string complexToStr(float real, float img);
+```
+At runtime you can call the function by ID:
+```c++
+#include "cxx_mirror.h"  // The generated header.
+//...
 
-**No manual registration. No macros. No boilerplate.**
+{
+    // Find the function using its AST-generated, compile-time-checked ID.
+    auto cToStr = cxx::mirror().getFunction(cxx::fn::complexToStr::id)
+                               ->argsT<float, float>()
+                               .returnT<std::string>();
+    // `cToStr` is a functor that encapsulates the underlying function pointer.
+    if(cToStr) {   // resolved successfully?
+        std::string result = complexToStr(61, 35);  // Works!
+    }
+}
+```
 
 ## What It Does?
 
