@@ -64,56 +64,61 @@ namespace clmr
             }
         }
 
-        if (!headerStr.empty()) 
-        {
-            std::vector<std::string> parmTypes;
-            const auto& params = pFnDecl->parameters();
-            const auto& fnQName = pFnDecl->getQualifiedNameAsString();
-            for (unsigned index = 0; index < params.size(); index++) {
-                parmTypes.push_back(ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType()));
-            }
-
-            std::string functionName;
-            MetaKind metaKind = MetaKind::None;
-
-            if (const auto* ctor = llvm::dyn_cast<clang::CXXConstructorDecl>(pFnDecl))
-            {
-                if ( ctor->isUserProvided() && !ctor->isDefaultConstructor() && 
-                    !ctor->isCopyConstructor() && !ctor->isMoveConstructor()){
-                    metaKind = MetaKind::Ctor;
-                }
-            }
-            else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
-            {
-                if (method->isStatic()) {
-                    metaKind = MetaKind::MemberFnStatic;
-                }
-                else {
-                    if (method->isConst()) {
-                        metaKind = MetaKind::MemberFnConst;
-                    }
-                    else {
-                        metaKind = MetaKind::MemberFnNonConst;
-                    }
-                }
-                functionName = pFnDecl->getDeclName().getAsString();
-            }
-            else {
-                metaKind = MetaKind::NonMemberFn;
-                functionName = pFnDecl->getQualifiedNameAsString();
-            }
-
-            if (metaKind != MetaKind::None) {
-                auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
-                const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-                const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-
-                codeBuffer->addFunction(metaKind, {
-                        .header = headerStr,
-                        .function = functionName
-                }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
-            }
+        if (!headerStr.empty()) {
+            addReflectableEntity(pFnDecl, headerStr);
         }
         return true;
+    }
+
+
+    void CLMirrorASTVisitor::addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader)
+    {
+        std::vector<std::string> parmTypes;
+        const auto& params = pFnDecl->parameters();
+        const auto& fnQName = pFnDecl->getQualifiedNameAsString();
+        for (unsigned index = 0; index < params.size(); index++) {
+            parmTypes.push_back(ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType()));
+        }
+
+        std::string functionName;
+        MetaKind metaKind = MetaKind::None;
+
+        if (const auto* ctor = llvm::dyn_cast<clang::CXXConstructorDecl>(pFnDecl))
+        {
+            if (ctor->isUserProvided() && !ctor->isDefaultConstructor() &&
+                !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
+                metaKind = MetaKind::Ctor;
+            }
+        }
+        else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
+        {
+            if (method->isStatic()) {
+                metaKind = MetaKind::MemberFnStatic;
+            }
+            else {
+                if (method->isConst()) {
+                    metaKind = MetaKind::MemberFnConst;
+                }
+                else {
+                    metaKind = MetaKind::MemberFnNonConst;
+                }
+            }
+            functionName = pFnDecl->getDeclName().getAsString();
+        }
+        else {
+            metaKind = MetaKind::NonMemberFn;
+            functionName = pFnDecl->getQualifiedNameAsString();
+        }
+
+        if (metaKind != MetaKind::None) {
+            auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
+            const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+            const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
+
+            codeBuffer->addFunction(metaKind, {
+                    .header = pHeader,
+                    .function = functionName
+            }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
+        }
     }
 }
