@@ -42,7 +42,7 @@ public:
 };
 ```
 
-Call a member function by ID:
+Call a member function by `id`:
 
 ```c++
 // Navigate via Intellisense to locate the IDs.
