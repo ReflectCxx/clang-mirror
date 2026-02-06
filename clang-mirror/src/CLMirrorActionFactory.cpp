@@ -16,17 +16,20 @@ namespace {
 
 	class CLMirrorASTConsumer : public clang::ASTConsumer
 	{
+		
 		const std::string& m_currentSrcFile;
+		clmr::CLPPCallbacks& m_preProcessor;
 
 	public:
 
-		CLMirrorASTConsumer(const std::string& pSrcFile)
+		CLMirrorASTConsumer(const std::string& pSrcFile, clmr::CLPPCallbacks& pPP)
 			: m_currentSrcFile(pSrcFile)
+			, m_preProcessor(pPP)
 		{ }
 
-		virtual void HandleTranslationUnit(clang::ASTContext& Context)
+		void HandleTranslationUnit(clang::ASTContext& Context) override
 		{
-			clmr::CLMirrorASTVisitor visitor(m_currentSrcFile);
+			clmr::CLMirrorASTVisitor visitor(m_currentSrcFile, m_preProcessor);
 			visitor.TraverseDecl(Context.getTranslationUnitDecl());
 		}
 	};
@@ -34,17 +37,18 @@ namespace {
 
 	class CLMirrorFrontEndAction : public clang::ASTFrontendAction
 	{
-		std::string m_targetSrcFile = "";
+		std::string m_targetSrcFile;
 		clmr::CLPPCallbacks* m_preProcessor = nullptr;
 
 	public:
 
 		CLMirrorFrontEndAction() = default;
 
+		// This is always called after `BeginSourceFileAction`
 		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& Compiler, llvm::StringRef InFile) override
 		{
 			Compiler.getDiagnosticOpts().ShowCarets = false;
-			return std::make_unique<CLMirrorASTConsumer>(m_targetSrcFile);
+			return std::make_unique<CLMirrorASTConsumer>(m_targetSrcFile, *m_preProcessor);
 		}
 
 		bool BeginSourceFileAction(clang::CompilerInstance& CI) override 
@@ -54,9 +58,10 @@ namespace {
 
 			auto& PP = CI.getPreprocessor();
 			auto& SM = CI.getSourceManager();
-			m_preProcessor = new clmr::CLPPCallbacks(SM);
+			auto PPCb = std::make_unique<clmr::CLPPCallbacks>(SM);
 
-			PP.addPPCallbacks(std::unique_ptr<clmr::CLPPCallbacks>(m_preProcessor));
+			m_preProcessor = PPCb.get();
+			PP.addPPCallbacks(std::move(PPCb));
 
 			return true;
 		}

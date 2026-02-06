@@ -17,8 +17,9 @@ using namespace clang;
 
 namespace clmr
 {
-    CLMirrorASTVisitor::CLMirrorASTVisitor(const std::string& pSrcFile)
+    CLMirrorASTVisitor::CLMirrorASTVisitor(const std::string& pSrcFile, const CLPPCallbacks& pPP)
         : m_srcFile(pSrcFile)
+        , m_preProcessor(pPP)
 	{ }
 
     bool CLMirrorASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
