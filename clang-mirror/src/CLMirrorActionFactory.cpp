@@ -34,7 +34,8 @@ namespace {
 
 	class CLMirrorFrontEndAction : public clang::ASTFrontendAction
 	{
-		std::string m_targetSrcFile;
+		std::string m_targetSrcFile = "";
+		clmr::CLPPCallbacks* m_preProcessor = nullptr;
 
 	public:
 
@@ -46,16 +47,16 @@ namespace {
 			return std::make_unique<CLMirrorASTConsumer>(m_targetSrcFile);
 		}
 
-		bool BeginSourceFileAction(clang::CompilerInstance& CI) override {
+		bool BeginSourceFileAction(clang::CompilerInstance& CI) override 
+		{
 			const auto& inputs = CI.getInvocation().getFrontendOpts().Inputs;
 			m_targetSrcFile = inputs[0].getFile().str();
 
 			auto& PP = CI.getPreprocessor();
 			auto& SM = CI.getSourceManager();
+			m_preProcessor = new clmr::CLPPCallbacks(SM);
 
-			PP.addPPCallbacks(
-				std::make_unique<clmr::CLPPCallbacks>(SM)
-			);
+			PP.addPPCallbacks(std::unique_ptr<clmr::CLPPCallbacks>(m_preProcessor));
 
 			return true;
 		}
