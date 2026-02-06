@@ -67,7 +67,7 @@ if(method) {
 
 ## How it works?
 
-`clang-mirror` automatically generates the boilerplate registration code required by the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to enable a runtime reflection system for C++ projects.
+`clang-mirror` generates the boilerplate registration code required by the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to enable a runtime reflection system for C++ projects.
 
 
 Given one or more source files, it uses the `clang` frontend to analyze the AST and extract developer-defined symbols – including classes, structs, free functions, and member functions. These symbols are then organized under the `cxx` namespace and emitted as `constexpr` string identifiers.
