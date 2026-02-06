@@ -4,7 +4,7 @@
 
 It enables user-defined types, functions, and member functions to be discovered and invoked at runtime using compile-time validated IDs – without manual registration.
 
-After the generated `id` headers and registration sources are built into your project, reflected entities can be discovered and invoked at runtime. Registration is initialized lazily on the first call to `cxx::mirror()`, so no runtime cost is incurred if reflection is never used.
+After the generated ID headers and registration sources are built into your project, reflected entities can be discovered and invoked at runtime. Registration is initialized lazily on the first call to `cxx::mirror()`, so no runtime cost is incurred if reflection is never used.
 
 ## Example
 Given a function :
