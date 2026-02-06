@@ -45,7 +45,7 @@ namespace clmr {
         dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader);
         dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource);
 
-        Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
+        Logger::out("Registered entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
     }
 
 
@@ -99,8 +99,8 @@ namespace clmr {
 
     ASTCodeBuffer* ASTCodeManager::getCodeBuffer(const std::string& pSrcFile, bool pCreate /*= false*/)
     {
-        auto it = m_codeGens.find(pSrcFile);
-        if (it != m_codeGens.end()) {
+        auto it = m_codeBuffs.find(pSrcFile);
+        if (it != m_codeBuffs.end()) {
             return it->second.get();
         }
         if (!pCreate) {
@@ -109,7 +109,7 @@ namespace clmr {
 
         auto uptr = std::make_unique<ASTCodeBuffer>(pSrcFile);
         auto codeBuff = uptr.get();
-        m_codeGens.emplace(pSrcFile, std::move(uptr));
+        m_codeBuffs.emplace(pSrcFile, std::move(uptr));
         return codeBuff;
     }
 

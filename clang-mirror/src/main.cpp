@@ -10,7 +10,7 @@
 
 int main(int argc, const char** argv)
 {
-    const auto& tsBegin = clmr::Clock::now();
+    const auto& begin = clmr::Clock::now();
     auto success = clmr::ClangDriver::compileSourceFiles(argc, argv);
     if (success){
         clmr::ASTCodeManager::instance().emitCxxMirror();
@@ -19,8 +19,8 @@ int main(int argc, const char** argv)
         clmr::Logger::outException("error running clang-mirror! check logs for more details.\n");
     }
 
-    const auto& tsEnd = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - tsBegin).count();
-    clmr::Logger::out("Total time elapsed: " + std::to_string(tsEnd) + "\n");
+    const auto& end = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - begin).count();
+    clmr::Logger::out("Total time elapsed: " + std::to_string(end) + "\n");
 
     return 0;
 }
