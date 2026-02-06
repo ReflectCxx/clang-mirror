@@ -43,7 +43,7 @@ namespace clmr {
         dump(&CGen::emitRegisteredIDsHeader, &CMgr::toRootDir, File::nameIDsHeader);
         dump(&CGen::emitRegistrationInitsHeader, &CMgr::toRootDir, File::nameRegHeader);
         dump(&CGen::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
-        dump(&CGen::emitCxxMirrorSource, &CMgr::toClmrDir, File::nameCxxSource);
+        dump(&CGen::emitCxxMirrorSource, &CMgr::toSrcDir, File::nameCxxSource);
 
         Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }
@@ -60,16 +60,16 @@ namespace clmr {
                  .append(std::filesystem::path(pSrcFile).stem().string())
                  .append(".cpp");
 
-            dump(&ASTCodeGen::emitRegistrationInitsSource, &ASTCodeManager::toClmrDir, fname, codeBuffer);
+            dump(&ASTCodeGen::emitRegistrationInitsSource, &ASTCodeManager::toSrcDir, fname, codeBuffer);
         }
     }
 
 
-    std::filesystem::path ASTCodeManager::toClmrDir(std::string_view pPath)
+    std::filesystem::path ASTCodeManager::toSrcDir(std::string_view pPath)
     {
         static auto dir = [&]() {
             std::error_code err;
-            std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRtl / File::dirClmr;
+            std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRoot / File::dirSrc;
             std::filesystem::create_directories(dir, err);
             if (err) {
                 Logger::outException("Failed to create output directory: " + err.message());
@@ -85,7 +85,7 @@ namespace clmr {
     {
         static auto dir = [&]() {
             std::error_code err;
-            std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRtl;
+            std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRoot;
             std::filesystem::create_directories(dir, err);
             if (err) {
                 Logger::outException("Failed to create output directory: " + err.message());

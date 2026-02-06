@@ -22,7 +22,7 @@ namespace clmr
 		CodeBuffsT m_codeGens;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
-		static std::filesystem::path toClmrDir(std::string_view pPath);
+		static std::filesystem::path toSrcDir(std::string_view pPath);
 
 		void emitRegisteredIds(std::ofstream& pOut, ASTCodeBuffer*);
 		void emitRegistrationFns(std::ofstream& pOut, ASTCodeBuffer*);
