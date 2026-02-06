@@ -40,10 +40,10 @@ namespace clmr {
         using CGen = ASTCodeGen;
         using CMgr = ASTCodeManager;
 
-        dump(&CGen::emitRegisteredIDsHeader, &CMgr::toClmrDir, File::nameIDsHeader);
-        dump(&CGen::emitRegistrationInitsHeader, &CMgr::toClmrDir, File::nameRegHeader);
+        dump(&CGen::emitRegisteredIDsHeader, &CMgr::toRootDir, File::nameIDsHeader);
+        dump(&CGen::emitRegistrationInitsHeader, &CMgr::toRootDir, File::nameRegHeader);
         dump(&CGen::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
-        dump(&CGen::emitCxxMirrorSource, &CMgr::toRootDir, File::nameCxxSource);
+        dump(&CGen::emitCxxMirrorSource, &CMgr::toClmrDir, File::nameCxxSource);
 
         Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }

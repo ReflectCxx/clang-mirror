@@ -8,9 +8,12 @@ namespace clmr
 {
 	void ASTCodeGen::emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
 	{
+        std::string headerIds = std::string("../").append(File::nameIDsHeader);
+        std::string headerInits = std::string("../").append(File::nameRegHeader);
+
         pOut << "\n"
-                "\n#include \"" << std::string(File::nameIDsHeader) << "\""
-                "\n#include \"" << std::string(File::nameRegHeader) << "\""
+                "\n#include \"" << headerIds << "\""
+                "\n#include \"" << headerInits << "\""
                 "\n"
                 "\n";
 
@@ -21,11 +24,9 @@ namespace clmr
 
     void ASTCodeGen::emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
-        std::string incIds = std::string(File::dirClmr).append("/").append(File::nameIDsHeader);
-
         pOut << "\n#pragma once\n"
-                "\n#include \"" << File::incRtlAccess << "\""
-                "\n#include \"" << incIds << "\"\n"
+                "\n#include \"" << File::nameIDsHeader << "\""
+                "\n#include \"" << File::incRtlAccess << "\"\n"
                 "\nnamespace rtl { class CxxMirror; }"
                 "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
     }
@@ -75,8 +76,8 @@ namespace clmr
 
 	void ASTCodeGen::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
 	{
-        auto rtlHeader = File::incRtlBuilder;
-        auto regIDHeader = std::string(File::dirClmr).append("/").append(File::nameRegHeader);
+        auto rtlHeader = std::string("../").append(File::incRtlBuilder);
+        auto regIDHeader = std::string("../").append(File::nameRegHeader);
 
         pOut << "\n"
                 "\n#include <vector>"

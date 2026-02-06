@@ -54,14 +54,14 @@ namespace clmr
 	struct File 
 	{
 		static constexpr std::string_view dirRtl = "rtl";
-		static constexpr std::string_view dirClmr = "clmr";
+		static constexpr std::string_view dirClmr = "cxx";
 		static constexpr std::string_view prefixRegs = "reg_defs";
 		static constexpr std::string_view nameIDsHeader = "reg_ids.h";
 		static constexpr std::string_view nameRegHeader = "reg_decls.h";
 		static constexpr std::string_view nameCxxHeader = "cxx_mirror.h";
 		static constexpr std::string_view nameCxxSource = "cxx_mirror.cpp";
-		static constexpr std::string_view incRtlAccess = "rtl/rtl_access.h";
-		static constexpr std::string_view incRtlBuilder = "rtl/rtl_builder.h";
+		static constexpr std::string_view incRtlAccess = "rtl_access.h";
+		static constexpr std::string_view incRtlBuilder = "rtl_builder.h";
 	};
 
 	struct ASTRecordMeta;
