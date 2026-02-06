@@ -26,7 +26,7 @@ You can call it at runtime by `id` :
                                .returnT<std::string>();
 
     // `cToStr` is a functor that encapsulates the underlying function pointer.
-    if (cToStr) {  // resolved successfully?
+    if (cToStr) {  // Functor valid?
         std::string result = cToStr(61, 35);  // Works!
     }
 }
@@ -58,8 +58,7 @@ auto method = getName->targetT<Person>()
                      .argsT()
                      .returnT<std::string>();
 					 
-// resolved successfully?
-if(method) {
+if(method) {  // Functor valid?
     std::string name = method(personObj)();  // invokes Person::getName()
 }
 
