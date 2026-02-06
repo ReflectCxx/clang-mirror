@@ -1,8 +1,22 @@
-/bin
-/build
-/.vs
+# Build outputs
+build/
+bin/
+
+# CMake
 CMakeCache.txt
 CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+
+# Project-specific generated folders
 SrcSamples/build
-SrcSamples/rtl
+SrcSamples/rtl*
+
+# Tool configs (only if local)
 SrcSamples/.clang-tidy
