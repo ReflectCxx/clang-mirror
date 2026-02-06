@@ -4,7 +4,7 @@
 namespace clmr {
 
     CLPPCallbacks::CLPPCallbacks(clang::SourceManager& SM)
-        : SM(SM)
+        : m_srcMgr(SM)
     { }
 
     void CLPPCallbacks::InclusionDirective(clang::SourceLocation HashLoc,
@@ -16,6 +16,12 @@ namespace clmr {
                                            bool ModuleImported,
                                            clang::SrcMgr::CharacteristicKind FileType)
 	{
+        if (!File) {
+            return;
+        }
 
+        std::string headerIncStr = IsAngled ? "<" + FileName.str() + ">"
+                                        : "\"" + FileName.str() + "\"";
+        m_headerMap[*File] = headerIncStr;
 	}
 }

@@ -6,8 +6,8 @@ namespace clmr {
 
     class CLPPCallbacks : public clang::PPCallbacks
     {
-        clang::SourceManager& SM;
-        std::unordered_map<const clang::FileEntry*, std::string> includeSpellingByFile;
+        clang::SourceManager& m_srcMgr;
+        std::unordered_map<const clang::FileEntry*, std::string> m_headerMap;
 
     public:
 

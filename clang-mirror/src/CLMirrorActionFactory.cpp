@@ -3,6 +3,7 @@
 #include <unordered_set>
 
 #include "Logger.h"
+#include "CLPPCallbacks.h"
 #include "CLMirrorASTParser.h"
 #include "CLMirrorASTVisitor.h"
 #include "CLMirrorActionFactory.h"
@@ -41,12 +42,6 @@ namespace {
 
 		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& Compiler, llvm::StringRef InFile) override
 		{
-//			/*insignificant LOC. 
-//			  just to force linker to link with dependent libs.*/
-//#if !defined(_WIN32) && !defined(_WIN64)
-//			clang::ento::CreateAnalysisConsumer(Compiler);
-//#endif		//--ends--!
-
 			Compiler.getDiagnosticOpts().ShowCarets = false;
 			return std::make_unique<CLMirrorASTConsumer>(m_targetSrcFile);
 		}
@@ -54,6 +49,14 @@ namespace {
 		bool BeginSourceFileAction(clang::CompilerInstance& CI) override {
 			const auto& inputs = CI.getInvocation().getFrontendOpts().Inputs;
 			m_targetSrcFile = inputs[0].getFile().str();
+
+			auto& PP = CI.getPreprocessor();
+			auto& SM = CI.getSourceManager();
+
+			PP.addPPCallbacks(
+				std::make_unique<clmr::CLPPCallbacks>(SM)
+			);
+
 			return true;
 		}
 	};
