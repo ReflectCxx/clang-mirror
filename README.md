@@ -13,7 +13,7 @@ Given a function :
 std::string complexToStr(float real, float img);
 ```
 
-You can call it at runtime by ID :
+You can call it at runtime by `id` :
 
 ```c++
 #include "cxx_mirror.h"  // The generated header.
