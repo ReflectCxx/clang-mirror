@@ -14,14 +14,14 @@ namespace clmr {
                                            llvm::StringRef SearchPath, llvm::StringRef RelativePath,
                                            const clang::Module* SuggestedModule,
                                            bool ModuleImported,
-                                           clang::SrcMgr::CharacteristicKind FileType)
-	{
+                                           clang::SrcMgr::CharacteristicKind FileType) {
         if (!File) {
             return;
         }
 
         std::string headerIncStr = IsAngled ? "<" + FileName.str() + ">"
                                             : "\"" + FileName.str() + "\"";
+
         m_includeStrMap[*File] = headerIncStr;
 	}
 }

@@ -6,22 +6,6 @@
 
 namespace clmr
 {
-	void ASTCodeGen::emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
-	{
-        std::string headerIds = std::string("../").append(File::nameIDsHeader);
-        std::string headerInits = std::string("../").append(File::nameRegHeader);
-
-        pOut << "\n"
-                "\n#include \"" << headerIds << "\""
-                "\n#include \"" << headerInits << "\""
-                "\n"
-                "\n";
-
-        ASTCodePrint::outFunctionInitsDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
-        ASTCodePrint::outTypeRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
-	}
-
-
     void ASTCodeGen::emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
         pOut << "\n#pragma once\n"
@@ -71,6 +55,26 @@ namespace clmr
             }
         }
         pOut << "\n}";
+    }
+
+
+    void ASTCodeGen::emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
+    {
+        std::string headerIds = std::string("../").append(File::nameIDsHeader);
+        std::string headerInits = std::string("../").append(File::nameRegHeader);
+
+        pOut << "\n"
+            "\n#include \"" << headerIds << "\""
+            "\n#include \"" << headerInits << "\"";
+
+        const auto& includesSet = pCodeBuffer->getIncludesSet();
+        for (auto& incStr : includesSet) {
+            pOut << "\n#include " << incStr;
+        }
+        pOut << "\n\n";
+
+        ASTCodePrint::outFunctionInitsDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
+        ASTCodePrint::outTypeRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
     }
 
 

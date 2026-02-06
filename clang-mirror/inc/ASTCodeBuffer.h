@@ -15,6 +15,8 @@ namespace clmr
 		const std::string m_srcFile;
 		CxxRecordsMap m_recordsMap;
 		CxxFunctionsMap m_freeFnsMap;
+
+		using IncSet = std::unordered_set<std::string>;
 		std::unordered_set<std::string> m_incFiles;
 
 		static ASTRecordMeta& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
@@ -31,6 +33,7 @@ namespace clmr
 		ASTCodeBuffer(const std::string& pSrcFile);
 
 		GETTER_BOOL(CompilationFailed, m_errorsFound)
+		GETTER_CREF(IncSet, IncludesSet, m_incFiles)
 		GETTER_CREF(std::string, SrcFile, m_srcFile)
 		GETTER_CREF(CxxRecordsMap, RecordsMap, m_recordsMap)
 		GETTER_CREF(CxxFunctionsMap, FreeFunctionsMap, m_freeFnsMap)
