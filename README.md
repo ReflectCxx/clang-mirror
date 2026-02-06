@@ -7,13 +7,13 @@ It enables user-defined types, functions, and member functions to be discovered 
 After the generated ID headers and registration sources are built into your project, reflected entities can be discovered and invoked at runtime. Registration is initialized lazily on the first call to `cxx::mirror()`, so no runtime cost is incurred if reflection is never used.
 
 ## Example
-Given a function:
+Given a function :
 
 ```c++
 std::string complexToStr(float real, float img);
 ```
 
-You can call it at runtime by ID:
+You can call it at runtime by ID :
 
 ```c++
 #include "cxx_mirror.h"  // The generated header.
