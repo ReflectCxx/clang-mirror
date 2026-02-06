@@ -76,8 +76,8 @@ namespace clmr
 
 	void ASTCodeGen::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
 	{
-        auto rtlHeader = std::string("../").append(File::incRtlBuilder);
-        auto regIDHeader = std::string("../").append(File::nameRegHeader);
+        std::string rtlHeader = std::string("../").append(File::incRtlBuilder);
+        std::string regIDHeader = std::string("../").append(File::nameRegHeader);
 
         pOut << "\n"
                 "\n#include <vector>"
