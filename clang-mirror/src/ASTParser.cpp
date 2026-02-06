@@ -1,7 +1,7 @@
 
 
+#include "ASTParser.h"
 #include "ASTParserUtils.h"
-#include "CLMirrorASTParser.h"
 
 #include <mutex>
 #include <iostream>
@@ -10,8 +10,8 @@
 #include "Logger.h"
 #include "Constants.h"
 #include "ASTCodeManager.h"
-#include "CLMirrorActionFactory.h"
-#include "CLMirrorDiagnosticConsumer.h"
+#include "ClangActionFactory.h"
+#include "ClangDiagnosticConsumer.h"
 
 
 using namespace llvm;
@@ -21,14 +21,14 @@ using namespace clang::tooling;
 
 namespace clmr
 {
-	CLMirrorASTParser::CLMirrorASTParser(const std::vector<std::string>& pFiles,
+	ASTParser::ASTParser(const std::vector<std::string>& pFiles,
 					     clang::tooling::CompilationDatabase& pCdb)
 		: m_srcFiles(pFiles)
 		, m_compileDb(pCdb)
 	{ }
 
 
-	const int CLMirrorASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
+	const int ASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
 	{
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
@@ -54,14 +54,14 @@ namespace clmr
 			ClangTidyContext context(std::move(OwningOptionsProvider), false, false);
 			context.setEnableProfiling(false);
 
-			CLMirrorDiagnosticConsumer diagConsumer(context);
+			ClangDiagnosticConsumer diagConsumer(context);
 			auto diagOpts = std::make_unique<DiagnosticOptions>();
 			DiagnosticsEngine diagEngine(new DiagnosticIDs(), *diagOpts, &diagConsumer, false);
 			
 			context.setDiagnosticsEngine(std::move(diagOpts), &diagEngine);
 			clangTool.setDiagnosticConsumer(&diagConsumer);
 
-			auto actionFactory = std::make_unique<CLMirrorActionFactory>();
+			auto actionFactory = std::make_unique<ClangActionFactory>();
 			clangTool.run(actionFactory.get());
 
 			const auto& errors = diagConsumer.getCompilationErrors();

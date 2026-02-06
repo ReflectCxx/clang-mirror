@@ -6,15 +6,13 @@
 
 namespace clmr {
 
-	class CLMirrorDiagnosticConsumer : public clang::tidy::ClangTidyDiagnosticConsumer
+	class ClangDiagnosticConsumer : public clang::tidy::ClangTidyDiagnosticConsumer
 	{
 		std::vector<ErrorTuple> m_errors;
 
-		const std::string getFormattedFileName(const std::string& pFileName);
-
 	public:
 
-		CLMirrorDiagnosticConsumer(clang::tidy::ClangTidyContext& pContext);
+		ClangDiagnosticConsumer(clang::tidy::ClangTidyContext& pContext);
 
 		void HandleDiagnostic(clang::DiagnosticsEngine::Level pDiagLevel,const clang::Diagnostic& pInfo) override;
 

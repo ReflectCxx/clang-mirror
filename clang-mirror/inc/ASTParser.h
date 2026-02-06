@@ -13,17 +13,17 @@ namespace clmr {
 
 namespace clmr
 {
-	class CLMirrorASTParser
+	class ASTParser
 	{
 		const std::vector<std::string>& m_srcFiles;
 		
 		clang::tooling::CompilationDatabase& m_compileDb;
 
-		CLMirrorASTParser() = delete;
+		ASTParser() = delete;
 
 	public:
 
-		CLMirrorASTParser(const std::vector<std::string>& pFiles, clang::tooling::CompilationDatabase& pCdb);
+		ASTParser(const std::vector<std::string>& pFiles, clang::tooling::CompilationDatabase& pCdb);
 
 		const int parseFiles(const int pStartIndex, const int pEndIndex);
 	};

@@ -1,13 +1,13 @@
 
-#include "CLPPCallbacks.h"
+#include "ClangPPCallbacks.h"
 
 namespace clmr {
 
-    CLPPCallbacks::CLPPCallbacks(clang::SourceManager& SM)
+    ClangPPCallbacks::ClangPPCallbacks(clang::SourceManager& SM)
         : m_srcMgr(SM)
     { }
 
-    void CLPPCallbacks::InclusionDirective(clang::SourceLocation HashLoc,
+    void ClangPPCallbacks::InclusionDirective(clang::SourceLocation HashLoc,
                                            const clang::Token& IncludeTok, llvm::StringRef FileName,
                                            bool IsAngled, clang::CharSourceRange FilenameRange,
                                            clang::OptionalFileEntryRef File,

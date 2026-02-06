@@ -7,7 +7,7 @@
 #include "ASTCodeManager.h"
 #include "ASTCodeBuffer.h"
 #include "ASTDeclsUtils.h"
-#include "CLMirrorASTVisitor.h"
+#include "ClangASTVisitor.h"
 
 #include "clang/AST/Type.h"
 #include "clang/AST/PrettyPrinter.h"
@@ -17,12 +17,12 @@ using namespace clang;
 
 namespace clmr
 {
-    CLMirrorASTVisitor::CLMirrorASTVisitor(const std::string& pSrcFile, const CLPPCallbacks& pPP)
+    ClangASTVisitor::ClangASTVisitor(const std::string& pSrcFile, const ClangPPCallbacks& pPP)
         : m_srcFile(pSrcFile)
         , m_preProcessor(pPP)
 	{ }
 
-    bool CLMirrorASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
+    bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
     {
         if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
             pFnDecl->isDeleted() ||
@@ -72,7 +72,7 @@ namespace clmr
     }
 
 
-    void CLMirrorASTVisitor::addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader)
+    void ClangASTVisitor::addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader)
     {
         std::vector<std::string> parmTypes;
         const auto& params = pFnDecl->parameters();

@@ -28,7 +28,7 @@ namespace clmr
                 "\n#include \"" << File::nameIDsHeader << "\""
                 "\n#include \"" << File::incRtlAccess << "\"\n"
                 "\nnamespace rtl { class CxxMirror; }"
-                "\nnamespace cxx { static const rtl::CxxMirror& mirror(); }";
+                "\nnamespace cxx { extern const rtl::CxxMirror& mirror(); }";
     }
 
 

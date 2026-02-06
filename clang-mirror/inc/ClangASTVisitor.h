@@ -5,21 +5,21 @@
 
 namespace clmr {
     class ASTCodeBuffer;
-    class CLPPCallbacks;
+    class ClangPPCallbacks;
 }
 
 namespace clmr {
 
-    class CLMirrorASTVisitor : public clang::RecursiveASTVisitor<CLMirrorASTVisitor>
+    class ClangASTVisitor : public clang::RecursiveASTVisitor<ClangASTVisitor>
     {
         const std::string m_srcFile;
-        const CLPPCallbacks& m_preProcessor;
+        const ClangPPCallbacks& m_preProcessor;
 
         void addReflectableEntity(clang::FunctionDecl* pFuncDecl, const std::string& pHeader);
 
     public:
 
-        CLMirrorASTVisitor(const std::string& pSrcFile, const CLPPCallbacks& pPP);
+        ClangASTVisitor(const std::string& pSrcFile, const ClangPPCallbacks& pPP);
 
         bool VisitFunctionDecl(clang::FunctionDecl* pFuncDecl);
     };

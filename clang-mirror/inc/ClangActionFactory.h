@@ -7,7 +7,7 @@
 
 namespace clmr 
 {
-	class CLMirrorActionFactory : public clang::tooling::FrontendActionFactory
+	class ClangActionFactory : public clang::tooling::FrontendActionFactory
 	{
 	public:
 		std::unique_ptr<clang::FrontendAction> create() override;

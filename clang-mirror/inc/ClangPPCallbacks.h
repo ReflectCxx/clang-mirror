@@ -5,7 +5,7 @@
 
 namespace clmr {
 
-    class CLPPCallbacks : public clang::PPCallbacks
+    class ClangPPCallbacks : public clang::PPCallbacks
     {
         using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
 
@@ -14,7 +14,7 @@ namespace clmr {
 
     public:
 
-        CLPPCallbacks(clang::SourceManager& SM);
+        ClangPPCallbacks(clang::SourceManager& SM);
 
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,

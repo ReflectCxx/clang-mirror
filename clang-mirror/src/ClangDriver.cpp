@@ -12,7 +12,7 @@
 #include "Logger.h"
 #include "ClangDriver.h"
 #include "ASTCodeManager.h"
-#include "CLMirrorASTParser.h"
+#include "ASTParser.h"
 
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/WithColor.h"
@@ -130,7 +130,7 @@ namespace clmr
             auto thread = std::thread(
                 [&](const int pStartIndex, const int pEndIndex) {
 
-                    CLMirrorASTParser cxxParser(pSrcFiles, pCdb);
+                    ASTParser cxxParser(pSrcFiles, pCdb);
                     cxxParser.parseFiles(pStartIndex, pEndIndex);
                 },
                 startIndex, endIndex);

@@ -2,19 +2,20 @@
 set(CLREFLECT_INCS
     
 	"${CMAKE_CURRENT_LIST_DIR}/ClangDriver.h"
-	"${CMAKE_CURRENT_LIST_DIR}/CLPPCallbacks.h"
-	"${CMAKE_CURRENT_LIST_DIR}/ASTParserUtils.h"
-    "${CMAKE_CURRENT_LIST_DIR}/CLMirrorASTParser.h"
-	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorASTVisitor.h"
-	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorActionFactory.h"
-	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorDiagnosticConsumer.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ClangPPCallbacks.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ClangASTVisitor.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ClangActionFactory.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ClangDiagnosticConsumer.h"
 	
+	"${CMAKE_CURRENT_LIST_DIR}/ASTParser.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeGen.h"
-	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeMeta.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTDeclsUtils.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeBuffer.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodePrinter.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeManager.h"
+	
+	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeMeta.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ASTParserUtils.h"
 
 	"${CMAKE_CURRENT_LIST_DIR}/Logger.h"
 	"${CMAKE_CURRENT_LIST_DIR}/Constants.h"

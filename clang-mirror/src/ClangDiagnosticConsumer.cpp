@@ -1,5 +1,5 @@
 
-#include "CLMirrorDiagnosticConsumer.h"
+#include "ClangDiagnosticConsumer.h"
 #include "Logger.h"
 #include "clang/Basic/SourceManager.h"
 
@@ -8,15 +8,15 @@ using namespace clang::tidy;
 
 namespace clmr
 {
-    CLMirrorDiagnosticConsumer::CLMirrorDiagnosticConsumer(ClangTidyContext& pContext)
+    ClangDiagnosticConsumer::ClangDiagnosticConsumer(ClangTidyContext& pContext)
         : clang::tidy::ClangTidyDiagnosticConsumer(pContext)
     { }
 
-    const std::vector<ErrorTuple>& CLMirrorDiagnosticConsumer::getCompilationErrors() {
+    const std::vector<ErrorTuple>& ClangDiagnosticConsumer::getCompilationErrors() {
         return m_errors;
     }
 
-    void CLMirrorDiagnosticConsumer::HandleDiagnostic(DiagnosticsEngine::Level pDiagLevel, const Diagnostic& pInfo)
+    void ClangDiagnosticConsumer::HandleDiagnostic(DiagnosticsEngine::Level pDiagLevel, const Diagnostic& pInfo)
     {
         if (pInfo.hasSourceManager() && pInfo.getLocation().isValid())
         {
