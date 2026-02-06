@@ -1,8 +1,13 @@
 # clang-mirror
 
-`clang-mirror` generates compile-time AST-driven portable C++ code to enable runtime reflection.
+`clang-mirror` is a Clang-based code generation tool that produces AST-driven IDs and metadata registration code to enable portable runtime reflection for C++ without compiler extensions.
 
-Example – given a function:
+It enables user-defined types, functions, and member functions to be discovered and invoked at runtime using compile-time validated IDs – without manual registration.
+
+After the generated ID headers and registration sources are built into your project, reflected entities can be discovered and invoked at runtime. Registration is initialized lazily on the first call to `cxx::mirror()`, so no runtime cost is incurred if reflection is never used.
+
+## Example
+Given a function:
 
 ```c++
 std::string complexToStr(float real, float img);
