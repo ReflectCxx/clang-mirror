@@ -80,7 +80,7 @@ namespace clmr
 
         std::string cdbLoadErr;
         StringRef cdbPathStr;
-        auto pathList = OptionsParser->getSourcePathList();
+        const auto& pathList = OptionsParser->getSourcePathList();
         if (!pathList.empty()) {
             cdbPathStr = pathList.front();
         }

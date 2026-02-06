@@ -21,7 +21,7 @@ namespace clmr {
         }
 
         std::string headerIncStr = IsAngled ? "<" + FileName.str() + ">"
-                                        : "\"" + FileName.str() + "\"";
-        m_headerMap[*File] = headerIncStr;
+                                            : "\"" + FileName.str() + "\"";
+        m_includeStrMap[*File] = headerIncStr;
 	}
 }

@@ -1,13 +1,16 @@
 #pragma once
 
+#include "Constants.h"
 #include "clang/Lex/PPCallbacks.h"
 
 namespace clmr {
 
     class CLPPCallbacks : public clang::PPCallbacks
     {
+        using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
+
         clang::SourceManager& m_srcMgr;
-        std::unordered_map<const clang::FileEntry*, std::string> m_headerMap;
+        IncludeStrMap m_includeStrMap;
 
     public:
 
@@ -21,5 +24,7 @@ namespace clmr {
                                 const clang::Module* SuggestedModule,
                                 bool ModuleImported,
                                 clang::SrcMgr::CharacteristicKind FileType) override;
+
+        GETTER_CREF(IncludeStrMap, IncludeStrMap, m_includeStrMap)
     };
 }
