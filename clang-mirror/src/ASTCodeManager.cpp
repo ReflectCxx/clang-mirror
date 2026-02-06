@@ -40,10 +40,10 @@ namespace clmr {
         using CGen = ASTCodeGen;
         using CMgr = ASTCodeManager;
 
-        dump(&CGen::emitRegisteredIDsHeader, &CMgr::toRootDir, File::nameIDsHeader);
-        dump(&CGen::emitRegistrationInitsHeader, &CMgr::toRootDir, File::nameRegHeader);
-        dump(&CGen::emitCxxMirrorHeader, &CMgr::toRootDir, File::nameCxxHeader);
-        dump(&CGen::emitCxxMirrorSource, &CMgr::toSrcDir, File::nameCxxSource);
+        dump(File::nameIDsHeader, &CMgr::toRootDir, &CGen::emitRegisteredIDsHeader);
+        dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader);
+        dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader);
+        dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource);
 
         Logger::out("Registered entities from " + std::to_string(m_codeGens.size()) + " source files.");
     }
@@ -60,7 +60,7 @@ namespace clmr {
                  .append(std::filesystem::path(pSrcFile).stem().string())
                  .append(".cpp");
 
-            dump(&ASTCodeGen::emitRegistrationInitsSource, &ASTCodeManager::toSrcDir, fname, codeBuffer);
+            dump(fname, &ASTCodeManager::toSrcDir, &ASTCodeGen::emitRegistrationInitsSource, codeBuffer);
         }
     }
 
@@ -114,7 +114,7 @@ namespace clmr {
     }
 
 
-    void ASTCodeManager::dump(Emitter pEmiter, GetDir pGetDir, std::string_view pFile,
+    void ASTCodeManager::dump(std::string_view pFile, GetDir pGetDir, Emitter pEmiter,
                               ASTCodeBuffer* pCodeBuffer /*= nullptr*/)
     {
         std::filesystem::path fspath = pGetDir(m_outPath) / pFile;

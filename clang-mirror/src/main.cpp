@@ -8,10 +8,6 @@
 #include "ClangDriver.h"
 #include "ASTCodeManager.h"
 
-//#include "E:\RTL\clang-mirror\SrcSamples\rtl\cxx_mirror.h"
-//#include "E:\RTL\clang-mirror\SrcSamples\rtl\clmr\reg_decls.h"
-//#include "E:\RTL\clang-mirror\SrcSamples\rtl\clmr\reg_ids.h"
-
 int main(int argc, const char** argv)
 {
     const auto& tsBegin = clmr::Clock::now();
