@@ -16,10 +16,10 @@ namespace clmr
 {
 	class ASTCodeManager
 	{
-		using CodeBuffT = std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>>;
+		using CodeBuffMap = std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>>;
 
 		std::string m_outPath;
-		CodeBuffT m_codeBuffs;
+		CodeBuffMap m_codeBuffs;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
 		static std::filesystem::path toSrcDir(std::string_view pPath);
@@ -39,7 +39,7 @@ namespace clmr
 		ASTCodeManager& operator=(ASTCodeManager&&) = delete;
 		ASTCodeManager& operator=(const ASTCodeManager&) = delete;
 		
-		GETTER_CREF(CodeBuffT, CodeBuffers, m_codeBuffs)
+		GETTER_CREF(CodeBuffMap, CodeBufferMap, m_codeBuffs)
 
 		ASTCodeBuffer* getCodeBuffer(const std::string& pSrcFile, bool pCreate = false);
 

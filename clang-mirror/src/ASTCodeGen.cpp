@@ -39,13 +39,13 @@ namespace clmr
                             "\nnamespace " + std::string(NS_RTL) +
                             " { class Function; }\n\n");
 
-        const auto& cbufs = ASTCodeManager::instance().getCodeBuffers();
-        for (const auto& itr : cbufs) {
+        const auto& cbuffs = ASTCodeManager::instance().getCodeBufferMap();
+        for (const auto& itr : cbuffs) {
             if (!itr.second->isCompilationFailed()) {
                 ASTCodePrint::outFreeFnsDecls(itr.second->getFreeFunctionsMap(), pOut);
             }
         }
-        for (const auto& itr : cbufs) {
+        for (const auto& itr : cbuffs) {
             if (!itr.second->isCompilationFailed()) {
                 ASTCodePrint::outRecordInitDecls(itr.second->getRecordsMap(), pOut);
             }
@@ -59,13 +59,13 @@ namespace clmr
                 "\n#include <string_view>\n"
                 "\nnamespace " + std::string(NS_CXX) + " {\n";
 
-        const auto& cbufs = ASTCodeManager::instance().getCodeBuffers();
-        for (const auto& itr : cbufs) {
+        const auto& cbuffs = ASTCodeManager::instance().getCodeBufferMap();
+        for (const auto& itr : cbuffs) {
             if (!itr.second->isCompilationFailed()) {
                 ASTCodePrint::outRegisteredFunctionIDs(itr.second->getFreeFunctionsMap(), pOut);
             }
         }
-        for (const auto& itr : cbufs) {
+        for (const auto& itr : cbuffs) {
             if (!itr.second->isCompilationFailed()) {
                 ASTCodePrint::outRegisteredTypeRecordIDs(itr.second->getRecordsMap(), pOut);
             }
