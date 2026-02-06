@@ -8,6 +8,7 @@
 #include "ASTCodeBuffer.h"
 #include "ASTDeclsUtils.h"
 #include "ClangASTVisitor.h"
+#include "ClangPPCallbacks.h"
 
 #include "clang/AST/Type.h"
 #include "clang/AST/PrettyPrinter.h"
@@ -17,7 +18,7 @@ using namespace clang;
 
 namespace clmr
 {
-    ClangASTVisitor::ClangASTVisitor(const std::string& pSrcFile, const ClangPPCallbacks& pPP)
+    ClangASTVisitor::ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP)
         : m_srcFile(pSrcFile)
         , m_preProcessor(pPP)
 	{ }
@@ -50,17 +51,23 @@ namespace clmr
 
         std::string headerStr;
         auto& SM = pFnDecl->getASTContext().getSourceManager();
+
         for (auto* D : pFnDecl->redecls())
         {
             SourceLocation loc = SM.getSpellingLoc(D->getLocation());
-            if (!loc.isValid()) {
-                continue;
-            }
+            if (!loc.isValid()) continue;
+            if (SM.isInMainFile(loc)) continue;
+            if (SM.isInSystemHeader(loc)) continue;
 
-            StringRef fileName = SM.getFilename(loc);
-            if (fileName.ends_with(".h") || fileName.ends_with(".hpp"))
-            {
-                headerStr = fileName.str();
+            FileID fid = SM.getFileID(loc);
+            const FileEntry* FE = SM.getFileEntryForID(fid);
+            if (!FE) continue;
+
+            auto& map = m_preProcessor.getIncludeStrMap();
+            auto it = map.find(FE);
+
+            if (it != map.end()) {
+                headerStr = it->second;
                 break;
             }
         }

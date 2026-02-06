@@ -13,13 +13,13 @@ namespace clmr {
     class ClangASTVisitor : public clang::RecursiveASTVisitor<ClangASTVisitor>
     {
         const std::string m_srcFile;
-        const ClangPPCallbacks& m_preProcessor;
+        ClangPPCallbacks& m_preProcessor;
 
         void addReflectableEntity(clang::FunctionDecl* pFuncDecl, const std::string& pHeader);
 
     public:
 
-        ClangASTVisitor(const std::string& pSrcFile, const ClangPPCallbacks& pPP);
+        ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);
 
         bool VisitFunctionDecl(clang::FunctionDecl* pFuncDecl);
     };
