@@ -2,6 +2,7 @@
 set(CLREFLECT_INCS
     
 	"${CMAKE_CURRENT_LIST_DIR}/ClangDriver.h"
+	"${CMAKE_CURRENT_LIST_DIR}/CLPPCallbacks.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTParserUtils.h"
     "${CMAKE_CURRENT_LIST_DIR}/CLMirrorASTParser.h"
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorASTVisitor.h"

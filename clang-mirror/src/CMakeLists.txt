@@ -2,6 +2,7 @@
 set(CLREFLECT_SRCS
     
     "${CMAKE_CURRENT_LIST_DIR}/ClangDriver.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/CLPPCallbacks.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorASTParser.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorASTVisitor.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/CLMirrorActionFactory.cpp"
