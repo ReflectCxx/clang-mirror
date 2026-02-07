@@ -109,11 +109,15 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
+    void ASTCodePrint::outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut, std::size_t pSrcIndex)
     {
         for (const auto& itr : pFnsMap) {
             if (!itr.second.signatures.empty()) {
-                pOut << "\nnamespace " + std::string(NS_REGS) + " {";
+
+                const auto& ns = std::string(NS_REGS) + 
+                                 std::to_string(pSrcIndex).append("::")
+                                                          .append(NS_FUNC);
+                pOut << "\nnamespace " + ns + " {";
                 pOut << freeFunctionInitDecls(itr.second.ast.function);
                 pOut << "}\n\n";
             }
@@ -121,15 +125,17 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut, std::size_t pSrcIndex)
     {
         if (!pRecodsMap.begin()->second.methods.empty()) {
             for (const auto& itr : pRecodsMap) {
 
                 const auto& methodMap = itr.second.methods;
                 const auto& fnMeta = methodMap.begin()->second;
-
-                pOut << "\nnamespace " + std::string(NS_REGS) + " {";
+                const auto& ns = std::string(NS_REGS) + 
+                                 std::to_string(pSrcIndex).append("::")
+                                                          .append(NS_TYPE);
+                pOut << "\nnamespace " + ns + " {";
                 pOut << recordTypeInitDecls(itr.first);
                 pOut << "}\n\n";
             }
@@ -145,7 +151,7 @@ namespace clmr
             if (metaFn.signatures.front().metaKind == MetaKind::NonMemberFn) {
 
                 const auto& codeStr = std::string("\nnamespace ")
-                                      .append(NS_FUNCTION).append(" {")
+                                      .append(NS_FUNC).append(" {")
                                       .append(getFnIDsWithNameSpaces(metaFn))
                                       .append("}");
 
@@ -232,7 +238,7 @@ namespace clmr
         std::string codeStr;
         int nscount = openNS(codeStr, pTypeID);
 
-        codeStr.append("\nnamespace " + std::string(NS_FUNCTION) + " {")
+        codeStr.append("\nnamespace " + std::string(NS_FUNC) + " {")
                .append("\nnamespace " + pMeta.ast.function + " {")
                .append(getFnIDDeclaration(pMeta))
                .append("\n}}");
@@ -309,7 +315,7 @@ namespace clmr
             const ASTCodeMeta& codeMeta = it.second;
             const auto& fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                                     .append("::").append(pMeta.recordStr)
-                                                    .append("::").append(NS_FUNCTION)
+                                                    .append("::").append(NS_FUNC)
                                                     .append("::").append(codeMeta.ast.function)
                                                     .append("::").append(VAR_ID);
 

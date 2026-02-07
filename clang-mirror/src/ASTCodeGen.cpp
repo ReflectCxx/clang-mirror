@@ -25,13 +25,15 @@ namespace clmr
 
         const auto& cbuffs = ASTCodeManager::instance().getCodeBufferMap();
         for (const auto& itr : cbuffs) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outFreeFnsDecls(itr.second->getFreeFunctionsMap(), pOut);
+            const auto& cb = *itr.second;
+            if (!cb.isCompilationFailed()) {
+                ASTCodePrint::outFreeFnsDecls(cb.getFreeFunctionsMap(), pOut, cb.getSrcFileIndex());
             }
         }
         for (const auto& itr : cbuffs) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outRecordInitDecls(itr.second->getRecordsMap(), pOut);
+            const auto& cb = *itr.second;
+            if (!cb.isCompilationFailed()) {
+                ASTCodePrint::outRecordInitDecls(cb.getRecordsMap(), pOut, cb.getSrcFileIndex());
             }
         }
     }

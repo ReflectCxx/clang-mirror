@@ -15,8 +15,8 @@ namespace clmr
 		static void outTypeRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
 		static void outFunctionInitsDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
 		
-		static void outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
-		static void outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
+		static void outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut, std::size_t pSrcIndex);
+		static void outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut, std::size_t pSrcIndex);
 
 		static void outRegisteredTypeRecordIDs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
 		static void outRegisteredFunctionIDs(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);
