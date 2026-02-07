@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "Constants.h"
+#include "ASTCodeBuffer.h"
 
 namespace clmr {
 	struct ASTCodeMeta;
@@ -12,8 +13,8 @@ namespace clmr
 {
 	struct ASTCodePrint
 	{
-		static void outTypeRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
-		static void outFunctionInitsDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
+		static void outFunctionInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut);
+		static void outTypeRecordInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut);
 		
 		static void outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex);
 		static void outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex);

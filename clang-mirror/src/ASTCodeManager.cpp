@@ -116,7 +116,7 @@ namespace clmr {
 
 
     void ASTCodeManager::dump(std::string_view pFile, GetDir pGetDir, Emitter pEmiter,
-                              ASTCodeBuffer* pCodeBuffer /*= nullptr*/)
+                              ASTCodeBuffer* pCb /*= nullptr*/)
     {
         std::filesystem::path fspath = pGetDir(m_outPath) / pFile;
         std::filesystem::path temp = fspath;
@@ -128,7 +128,7 @@ namespace clmr {
             return;
         }
 
-        pEmiter(fout, pCodeBuffer);
+        pEmiter(fout, pCb);
 
         if (!fout) {
             fout.close();

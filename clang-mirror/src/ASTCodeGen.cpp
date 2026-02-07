@@ -26,13 +26,13 @@ namespace clmr
         const auto& cbuffs = ASTCodeManager::instance().getCodeBufferMap();
         for (const auto& itr : cbuffs) {
             const auto& cb = *itr.second;
-            if (!cb.isCompilationFailed()) {
+            if (!cb.isCompilationFailed() && !cb.getFreeFunctionsMap().empty()) {
                 ASTCodePrint::outFreeFnsDecls(pOut, cb.getSrcFileIndex());
             }
         }
         for (const auto& itr : cbuffs) {
             const auto& cb = *itr.second;
-            if (!cb.isCompilationFailed()) {
+            if (!cb.isCompilationFailed() && !cb.getRecordsMap().empty()) {
                 ASTCodePrint::outRecordInitDecls(pOut, cb.getSrcFileIndex());
             }
         }
@@ -60,7 +60,7 @@ namespace clmr
     }
 
 
-    void ASTCodeGen::emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer* pCodeBuffer)
+    void ASTCodeGen::emitRegistrationInitsSource(std::ofstream& pOut, ASTCodeBuffer* pCb)
     {
         std::string headerIds = std::string("../").append(File::nameIDsHeader);
         std::string headerInits = std::string("../").append(File::nameRegHeader);
@@ -69,14 +69,14 @@ namespace clmr
             "\n#include \"" << headerIds << "\""
             "\n#include \"" << headerInits << "\"";
 
-        const auto& includesSet = pCodeBuffer->getIncludesSet();
+        const auto& includesSet = pCb->getIncludesSet();
         for (auto& incStr : includesSet) {
             pOut << "\n#include " << incStr;
         }
         pOut << "\n\n";
 
-        ASTCodePrint::outFunctionInitsDefs(pCodeBuffer->getFreeFunctionsMap(), pOut);
-        ASTCodePrint::outTypeRecordInitDefs(pCodeBuffer->getRecordsMap(), pOut);
+        //ASTCodePrint::outFunctionInitsDefs(*pCb, pOut);
+        //ASTCodePrint::outTypeRecordInitsDefs(*pCb, pOut);
     }
 
 

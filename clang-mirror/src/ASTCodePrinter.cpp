@@ -2,6 +2,7 @@
 #include <cassert>
 
 #include "ASTCodeMeta.h"
+#include "ASTCodeBuffer.h"
 #include "ASTCodePrinter.h"
 #include "StringUtils.h"
 
@@ -87,23 +88,35 @@ namespace clmr
 
 namespace clmr
 {
-    void ASTCodePrint::outTypeRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut)
+    void ASTCodePrint::outTypeRecordInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
-        for (const auto& itr : pRecodsMap) {
-            pOut << "\nnamespace " + std::string(NS_REGS) + " {";
-            pOut << recordTypeInitDefs(itr.second);
-            pOut << "}\n\n";
+        auto srcIndex = pCb.getSrcFileIndex();
+        for (const auto& itr : pCb.getRecordsMap()) {
+
+            const auto& ns = std::string(NS_REGS) +
+                             std::to_string(srcIndex).append("::")
+                                                     .append(NS_TYPE);
+            pOut << "\nnamespace " + ns + " {"
+                 << recordTypeInitDefs(itr.second)
+                 << "}\n\n";
         }
     }
 
 
-    void ASTCodePrint::outFunctionInitsDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut)
+    void ASTCodePrint::outFunctionInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
-        for (const auto& itr : pFnsMap) {
+        auto srcIndex = pCb.getSrcFileIndex();
+        for (const auto& itr : pCb.getFreeFunctionsMap()) {
             if (!itr.second.signatures.empty()) {
-                pOut << "\nnamespace " + std::string(NS_REGS) + " {";
-                pOut << freeFunctionInitDefs(itr.second);
-                pOut << "}\n\n";
+
+                const auto& ns = std::string(NS_REGS) +
+                                 std::to_string(srcIndex).append("::")
+                                                         .append(NS_FUNC);
+                pOut << "\nnamespace " + ns + " {"
+                        "\n    " << REGIS_INIT_DEFN << " {"
+                     << freeFunctionInitDefs(itr.second)
+                     << "\n    }\n"
+                        "}\n\n";
             }
         }
     }
@@ -114,9 +127,9 @@ namespace clmr
         const auto& ns = std::string(NS_REGS) + 
                             std::to_string(pSrcIndex).append("::")
                                                      .append(NS_FUNC);
-        pOut << "\nnamespace " + ns + " {";
-        pOut << "\n    " << REGIS_INIT_DECL << ";\n";
-        pOut << "}\n\n";
+        pOut << "\nnamespace " + ns + " {"
+             << "\n    " << REGIS_INIT_DECL << ";\n"
+             << "}\n\n";
     }
 
 
@@ -248,17 +261,14 @@ namespace clmr
     }
 
 
-
     std::string ASTCodePrint::freeFunctionInitDefs(const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pMeta.ast.function);
-        
+
         codeStr.append("\n    ").append(REGIS_INIT_DEFN).append(" {");
         //write code here.
         codeStr.append("\n    }\n");
 
-        closeNS(codeStr, nscount);
         return codeStr;
     }
 
@@ -266,8 +276,6 @@ namespace clmr
     std::string ASTCodePrint::recordTypeInitDefs(const ASTRecordMeta& pMeta)
     {
         std::string codeStr;
-        int nscount = openNS(codeStr, pMeta.recordStr);
-
         const auto& idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                                .append("::").append(pMeta.recordStr)
                                                .append("::").append(VAR_ID);
@@ -288,8 +296,6 @@ namespace clmr
             codeStr.append(getMethodRegistrationExpr(pMeta.recordStr, fIdStr, codeMeta));
         }
         codeStr.append("\n    }\n");
-
-        closeNS(codeStr, nscount);
         return codeStr;
     }
 }
