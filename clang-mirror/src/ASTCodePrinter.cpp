@@ -90,12 +90,14 @@ namespace clmr
 {
     void ASTCodePrint::outTypeRecordInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
+        auto index = 0;
         auto srcIndex = pCb.getSrcFileIndex();
         for (const auto& itr : pCb.getRecordsMap()) {
 
-            const auto& ns = std::string(NS_REGS) +
-                             std::to_string(srcIndex).append("::")
-                                                     .append(NS_TYPE);
+            auto ns = std::string(NS_REGS) +
+                      std::to_string(srcIndex).append("::")
+                                              .append(NS_TYPE)
+                                              .append(std::to_string(index++));
             pOut << "\nnamespace " + ns + " {"
                  << recordTypeInitDefs(itr.second)
                  << "}\n\n";
@@ -106,27 +108,30 @@ namespace clmr
     void ASTCodePrint::outFunctionInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
         auto srcIndex = pCb.getSrcFileIndex();
+        auto ns = std::string(NS_REGS) +
+                  std::to_string(srcIndex).append("::")
+                                          .append(NS_FUNC);
+
+        pOut << "\nnamespace " + ns + " {"
+            "\n    " << REGIS_INIT_DEFN << " {";
+
         for (const auto& itr : pCb.getFreeFunctionsMap()) {
             if (!itr.second.signatures.empty()) {
-
-                const auto& ns = std::string(NS_REGS) +
-                                 std::to_string(srcIndex).append("::")
-                                                         .append(NS_FUNC);
-                pOut << "\nnamespace " + ns + " {"
-                        "\n    " << REGIS_INIT_DEFN << " {"
-                     << freeFunctionInitDefs(itr.second)
-                     << "\n    }\n"
-                        "}\n\n";
+                pOut << freeFunctionInitDefs(itr.second);
             }
         }
+
+        pOut << "\n    }\n"
+        "}\n\n";
     }
 
 
     void ASTCodePrint::outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex)
     {
-        const auto& ns = std::string(NS_REGS) + 
-                            std::to_string(pSrcIndex).append("::")
-                                                     .append(NS_FUNC);
+        auto ns = std::string(NS_REGS) + 
+                  std::to_string(pSrcIndex).append("::")
+                                           .append(NS_FUNC);
+
         pOut << "\nnamespace " + ns + " {"
              << "\n    " << REGIS_INIT_DECL << ";\n"
              << "}\n\n";
@@ -151,10 +156,10 @@ namespace clmr
             const auto& metaFn = it->second;
             if (metaFn.signatures.front().metaKind == MetaKind::NonMemberFn) {
 
-                const auto& codeStr = std::string("\nnamespace ")
-                                      .append(NS_FUNC).append(" {")
-                                      .append(getFnIDsWithNameSpaces(metaFn))
-                                      .append("}");
+                auto codeStr = std::string("\nnamespace ");
+                codeStr.append(NS_FUNC).append(" {")
+                       .append(getFnIDsWithNameSpaces(metaFn))
+                       .append("}");
 
                 pOut << codeStr << "\n";
             }
@@ -169,10 +174,11 @@ namespace clmr
             const auto& metaFn = it->second;
             if (!metaFn.isCtor) {
 
-                const auto& codeStr = std::string("\nnamespace ")
-                                      .append(NS_TYPE).append(" {")
-                                      .append(getMethodIDDecleration(pTypeID, it->second))
-                                      .append("}");
+                auto codeStr = std::string("\nnamespace ");
+                codeStr.append(NS_TYPE).append(" {")
+                       .append(getMethodIDDecleration(pTypeID, it->second))
+                       .append("}");
+
                 pOut << codeStr << "\n";
             }
         }
@@ -186,10 +192,12 @@ namespace clmr
             const auto& methodMap = itr.second.methods;
             const auto& fnMeta = methodMap.begin()->second;
 
-            const auto& codeStr = std::string("\nnamespace ")
-                                  .append(NS_TYPE).append(" {")
-                                  .append(getTypeIDWithNamespaces(itr.first, fnMeta))
-                                  .append("}");
+            auto codeStr = std::string("\nnamespace ");
+            codeStr.append(NS_TYPE)
+                   .append(" {")
+                   .append(getTypeIDWithNamespaces(itr.first, fnMeta))
+                   .append("}");
+
             pOut << codeStr << "\n";
             outMethodIDsWithNamespaces(itr.first, methodMap, pOut);
             pOut << "\n";
@@ -264,10 +272,6 @@ namespace clmr
     std::string ASTCodePrint::freeFunctionInitDefs(const ASTCodeMeta& pMeta)
     {
         std::string codeStr;
-
-        codeStr.append("\n    ").append(REGIS_INIT_DEFN).append(" {");
-        //write code here.
-        codeStr.append("\n    }\n");
 
         return codeStr;
     }
