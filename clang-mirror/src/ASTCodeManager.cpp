@@ -60,6 +60,7 @@ namespace clmr {
                  .append(std::filesystem::path(pSrcFile).stem().string())
                  .append(".cpp");
 
+            codeBuffer->setSrcFileIndex(pIndex);
             dump(fname, &ASTCodeManager::toSrcDir, &ASTCodeGen::emitRegistrationInitsSource, codeBuffer);
         }
     }

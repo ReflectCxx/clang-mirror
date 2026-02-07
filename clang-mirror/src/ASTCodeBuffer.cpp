@@ -7,6 +7,7 @@ namespace clmr
     ASTCodeBuffer::ASTCodeBuffer(const std::string& pSrcFile)
         : m_errorsFound(false)
         , m_srcFile(pSrcFile)
+        , m_srcFileIndex(index_none)
         , m_recordsMap(CxxRecordsMap())
         , m_freeFnsMap(CxxFunctionsMap())
         , m_incFiles(std::unordered_set<std::string>())
@@ -17,6 +18,9 @@ namespace clmr
         m_errorsFound = pErrorsFound;
     }
 
+    void ASTCodeBuffer::setSrcFileIndex(std::size_t pIndex) {
+        m_srcFileIndex = pIndex;
+    }
 
     ASTRecordMeta& ASTCodeBuffer::getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pRecordStr)
     {

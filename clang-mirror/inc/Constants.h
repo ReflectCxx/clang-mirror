@@ -24,6 +24,8 @@ namespace clmr
 		inline constexpr std::string_view GREY = "\033[38;2;118;118;118m";
 	}
 
+	inline constexpr std::size_t index_none = std::size_t(-1);
+
 	inline constexpr std::string_view CONST = "const";
 	inline constexpr std::string_view ENUM = "enum";
 	inline constexpr std::string_view CLASS = "class";

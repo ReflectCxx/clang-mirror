@@ -13,7 +13,7 @@ namespace clmr
 	{
 		bool m_errorsFound;
 		const std::string m_srcFile;
-		std::size_t m_SrcFileIndex;
+		std::size_t m_srcFileIndex;
 		CxxRecordsMap m_recordsMap;
 		CxxFunctionsMap m_freeFnsMap;
 
@@ -33,6 +33,7 @@ namespace clmr
 
 		ASTCodeBuffer(const std::string& pSrcFile);
 
+		GETTER_CREF(std::size_t, SrcFileIndex, m_srcFileIndex)
 		GETTER_BOOL(CompilationFailed, m_errorsFound)
 		GETTER_CREF(IncSet, IncludesSet, m_incFiles)
 		GETTER_CREF(std::string, SrcFile, m_srcFile)
@@ -40,6 +41,8 @@ namespace clmr
 		GETTER_CREF(CxxFunctionsMap, FreeFunctionsMap, m_freeFnsMap)
 
 		void setErrorsFound(bool pErrorFound);
+		void setSrcFileIndex(std::size_t pIndex);
+
 		void addFunction(MetaKind pMK, const ASTObj& pAst, const std::string& pRecord,
 			             const std::string& pReturn, const std::string& pParams);
 	};
