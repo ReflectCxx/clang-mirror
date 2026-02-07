@@ -144,10 +144,10 @@ namespace clmr
             const auto& metaFn = it->second;
             if (metaFn.signatures.front().metaKind == MetaKind::NonMemberFn) {
 
-                std::string codeStr;
-                codeStr.append("\nnamespace ").append(NS_FUNCTION).append(" {")
-                       .append(getFnIDsWithNameSpaces(metaFn))
-                       .append("}");
+                const auto& codeStr = std::string("\nnamespace ")
+                                      .append(NS_FUNCTION).append(" {")
+                                      .append(getFnIDsWithNameSpaces(metaFn))
+                                      .append("}");
 
                 pOut << codeStr << "\n";
             }
@@ -162,11 +162,10 @@ namespace clmr
             const auto& metaFn = it->second;
             if (!metaFn.isCtor) {
 
-                std::string codeStr;
-                codeStr.append("\nnamespace ").append(NS_TYPE).append(" {")
-                       .append(getMethodIDDecleration(pTypeID, it->second))
-                       .append("}");
-
+                const auto& codeStr = std::string("\nnamespace ")
+                                      .append(NS_TYPE).append(" {")
+                                      .append(getMethodIDDecleration(pTypeID, it->second))
+                                      .append("}");
                 pOut << codeStr << "\n";
             }
         }
@@ -180,11 +179,10 @@ namespace clmr
             const auto& methodMap = itr.second.methods;
             const auto& fnMeta = methodMap.begin()->second;
 
-            std::string codeStr;
-            codeStr.append("\nnamespace " + std::string(NS_TYPE) + " {")
-                   .append(getTypeIDWithNamespaces(itr.first, fnMeta))
-                   .append("}");
-
+            const auto& codeStr = std::string("\nnamespace ")
+                                  .append(NS_TYPE).append(" {")
+                                  .append(getTypeIDWithNamespaces(itr.first, fnMeta))
+                                  .append("}");
             pOut << codeStr << "\n";
             outMethodIDsWithNamespaces(itr.first, methodMap, pOut);
             pOut << "\n";
@@ -298,7 +296,7 @@ namespace clmr
         std::string codeStr;
         int nscount = openNS(codeStr, pMeta.recordStr);
 
-        std::string idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
+        const auto& idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                                .append("::").append(pMeta.recordStr)
                                                .append("::").append(VAR_ID);
 
@@ -309,11 +307,11 @@ namespace clmr
         for (auto& it : pMeta.methods) {
 
             const ASTCodeMeta& codeMeta = it.second;
-            auto fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
-                                             .append("::").append(pMeta.recordStr)
-                                             .append("::").append(NS_FUNCTION)
-                                             .append("::").append(codeMeta.ast.function)
-                                             .append("::").append(VAR_ID);
+            const auto& fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
+                                                    .append("::").append(pMeta.recordStr)
+                                                    .append("::").append(NS_FUNCTION)
+                                                    .append("::").append(codeMeta.ast.function)
+                                                    .append("::").append(VAR_ID);
 
             codeStr.append(getMethodRegistrationExpr(pMeta.recordStr, fIdStr, codeMeta));
         }

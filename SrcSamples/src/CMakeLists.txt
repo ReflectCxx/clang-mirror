@@ -30,7 +30,7 @@ SET(LOCAL_HEADERS
 )
 
 # Add any additional source files if needed
-target_sources(CxxTestProps
+target_sources(SrcSamples
     PRIVATE
         "${LOCAL_HEADERS}"
 		"${LOCAL_SOURCES}"
