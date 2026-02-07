@@ -15,8 +15,8 @@ namespace clmr
 		static void outTypeRecordInitDefs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
 		static void outFunctionInitsDefs(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut);
 		
-		static void outFreeFnsDecls(const CxxFunctionsMap& pFnsMap, std::ofstream& pOut, std::size_t pSrcIndex);
-		static void outRecordInitDecls(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut, std::size_t pSrcIndex);
+		static void outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex);
+		static void outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex);
 
 		static void outRegisteredTypeRecordIDs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
 		static void outRegisteredFunctionIDs(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);
@@ -29,11 +29,9 @@ namespace clmr
 		
 		static std::string getFnIDDeclaration(const ASTCodeMeta& pMeta);
 		static std::string freeFunctionInitDefs(const ASTCodeMeta& pMeta);
-		static std::string freeFunctionInitDecls(const std::string& pFnName);
 		
 		static std::string getTypeIDWithNamespaces(const std::string& pTypeID, const ASTCodeMeta& pMeta);
 		static std::string recordTypeInitDefs(const ASTRecordMeta& pMeta);
-		static std::string recordTypeInitDecls(const std::string& pTypeID);
 
 		static void closeNS(std::string& pCodeStr, std::size_t pCount);
 		static std::size_t openNS(std::string& pCodeStr, const std::string& pType);

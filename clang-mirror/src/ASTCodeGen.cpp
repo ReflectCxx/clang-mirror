@@ -27,13 +27,13 @@ namespace clmr
         for (const auto& itr : cbuffs) {
             const auto& cb = *itr.second;
             if (!cb.isCompilationFailed()) {
-                ASTCodePrint::outFreeFnsDecls(cb.getFreeFunctionsMap(), pOut, cb.getSrcFileIndex());
+                ASTCodePrint::outFreeFnsDecls(pOut, cb.getSrcFileIndex());
             }
         }
         for (const auto& itr : cbuffs) {
             const auto& cb = *itr.second;
             if (!cb.isCompilationFailed()) {
-                ASTCodePrint::outRecordInitDecls(cb.getRecordsMap(), pOut, cb.getSrcFileIndex());
+                ASTCodePrint::outRecordInitDecls(pOut, cb.getSrcFileIndex());
             }
         }
     }
