@@ -13,6 +13,7 @@ namespace clmr
 	{
 		bool m_errorsFound;
 		const std::string m_srcFile;
+		std::size_t m_SrcFileIndex;
 		CxxRecordsMap m_recordsMap;
 		CxxFunctionsMap m_freeFnsMap;
 
