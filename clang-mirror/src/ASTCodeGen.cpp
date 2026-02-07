@@ -75,8 +75,8 @@ namespace clmr
         }
         pOut << "\n\n";
 
-        //ASTCodePrint::outFunctionInitsDefs(*pCb, pOut);
-        //ASTCodePrint::outTypeRecordInitsDefs(*pCb, pOut);
+        ASTCodePrint::outFunctionInitsDefs(*pCb, pOut);
+        ASTCodePrint::outTypeRecordInitsDefs(*pCb, pOut);
     }
 
 
