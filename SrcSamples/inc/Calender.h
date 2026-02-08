@@ -4,6 +4,7 @@
 
 namespace nsdate
 {
+	struct Date;
 	struct Event;
 
 	struct Calender

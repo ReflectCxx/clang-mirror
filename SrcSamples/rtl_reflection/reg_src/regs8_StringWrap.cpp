@@ -6,7 +6,7 @@
 
 
 namespace regs8::type0 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<StrWrap>(cxx::type::StrWrap::id)
                                  .build());
@@ -15,14 +15,14 @@ namespace regs8::type0 {
                                  .constructor<const std::string &>().build());
 
         fns.push_back(rtl::type().member<StrWrap>()
-                                 .methodConst()
+                                 .methodConst(cxx::type::StrWrap::fn::sstr::id)
                                  .build(&StrWrap::sstr));
     }
 }
 
 
 namespace regs8::type1 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<StrWrapA>(cxx::type::StrWrapA::id)
                                  .build());
@@ -46,7 +46,7 @@ namespace regs8::type1 {
 
 
 namespace regs8::type2 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<StrWrapB>(cxx::type::StrWrapB::id)
                                  .build());
@@ -61,7 +61,7 @@ namespace regs8::type2 {
 
 
 namespace regs8::type3 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<StrWrapC>(cxx::type::StrWrapC::id)
                                  .build());
@@ -73,7 +73,7 @@ namespace regs8::type3 {
 
 
 namespace regs8::type4 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<StrWrapD>(cxx::type::StrWrapD::id)
                                  .build());

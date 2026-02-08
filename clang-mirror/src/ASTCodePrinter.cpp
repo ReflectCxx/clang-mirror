@@ -313,13 +313,14 @@ namespace clmr
         for (auto& it : pMeta.methods) {
 
             const ASTCodeMeta& codeMeta = it.second;
-            const auto& fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
-                                                    .append("::").append(pMeta.recordStr)
-                                                    .append("::").append(NS_FN)
-                                                    .append("::").append(codeMeta.ast.function)
-                                                    .append("::").append(VAR_ID);
+            auto fnIdStr = std::string(NS_CXX);
+            fnIdStr.append("::").append(NS_TYPE)
+                   .append("::").append(pMeta.recordStr)
+                   .append("::").append(NS_FN)
+                   .append("::").append(codeMeta.ast.function)
+                   .append("::").append(VAR_ID);
 
-            codeStr.append(getMethodRegistrationExpr(pMeta.recordStr, fIdStr, codeMeta));
+            codeStr.append(getMethodRegistrationExpr(pMeta.recordStr, fnIdStr, codeMeta));
         }
         codeStr.append("\n    }\n");
         return codeStr;

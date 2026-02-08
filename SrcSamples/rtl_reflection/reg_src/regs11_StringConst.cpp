@@ -6,77 +6,77 @@
 
 
 namespace regs11::type0 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<StrConst>(cxx::type::StrConst::id)
                                  .build());
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string_view>()
+                                 .methodConst<std::string_view>(cxx::type::StrConst::fn::revStrOverloadValCRef::id)
                                  .build(&StrConst::revStrOverloadValCRef));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<const std::string_view &>()
+                                 .methodConst<const std::string_view &>(cxx::type::StrConst::fn::revStrOverloadValCRef::id)
                                  .build(&StrConst::revStrOverloadValCRef));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<void>()
+                                 .methodConst<void>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<const char *>()
+                                 .methodConst<const char *>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string>()
+                                 .methodConst<std::string>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string &>()
+                                 .methodConst<std::string &>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string &&>()
+                                 .methodConst<std::string &&>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<const std::string &>()
+                                 .methodConst<const std::string &>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string *>()
+                                 .methodConst<std::string *>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<const std::string *>()
+                                 .methodConst<const std::string *>(cxx::type::StrConst::fn::reverseString::id)
                                  .build(&StrConst::reverseString));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst()
+                                 .methodConst(cxx::type::StrConst::fn::revStrConstRefArg::id)
                                  .build(&StrConst::revStrConstRefArg));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst()
+                                 .methodConst(cxx::type::StrConst::fn::revStrRValueRefArg::id)
                                  .build(&StrConst::revStrRValueRefArg));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst()
+                                 .methodConst(cxx::type::StrConst::fn::revStrNonConstRefArg::id)
                                  .build(&StrConst::revStrNonConstRefArg));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string_view &>()
+                                 .methodConst<std::string_view &>(cxx::type::StrConst::fn::revStrOverloadRefAndCRef::id)
                                  .build(&StrConst::revStrOverloadRefAndCRef));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<const std::string_view &>()
+                                 .methodConst<const std::string_view &>(cxx::type::StrConst::fn::revStrOverloadRefAndCRef::id)
                                  .build(&StrConst::revStrOverloadRefAndCRef));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string_view>()
+                                 .methodConst<std::string_view>(cxx::type::StrConst::fn::revStrOverloadValRef::id)
                                  .build(&StrConst::revStrOverloadValRef));
 
         fns.push_back(rtl::type().member<StrConst>()
-                                 .methodConst<std::string_view &>()
+                                 .methodConst<std::string_view &>(cxx::type::StrConst::fn::revStrOverloadValRef::id)
                                  .build(&StrConst::revStrOverloadValRef));
     }
 }

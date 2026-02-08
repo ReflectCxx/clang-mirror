@@ -6,7 +6,7 @@
 
 
 namespace regs7::fn {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().function<std::string_view>(cxx::fn::revStrOverloadValCRef::id)
                                  .build(&revStrOverloadValCRef));

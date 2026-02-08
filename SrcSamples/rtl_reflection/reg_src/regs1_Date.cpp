@@ -8,62 +8,62 @@
 
 
 namespace regs1::type0 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<nsdate::Calender>(cxx::type::nsdate::Calender::id)
                                  .build());
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .methodStatic()
+                                 .methodStatic(cxx::type::nsdate::Calender::fn::resetMoveOpsCounter::id)
                                  .build(&nsdate::Calender::resetMoveOpsCounter));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .methodStatic()
+                                 .methodStatic(cxx::type::nsdate::Calender::fn::getMoveOpsCount::id)
                                  .build(&nsdate::Calender::getMoveOpsCount));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .methodStatic()
+                                 .methodStatic(cxx::type::nsdate::Calender::fn::create::id)
                                  .build(&nsdate::Calender::create));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Calender::fn::getSavedDate::id)
                                  .build(&nsdate::Calender::getSavedDate));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Calender::fn::getTheDate::id)
                                  .build(&nsdate::Calender::getTheDate));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Calender::fn::getSavedEvent::id)
                                  .build(&nsdate::Calender::getSavedEvent));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Calender::fn::getTheEvent::id)
                                  .build(&nsdate::Calender::getTheEvent));
 
         fns.push_back(rtl::type().member<nsdate::Calender>()
-                                 .methodStatic()
+                                 .methodStatic(cxx::type::nsdate::Calender::fn::instanceCount::id)
                                  .build(&nsdate::Calender::instanceCount));
     }
 }
 
 
 namespace regs1::type1 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<nsdate::Date>(cxx::type::nsdate::Date::id)
                                  .build());
 
         fns.push_back(rtl::type().member<nsdate::Date>()
-                                 .methodStatic()
+                                 .methodStatic(cxx::type::nsdate::Date::fn::instanceCount::id)
                                  .build(&nsdate::Date::instanceCount));
 
         fns.push_back(rtl::type().member<nsdate::Date>()
-                                 .methodConst()
+                                 .methodConst(cxx::type::nsdate::Date::fn::getAsString::id)
                                  .build(&nsdate::Date::getAsString));
 
         fns.push_back(rtl::type().member<nsdate::Date>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Date::fn::updateDate::id)
                                  .build(&nsdate::Date::updateDate));
 
         fns.push_back(rtl::type().member<nsdate::Date>()
@@ -76,21 +76,21 @@ namespace regs1::type1 {
 
 
 namespace regs1::type2 {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<nsdate::Event>(cxx::type::nsdate::Event::id)
                                  .build());
 
         fns.push_back(rtl::type().member<nsdate::Event>()
-                                 .methodStatic()
+                                 .methodStatic(cxx::type::nsdate::Event::fn::instanceCount::id)
                                  .build(&nsdate::Event::instanceCount));
 
         fns.push_back(rtl::type().member<nsdate::Event>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Event::fn::getEventDate::id)
                                  .build(&nsdate::Event::getEventDate));
 
         fns.push_back(rtl::type().member<nsdate::Event>()
-                                 .method()
+                                 .method(cxx::type::nsdate::Event::fn::reset::id)
                                  .build(&nsdate::Event::reset));
     }
 }

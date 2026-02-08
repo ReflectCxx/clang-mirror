@@ -6,7 +6,7 @@
 
 
 namespace regs10::fn {
-    static void init(std::vector<rtl::Function>& fns) {
+    void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().function(cxx::fn::complex::getMagnitude::id)
                                  .build(&complex::getMagnitude));

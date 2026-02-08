@@ -135,7 +135,7 @@ namespace clmr
             }
         }
 
-        pOut << "\n"
+        pOut << "\n            return " << varName <<";"
                 "\n        }());"
                 "\n        return mirror;"
                 "\n    }"

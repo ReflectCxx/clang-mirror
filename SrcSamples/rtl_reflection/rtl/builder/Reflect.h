@@ -109,18 +109,18 @@ namespace rtl
         }
 
         template<class record_t>
-        constexpr const builder::RecordBuilder<record_t> record(const std::string& pClass) 
+        constexpr const builder::RecordBuilder<record_t> record(std::string_view pClass) 
         {
-            return ns(detail::NAMESPACE_GLOBAL).record<record_t>(pClass);
+            return ns(detail::NAMESPACE_GLOBAL).record<record_t>(std::string(pClass));
         }
 
         template<class ...signature_t>
-        constexpr const builder::Builder<detail::member::None, signature_t...> function(const std::string& pFunction) 
+        constexpr const builder::Builder<detail::member::None, signature_t...> function(std::string_view pFunction) 
         {
             constexpr bool hasConstRValueRef = ((std::is_const_v<std::remove_reference_t<signature_t>> && std::is_rvalue_reference_v<signature_t>) || ...);
             static_assert(!hasConstRValueRef, "Registration of functions with 'const T&&' parameters is not allowed.");
 
-            return ns(detail::NAMESPACE_GLOBAL).function<signature_t...>(pFunction);
+            return ns(detail::NAMESPACE_GLOBAL).function<signature_t...>(std::string(pFunction));
         }
     };
 }

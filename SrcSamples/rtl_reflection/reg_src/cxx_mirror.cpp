@@ -30,9 +30,7 @@ namespace cxx {
             regs8::type4::init(fns);
             regs9::type0::init(fns);
             regs11::type0::init(fns);
-
             return fns;
-
         }());
         return mirror;
     }

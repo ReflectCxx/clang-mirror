@@ -2,6 +2,8 @@
 #pragma once
 #include <unordered_map>
 
+#include "Book.h"
+
 class Book;
 
 class Library
