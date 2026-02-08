@@ -66,8 +66,8 @@ namespace clmr
         std::string headerInits = std::string("../").append(File::nameRegHeader);
 
         pOut << "\n"
-            "\n#include \"" << headerIds << "\""
-            "\n#include \"" << headerInits << "\"";
+                "\n#include \"" << headerIds << "\""
+                "\n#include \"" << headerInits << "\"";
 
         const auto& includesSet = pCb->getIncludesSet();
         for (auto& incStr : includesSet) {

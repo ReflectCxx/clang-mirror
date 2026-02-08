@@ -18,7 +18,7 @@ namespace clmr
 		CxxFunctionsMap m_freeFnsMap;
 
 		using IncSet = std::unordered_set<std::string>;
-		std::unordered_set<std::string> m_incFiles;
+		IncSet m_incFiles;
 
 		static ASTRecordMeta& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
 

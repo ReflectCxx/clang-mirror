@@ -107,20 +107,18 @@ namespace clmr
 
     void ASTCodePrint::outFunctionInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
-        auto srcIndex = pCb.getSrcFileIndex();
-        auto ns = std::string(NS_REGS) +
-                  std::to_string(srcIndex).append("::")
-                                          .append(NS_FUNC);
+        const auto& srcIndex = pCb.getSrcFileIndex();
+        auto ns = std::string(NS_REGS) + std::to_string(srcIndex);
+        ns.append("::").append(NS_FUNC);
 
         pOut << "\nnamespace " + ns + " {"
-            "\n    " << REGIS_INIT_DEFN << " {";
+                "\n    " << REGIS_INIT_DEFN << " {";
 
         for (const auto& itr : pCb.getFreeFunctionsMap()) {
             if (!itr.second.signatures.empty()) {
                 pOut << freeFunctionInitDefs(itr.second);
             }
         }
-
         pOut << "\n    }\n"
         "}\n\n";
     }
@@ -128,9 +126,8 @@ namespace clmr
 
     void ASTCodePrint::outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex)
     {
-        auto ns = std::string(NS_REGS) + 
-                  std::to_string(pSrcIndex).append("::")
-                                           .append(NS_FUNC);
+        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
+        ns .append("::").append(NS_FUNC);
 
         pOut << "\nnamespace " + ns + " {"
              << "\n    " << REGIS_INIT_DECL << ";\n"
@@ -140,9 +137,9 @@ namespace clmr
 
     void ASTCodePrint::outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex)
     {
-        const auto& ns = std::string(NS_REGS) + 
-                            std::to_string(pSrcIndex).append("::")
-                                                     .append(NS_TYPE);
+        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);                    
+        ns.append("::").append(NS_TYPE);
+
         pOut << "\nnamespace " + ns + " {";
         pOut << "\n    " << REGIS_INIT_DECL << ";\n";
         pOut << "}\n\n";
@@ -279,11 +276,13 @@ namespace clmr
 
     std::string ASTCodePrint::recordTypeInitDefs(const ASTRecordMeta& pMeta)
     {
-        std::string codeStr;
-        const auto& idStr = std::string(NS_CXX).append("::").append(NS_TYPE)
-                                               .append("::").append(pMeta.recordStr)
-                                               .append("::").append(VAR_ID);
+        std::string idStr;
+        idStr.append(NS_CXX)
+             .append("::").append(NS_TYPE)
+             .append("::").append(pMeta.recordStr)
+             .append("::").append(VAR_ID);
 
+        std::string codeStr;
         codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + " {\n\n")
                .append("        fns.push_back(rtl::type().record<" + pMeta.recordStr + ">(" + idStr + ")"
                      "\n                                 .build());");
