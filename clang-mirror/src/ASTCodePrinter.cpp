@@ -91,7 +91,7 @@ namespace clmr
     void ASTCodePrint::outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex)
     {
         auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
-        ns .append("::").append(NS_FUNC);
+        ns .append("::").append(NS_FN);
 
         pOut << "\nnamespace " + ns + " {"
              << "\n    " << REGIS_INIT_DECL << ";\n"
@@ -132,7 +132,7 @@ namespace clmr
     {
         const auto& srcIndex = pCb.getSrcFileIndex();
         auto ns = std::string(NS_REGS) + std::to_string(srcIndex);
-        ns.append("::").append(NS_FUNC);
+        ns.append("::").append(NS_FN);
 
         auto& freeFnsMap = pCb.getFreeFunctionsMap();
         if (!freeFnsMap.empty())
@@ -142,7 +142,7 @@ namespace clmr
 
             for (const auto& itr : pCb.getFreeFunctionsMap()) {
                 if (!itr.second.signatures.empty()) {
-                    pOut << freeFunctionInitDefs(itr.second);
+                    pOut << "\n" << freeFunctionInitDefs(itr.second) << "\n";
                 }
             }
             pOut << "\n    }\n"
@@ -159,7 +159,7 @@ namespace clmr
             if (metaFn.signatures.front().metaKind == MetaKind::NonMemberFn) {
 
                 auto codeStr = std::string("\nnamespace ");
-                codeStr.append(NS_FUNC).append(" {")
+                codeStr.append(NS_FN).append(" {")
                        .append(getFnIDsWithNameSpaces(metaFn))
                        .append("}");
 
@@ -227,7 +227,7 @@ namespace clmr
         std::string codeStr;
         int nscount = openNS(codeStr, pTypeID);
 
-        codeStr.append("\nnamespace " + std::string(NS_FUNC) + " {")
+        codeStr.append("\nnamespace " + std::string(NS_FN) + " {")
                .append("\nnamespace " + pMeta.ast.function + " {")
                .append(getFnIDDeclaration(pMeta))
                .append("\n}}");
@@ -273,8 +273,24 @@ namespace clmr
 
     std::string ASTCodePrint::freeFunctionInitDefs(const ASTCodeMeta& pMeta)
     {
-        std::string codeStr;
+        std::string idStr;
+        idStr.append(NS_CXX)
+             .append("::").append(NS_FN)
+             .append("::").append(pMeta.ast.function)
+             .append("::").append(VAR_ID);
 
+        std::string codeStr;
+        auto signCount = pMeta.signatures.size();
+        if (signCount > 1)
+        {
+            //codeStr.append("        fns.push_back(rtl::type().function<" + pMeta.recordStr + ">(" + idStr + ")"
+            //        "\n                                 .build());");
+        }
+        else
+        {
+            codeStr.append("\n        fns.push_back(rtl::type().function(" + idStr + ")"
+                           "\n                                 .build(&").append(pMeta.ast.function).append("));");
+        }
         return codeStr;
     }
 
@@ -297,7 +313,7 @@ namespace clmr
             const ASTCodeMeta& codeMeta = it.second;
             const auto& fIdStr = std::string(NS_CXX).append("::").append(NS_TYPE)
                                                     .append("::").append(pMeta.recordStr)
-                                                    .append("::").append(NS_FUNC)
+                                                    .append("::").append(NS_FN)
                                                     .append("::").append(codeMeta.ast.function)
                                                     .append("::").append(VAR_ID);
 
