@@ -20,8 +20,8 @@ namespace clmr
     {
         pOut << std::string("\n#pragma once"
                             "\n#include <vector>\n"
-                            "\nnamespace " + std::string(NS_RTL) +
-                            " { class Function; }\n\n");
+                            "\n#include \"" + std::string(File::incRtlBuilder) + "\""
+                            "\n\n");
 
         const auto& cbuffs = ASTCodeManager::instance().getCodeBufferMap();
         for (const auto& itr : cbuffs) {
@@ -86,13 +86,11 @@ namespace clmr
 
 	void ASTCodeGen::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
 	{
-        std::string rtlHeader = std::string("../").append(File::incRtlBuilder);
         std::string regIDHeader = std::string("../").append(File::nameRegHeader);
 
         pOut << "\n"
                 "\n#include <vector>"
                 "\n"
-                "\n#include \"" << rtlHeader << "\""
                 "\n#include \"" << regIDHeader << "\""
                 "\n"
                 "\nnamespace cxx { \n"

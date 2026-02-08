@@ -138,14 +138,14 @@ namespace clmr
         if (!freeFnsMap.empty())
         {
             pOut << "\nnamespace " + ns + " {"
-                    "\n    " << REGIS_INIT_DEFN << " {";
+                    "\n    " << REGIS_INIT_DEFN << " {\n";
 
             for (const auto& itr : pCb.getFreeFunctionsMap()) {
                 if (!itr.second.signatures.empty()) {
-                    pOut << "\n" << freeFunctionInitDefs(itr.second) << "\n";
+                    pOut << freeFunctionInitDefs(itr.second);
                 }
             }
-            pOut << "\n    }\n"
+            pOut << "    }\n"
                     "}\n\n";
         }
     }
@@ -284,15 +284,14 @@ namespace clmr
         if (signCount > 1)
         {
             for (const auto& sign : pMeta.signatures) {
-                codeStr.append("\n        fns.push_back(rtl::type().function<").append(sign.paramsStr)
-                                                                               .append(">(" + idStr + ")"
+                codeStr.append("\n        fns.push_back(rtl::type().function<").append(sign.paramsStr).append(">(" + idStr + ")"
                                "\n                                 .build(&").append(pMeta.ast.function).append("));\n");
             }
         }
         else
         {
             codeStr.append("\n        fns.push_back(rtl::type().function(" + idStr + ")"
-                           "\n                                 .build(&").append(pMeta.ast.function).append("));");
+                           "\n                                 .build(&").append(pMeta.ast.function).append("));\n");
         }
         return codeStr;
     }
@@ -308,8 +307,8 @@ namespace clmr
 
         std::string codeStr;
         codeStr.append("\n    " + std::string(REGIS_INIT_DEFN) + " {\n\n")
-               .append("        fns.push_back(rtl::type().record<" + pMeta.recordStr + ">(" + idStr + ")"
-                     "\n                                 .build());");
+               .append(  "        fns.push_back(rtl::type().record<" + pMeta.recordStr + ">(" + idStr + ")"
+                       "\n                                 .build());");
 
         for (auto& it : pMeta.methods) {
 
