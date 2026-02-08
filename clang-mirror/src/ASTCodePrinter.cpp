@@ -283,8 +283,11 @@ namespace clmr
         auto signCount = pMeta.signatures.size();
         if (signCount > 1)
         {
-            //codeStr.append("        fns.push_back(rtl::type().function<" + pMeta.recordStr + ">(" + idStr + ")"
-            //        "\n                                 .build());");
+            for (const auto& sign : pMeta.signatures) {
+                codeStr.append("\n        fns.push_back(rtl::type().function<").append(sign.paramsStr)
+                                                                               .append(">(" + idStr + ")"
+                               "\n                                 .build(&").append(pMeta.ast.function).append("));\n");
+            }
         }
         else
         {
