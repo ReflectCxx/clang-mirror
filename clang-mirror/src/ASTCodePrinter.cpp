@@ -88,6 +88,27 @@ namespace clmr
 
 namespace clmr
 {
+    void ASTCodePrint::outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex)
+    {
+        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
+        ns .append("::").append(NS_FUNC);
+
+        pOut << "\nnamespace " + ns + " {"
+             << "\n    " << REGIS_INIT_DECL << ";\n"
+             << "}\n\n";
+    }
+
+
+    void ASTCodePrint::outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex, std::size_t pTypeIndex)
+    {
+        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
+        ns.append("::").append(NS_TYPE).append(std::to_string(pTypeIndex));
+
+        pOut << "\nnamespace " + ns + " {"
+             << "\n    " << REGIS_INIT_DECL << ";\n"
+             << "}\n\n";
+    }
+
     void ASTCodePrint::outTypeRecordInitsDefs(ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
         auto index = 0;
@@ -113,38 +134,20 @@ namespace clmr
         auto ns = std::string(NS_REGS) + std::to_string(srcIndex);
         ns.append("::").append(NS_FUNC);
 
-        pOut << "\nnamespace " + ns + " {"
-                "\n    " << REGIS_INIT_DEFN << " {";
+        auto& freeFnsMap = pCb.getFreeFunctionsMap();
+        if (!freeFnsMap.empty())
+        {
+            pOut << "\nnamespace " + ns + " {"
+                    "\n    " << REGIS_INIT_DEFN << " {";
 
-        for (const auto& itr : pCb.getFreeFunctionsMap()) {
-            if (!itr.second.signatures.empty()) {
-                pOut << freeFunctionInitDefs(itr.second);
+            for (const auto& itr : pCb.getFreeFunctionsMap()) {
+                if (!itr.second.signatures.empty()) {
+                    pOut << freeFunctionInitDefs(itr.second);
+                }
             }
+            pOut << "\n    }\n"
+                    "}\n\n";
         }
-        pOut << "\n    }\n"
-        "}\n\n";
-    }
-
-
-    void ASTCodePrint::outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex)
-    {
-        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
-        ns .append("::").append(NS_FUNC);
-
-        pOut << "\nnamespace " + ns + " {"
-             << "\n    " << REGIS_INIT_DECL << ";\n"
-             << "}\n\n";
-    }
-
-
-    void ASTCodePrint::outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex, std::size_t pTypeIndex)
-    {
-        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
-        ns.append("::").append(NS_TYPE).append(std::to_string(pTypeIndex));
-
-        pOut << "\nnamespace " + ns + " {";
-        pOut << "\n    " << REGIS_INIT_DECL << ";\n";
-        pOut << "}\n\n";
     }
 
 

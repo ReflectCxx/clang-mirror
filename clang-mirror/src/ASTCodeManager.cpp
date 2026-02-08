@@ -54,10 +54,8 @@ namespace clmr {
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) {
 
-            std::string fname = std::string(File::prefixRegs);
-            fname.append(std::to_string(pIndex))
-                 .append("_")
-                 .append(std::filesystem::path(pSrcFile).stem().string())
+            std::string fname = std::string(File::prefixRegs) + std::to_string(pIndex) + "_";
+            fname.append(std::filesystem::path(pSrcFile).stem().string())
                  .append(".cpp");
 
             codeBuffer->setSrcFileIndex(pIndex);
