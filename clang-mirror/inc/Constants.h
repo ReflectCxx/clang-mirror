@@ -39,8 +39,9 @@ namespace clmr
 	inline constexpr std::string_view NS_FN = "fn";
 	inline constexpr std::string_view NS_REGS = "regs";
 	
-	inline constexpr std::string_view REGIS_INIT_DECL = "static void init(std::vector<rtl::Function>&)";
-	inline constexpr std::string_view REGIS_INIT_DEFN = "static void init(std::vector<rtl::Function>& fns)";
+	inline constexpr std::string_view REGIS_FN_INIT = "init";
+	inline constexpr std::string_view REGIS_INIT_DECL = "static void init(std::vector<rtl::Function>&)";	 // function name should be same as in REGIS_FN_INIT.
+	inline constexpr std::string_view REGIS_INIT_DEFN = "static void init(std::vector<rtl::Function>& fns)"; // function name should be same as in REGIS_FN_INIT.
 }
 
 

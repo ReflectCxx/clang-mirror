@@ -86,6 +86,7 @@ namespace clmr
 
 	void ASTCodeGen::emitCxxMirrorSource(std::ofstream& pOut, ASTCodeBuffer*)
 	{
+        std::string varName = "fns";
         std::string regIDHeader = std::string("../").append(File::nameRegHeader);
 
         pOut << "\n"
@@ -98,8 +99,43 @@ namespace clmr
                 "\n    {"
                 "\n        static auto mirror = rtl::CxxMirror([]() {"
                 "\n"
-                "\n            std::vector<rtl::Function> fns;"
-                "\n"
+                "\n            std::vector<rtl::Function> "<< varName <<";\n";
+
+        auto& codeBuffers = ASTCodeManager::instance().getCodeBufferMap();
+        for (auto& itr : codeBuffers)
+        {   
+            auto& cbuf = *itr.second;
+            if (!cbuf.getFreeFunctionsMap().empty())
+            {
+                std::string codeStr = "\n            ";
+                codeStr.append(NS_REGS).append(std::to_string(cbuf.getSrcFileIndex()))
+                       .append("::").append(NS_FN)
+                       .append("::").append(REGIS_FN_INIT)
+                       .append("(").append(varName).append(");");
+                pOut << codeStr;
+            }
+        }
+
+        for (auto& itr : codeBuffers)
+        {   
+            auto& cbuf = *itr.second;
+            if (!cbuf.getRecordsMap().empty())
+            {
+                const auto& srcIndexStr = std::to_string(cbuf.getSrcFileIndex());
+                for (auto& itr0 : cbuf.getRecordsMap())
+                {
+                    const auto& typIndexStr = std::to_string(itr0.second.typeIndex);
+                    std::string codeStr = "\n            ";
+                    codeStr.append(NS_REGS).append(srcIndexStr)
+                           .append("::").append(NS_TYPE).append(typIndexStr)
+                           .append("::").append(REGIS_FN_INIT)
+                           .append("(").append(varName).append(");");
+                    pOut << codeStr;
+                }
+            }
+        }
+
+        pOut << "\n"
                 "\n        }());"
                 "\n        return mirror;"
                 "\n    }"
