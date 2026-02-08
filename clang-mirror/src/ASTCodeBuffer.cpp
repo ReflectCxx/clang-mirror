@@ -24,7 +24,7 @@ namespace clmr
 
     ASTRecordMeta& ASTCodeBuffer::getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pRecordStr)
     {
-        auto [itr, _] = pFnMetaMap.try_emplace(pRecordStr, ASTRecordMeta{ pRecordStr });
+        auto [itr, _] = pFnMetaMap.try_emplace(pRecordStr, ASTRecordMeta{ index_none, pRecordStr });
         return itr->second;
     }
 

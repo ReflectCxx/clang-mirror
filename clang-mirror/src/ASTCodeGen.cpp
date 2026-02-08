@@ -30,10 +30,14 @@ namespace clmr
                 ASTCodePrint::outFreeFnsDecls(pOut, cb.getSrcFileIndex());
             }
         }
-        for (const auto& itr : cbuffs) {
+        for (const auto& itr : cbuffs) 
+        {
             const auto& cb = *itr.second;
-            if (!cb.isCompilationFailed() && !cb.getRecordsMap().empty()) {
-                ASTCodePrint::outRecordInitDecls(pOut, cb.getSrcFileIndex());
+            auto srcIndex = cb.getSrcFileIndex();
+            if (!cb.isCompilationFailed()) {
+                for (const auto& itr : cb.getRecordsMap()) {
+                    ASTCodePrint::outRecordInitDecls(pOut, srcIndex, itr.second.typeIndex);
+                }
             }
         }
     }

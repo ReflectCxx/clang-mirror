@@ -32,6 +32,7 @@ namespace clmr
 
     struct ASTRecordMeta
     {
+        std::size_t typeIndex;
         std::string recordStr;
         CxxFunctionsMap methods;
 	};

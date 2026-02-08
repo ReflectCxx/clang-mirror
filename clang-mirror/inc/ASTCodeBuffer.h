@@ -7,6 +7,10 @@
 
 #include "ASTCodeMeta.h"
 
+namespace clmr {
+	struct ASTCodePrint;
+}
+
 namespace clmr
 {
 	class ASTCodeBuffer
@@ -23,6 +27,8 @@ namespace clmr
 		static ASTRecordMeta& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
 
 		static ASTCodeMeta& addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta);
+
+		GETTER_REF(CxxRecordsMap, RecordsMapRef, m_recordsMap)
 
 	public:
 
@@ -45,5 +51,7 @@ namespace clmr
 
 		void addFunction(MetaKind pMK, const ASTObj& pAst, const std::string& pRecord,
 			             const std::string& pReturn, const std::string& pParams);
+
+		friend ASTCodePrint;
 	};
 }

@@ -14,10 +14,10 @@ namespace clmr
 	struct ASTCodePrint
 	{
 		static void outFunctionInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut);
-		static void outTypeRecordInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut);
+		static void outTypeRecordInitsDefs(ASTCodeBuffer& pCb, std::ofstream& pOut);
 		
 		static void outFreeFnsDecls(std::ofstream& pOut, std::size_t pSrcIndex);
-		static void outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex);
+		static void outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex, std::size_t pTypeIndex);
 
 		static void outRegisteredTypeRecordIDs(const CxxRecordsMap& pRecodsMap, std::ofstream& pOut);
 		static void outRegisteredFunctionIDs(const CxxFunctionsMap& pFunctionsMap, std::ofstream& pOut);

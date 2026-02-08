@@ -88,18 +88,20 @@ namespace clmr
 
 namespace clmr
 {
-    void ASTCodePrint::outTypeRecordInitsDefs(const ASTCodeBuffer& pCb, std::ofstream& pOut)
+    void ASTCodePrint::outTypeRecordInitsDefs(ASTCodeBuffer& pCb, std::ofstream& pOut)
     {
         auto index = 0;
         auto srcIndex = pCb.getSrcFileIndex();
-        for (const auto& itr : pCb.getRecordsMap()) {
+        for (auto& itr : pCb.getRecordsMapRef()) {
 
-            auto ns = std::string(NS_REGS) +
-                      std::to_string(srcIndex).append("::")
-                                              .append(NS_TYPE)
-                                              .append(std::to_string(index++));
+            auto& recMeta = itr.second;
+            recMeta.typeIndex = index++;
+
+            auto ns = std::string(NS_REGS) + std::to_string(srcIndex);
+            ns .append("::").append(NS_TYPE).append(std::to_string(recMeta.typeIndex));
+
             pOut << "\nnamespace " + ns + " {"
-                 << recordTypeInitDefs(itr.second)
+                 << recordTypeInitDefs(recMeta)
                  << "}\n\n";
         }
     }
@@ -135,10 +137,10 @@ namespace clmr
     }
 
 
-    void ASTCodePrint::outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex)
+    void ASTCodePrint::outRecordInitDecls(std::ofstream& pOut, std::size_t pSrcIndex, std::size_t pTypeIndex)
     {
-        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);                    
-        ns.append("::").append(NS_TYPE);
+        auto ns = std::string(NS_REGS) + std::to_string(pSrcIndex);
+        ns.append("::").append(NS_TYPE).append(std::to_string(pTypeIndex));
 
         pOut << "\nnamespace " + ns + " {";
         pOut << "\n    " << REGIS_INIT_DECL << ";\n";

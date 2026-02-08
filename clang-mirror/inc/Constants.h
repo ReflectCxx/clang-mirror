@@ -81,12 +81,18 @@ namespace clmr
 }
 
 
-#define GETTER_CREF(_varType, _name, _var)       \
-inline constexpr const _varType& get##_name() const {  \
-    return _var;                             \
-}
 
-#define GETTER_BOOL(_name, _var)              \
-inline constexpr const bool is##_name() const {     \
-    return _var;                          \
-}
+#define GETTER_REF(_varType, _name, _var)       \
+    inline constexpr _varType& get##_name() {   \
+        return _var;                            \
+    }
+
+#define GETTER_CREF(_varType, _name, _var)                 \
+    inline constexpr const _varType& get##_name() const {  \
+        return _var;                                       \
+    }
+
+#define GETTER_BOOL(_name, _var)                        \
+    inline constexpr const bool is##_name() const {     \
+        return _var;                                    \
+    }
