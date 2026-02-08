@@ -16,7 +16,6 @@ Makefile
 
 # Project-specific generated folders
 SrcSamples/build
-SrcSamples/rtl*
 
 # Tool configs (only if local)
 SrcSamples/.clang-tidy
