@@ -26,19 +26,18 @@ namespace clmr
     }
 
 
-    std::string clmr::ASTCodePrint::getSignaturesJSON(const std::vector<ASTFnSign>& pSigns)
+    std::string clmr::ASTCodePrint::geSignaturesArrList(const std::vector<ASTFnSign>& pSigns)
     {
         auto size = pSigns.size();
-        std::string codeStr = "\"{\"\n";
+        std::string codeStr = "{\n";
 
         for (std::size_t i = 0; i < size; i++) 
         {
-            codeStr.append("        \"sign" + std::to_string(i) + ": ")
-                   .append(pSigns[i].returnStr)
+            codeStr.append("        \"").append(pSigns[i].returnStr)
                    .append("(" + pSigns[i].paramsStr + ")")
-                   .append((i < size - 1) ? ",\"\n" : "\"");
+                   .append((i < size - 1) ? "\",\n" : "\"");
         }
-        return codeStr.append("\n    \"}\"");
+        return codeStr.append("\n    }");
     }
 
 
@@ -216,8 +215,10 @@ namespace clmr
         return std::string("\n    inline constexpr std::string_view id = \"")
                .append(pMeta.ast.function)
                .append("\";")
-               .append("\n    inline constexpr std::string_view signatures = ")
-               .append(getSignaturesJSON(pMeta.signatures))
+               .append("\n    inline constexpr std::array<std::string_view, ")
+               .append(std::to_string(pMeta.signatures.size()))
+               .append("> signatures = ")
+               .append(geSignaturesArrList(pMeta.signatures))
                .append(";");
     }
 

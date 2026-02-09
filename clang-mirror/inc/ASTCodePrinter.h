@@ -37,7 +37,7 @@ namespace clmr
 		static void closeNS(std::string& pCodeStr, std::size_t pCount);
 		static std::size_t openNS(std::string& pCodeStr, const std::string& pType);
 
-		static std::string getSignaturesJSON(const std::vector<ASTFnSign>& pSigns);
+		static std::string geSignaturesArrList(const std::vector<ASTFnSign>& pSigns);
 		static std::string getMethodRegistrationExpr(const std::string& pRecordStr, const std::string& pFnID, 
 			                                         const ASTCodeMeta& pCode);
 	};

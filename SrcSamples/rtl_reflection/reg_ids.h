@@ -1,5 +1,6 @@
 
 #pragma once
+#include <array>
 #include <string_view>
 
 namespace cxx {
@@ -7,102 +8,102 @@ namespace cxx {
 namespace fn {
 namespace revStrOverloadValCRef {
     inline constexpr std::string_view id = "revStrOverloadValCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(const std::string_view &)"
+    };
 }}
 
 namespace fn {
 namespace reverseString {
     inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void),"
-        "sign1: std::string(const char *),"
-        "sign2: std::string(std::string),"
-        "sign3: std::string(std::string &),"
-        "sign4: std::string(std::string &&),"
-        "sign5: std::string(const std::string &),"
-        "sign6: std::string(std::string *),"
-        "sign7: std::string(const std::string *)"
-    "}";
+    inline constexpr std::array<std::string_view, 8> signatures = {
+        "std::string(void)",
+        "std::string(const char *)",
+        "std::string(std::string)",
+        "std::string(std::string &)",
+        "std::string(std::string &&)",
+        "std::string(const std::string &)",
+        "std::string(std::string *)",
+        "std::string(const std::string *)"
+    };
 }}
 
 namespace fn {
 namespace revStrConstRefArg {
     inline constexpr std::string_view id = "revStrConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(const std::string_view &)"
+    };
 }}
 
 namespace fn {
 namespace revStrRValueRefArg {
     inline constexpr std::string_view id = "revStrRValueRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &&)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &&)"
+    };
 }}
 
 namespace fn {
 namespace revStrNonConstRefArg {
     inline constexpr std::string_view id = "revStrNonConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &)"
+    };
 }}
 
 namespace fn {
 namespace revStrOverloadRefAndCRef {
     inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view &)",
+        "std::string(const std::string_view &)"
+    };
 }}
 
 namespace fn {
 namespace revStrOverloadValRef {
     inline constexpr std::string_view id = "revStrOverloadValRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(std::string_view &)"
+    };
 }}
 
 namespace fn {
 namespace complex {
 namespace getMagnitude {
     inline constexpr std::string_view id = "complex::getMagnitude";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: double(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "double(void)"
+    };
 }}}
 
 namespace fn {
 namespace complex {
 namespace setReal {
     inline constexpr std::string_view id = "complex::setReal";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(double)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(double)"
+    };
 }}}
 
 namespace fn {
 namespace complex {
 namespace setImaginary {
     inline constexpr std::string_view id = "complex::setImaginary";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(double)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(double)"
+    };
 }}}
 
 namespace fn {
 namespace getComplexNumAsString {
     inline constexpr std::string_view id = "getComplexNumAsString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}
 
 namespace type {
@@ -117,9 +118,9 @@ namespace Calender {
 namespace fn {
 namespace resetMoveOpsCounter {
     inline constexpr std::string_view id = "resetMoveOpsCounter";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(void)"
+    };
 }}}}}
 
 namespace type {
@@ -128,9 +129,9 @@ namespace Calender {
 namespace fn {
 namespace getMoveOpsCount {
     inline constexpr std::string_view id = "getMoveOpsCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned long long(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned long long(void)"
+    };
 }}}}}
 
 namespace type {
@@ -139,9 +140,9 @@ namespace Calender {
 namespace fn {
 namespace create {
     inline constexpr std::string_view id = "create";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: nsdate::Calender(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "nsdate::Calender(void)"
+    };
 }}}}}
 
 namespace type {
@@ -150,9 +151,9 @@ namespace Calender {
 namespace fn {
 namespace getSavedDate {
     inline constexpr std::string_view id = "getSavedDate";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: nsdate::Date &(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "nsdate::Date &(void)"
+    };
 }}}}}
 
 namespace type {
@@ -161,9 +162,9 @@ namespace Calender {
 namespace fn {
 namespace getTheDate {
     inline constexpr std::string_view id = "getTheDate";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: nsdate::Date &(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "nsdate::Date &(void)"
+    };
 }}}}}
 
 namespace type {
@@ -172,9 +173,9 @@ namespace Calender {
 namespace fn {
 namespace getSavedEvent {
     inline constexpr std::string_view id = "getSavedEvent";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: const nsdate::Event &(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "const nsdate::Event &(void)"
+    };
 }}}}}
 
 namespace type {
@@ -183,9 +184,9 @@ namespace Calender {
 namespace fn {
 namespace getTheEvent {
     inline constexpr std::string_view id = "getTheEvent";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: const nsdate::Event &(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "const nsdate::Event &(void)"
+    };
 }}}}}
 
 namespace type {
@@ -194,9 +195,9 @@ namespace Calender {
 namespace fn {
 namespace instanceCount {
     inline constexpr std::string_view id = "instanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned long long(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned long long(void)"
+    };
 }}}}}
 
 
@@ -212,9 +213,9 @@ namespace Date {
 namespace fn {
 namespace instanceCount {
     inline constexpr std::string_view id = "instanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned long long(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned long long(void)"
+    };
 }}}}}
 
 namespace type {
@@ -223,9 +224,9 @@ namespace Date {
 namespace fn {
 namespace getAsString {
     inline constexpr std::string_view id = "getAsString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}}}}
 
 namespace type {
@@ -234,9 +235,9 @@ namespace Date {
 namespace fn {
 namespace updateDate {
     inline constexpr std::string_view id = "updateDate";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(std::string)"
+    };
 }}}}}
 
 
@@ -252,9 +253,9 @@ namespace Event {
 namespace fn {
 namespace instanceCount {
     inline constexpr std::string_view id = "instanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned long long(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned long long(void)"
+    };
 }}}}}
 
 namespace type {
@@ -263,9 +264,9 @@ namespace Event {
 namespace fn {
 namespace getEventDate {
     inline constexpr std::string_view id = "getEventDate";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: const nsdate::Date &(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "const nsdate::Date &(void)"
+    };
 }}}}}
 
 namespace type {
@@ -274,9 +275,9 @@ namespace Event {
 namespace fn {
 namespace reset {
     inline constexpr std::string_view id = "reset";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(void)"
+    };
 }}}}}
 
 
@@ -290,9 +291,9 @@ namespace Animal {
 namespace fn {
 namespace getFamilyName {
     inline constexpr std::string_view id = "getFamilyName";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}}}
 
 namespace type {
@@ -300,12 +301,12 @@ namespace Animal {
 namespace fn {
 namespace setAnimalName {
     inline constexpr std::string_view id = "setAnimalName";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(std::string &),"
-        "sign1: void(std::string &&),"
-        "sign2: void(const std::string &),"
-        "sign3: void(const std::string &)"
-    "}";
+    inline constexpr std::array<std::string_view, 4> signatures = {
+        "void(std::string &)",
+        "void(std::string &&)",
+        "void(const std::string &)",
+        "void(const std::string &)"
+    };
 }}}}
 
 namespace type {
@@ -313,9 +314,9 @@ namespace Animal {
 namespace fn {
 namespace setFamilyName {
     inline constexpr std::string_view id = "setFamilyName";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(const std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(const std::string)"
+    };
 }}}}
 
 namespace type {
@@ -323,9 +324,9 @@ namespace Animal {
 namespace fn {
 namespace getInstanceCount {
     inline constexpr std::string_view id = "getInstanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned int(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned int(void)"
+    };
 }}}}
 
 namespace type {
@@ -333,11 +334,11 @@ namespace Animal {
 namespace fn {
 namespace updateZooKeeper {
     inline constexpr std::string_view id = "updateZooKeeper";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string &),"
-        "sign1: std::string(std::string &&),"
-        "sign2: std::string(const std::string &)"
-    "}";
+    inline constexpr std::array<std::string_view, 3> signatures = {
+        "std::string(std::string &)",
+        "std::string(std::string &&)",
+        "std::string(const std::string &)"
+    };
 }}}}
 
 
@@ -351,9 +352,9 @@ namespace Person {
 namespace fn {
 namespace getInstanceCount {
     inline constexpr std::string_view id = "getInstanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned int(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned int(void)"
+    };
 }}}}
 
 namespace type {
@@ -361,9 +362,9 @@ namespace Person {
 namespace fn {
 namespace createConst {
     inline constexpr std::string_view id = "createConst";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: const Person(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "const Person(void)"
+    };
 }}}}
 
 namespace type {
@@ -371,12 +372,12 @@ namespace Person {
 namespace fn {
 namespace updateAddress {
     inline constexpr std::string_view id = "updateAddress";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(void),"
-        "sign1: void(void),"
-        "sign2: void(std::string),"
-        "sign3: void(std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 4> signatures = {
+        "void(void)",
+        "void(void)",
+        "void(std::string)",
+        "void(std::string)"
+    };
 }}}}
 
 namespace type {
@@ -384,11 +385,11 @@ namespace Person {
 namespace fn {
 namespace getProfile {
     inline constexpr std::string_view id = "getProfile";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void),"
-        "sign1: std::string(std::string, unsigned long long),"
-        "sign2: std::string(bool)"
-    "}";
+    inline constexpr std::array<std::string_view, 3> signatures = {
+        "std::string(void)",
+        "std::string(std::string, unsigned long long)",
+        "std::string(bool)"
+    };
 }}}}
 
 namespace type {
@@ -396,9 +397,9 @@ namespace Person {
 namespace fn {
 namespace getFirstName {
     inline constexpr std::string_view id = "getFirstName";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}}}
 
 namespace type {
@@ -406,9 +407,9 @@ namespace Person {
 namespace fn {
 namespace createPtr {
     inline constexpr std::string_view id = "createPtr";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: const Person *(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "const Person *(void)"
+    };
 }}}}
 
 namespace type {
@@ -416,9 +417,9 @@ namespace Person {
 namespace fn {
 namespace getDefaults {
     inline constexpr std::string_view id = "getDefaults";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}}}
 
 namespace type {
@@ -426,9 +427,9 @@ namespace Person {
 namespace fn {
 namespace deletePtr {
     inline constexpr std::string_view id = "deletePtr";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(const Person *)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(const Person *)"
+    };
 }}}}
 
 namespace type {
@@ -436,9 +437,9 @@ namespace Person {
 namespace fn {
 namespace updateLastName {
     inline constexpr std::string_view id = "updateLastName";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(std::string)"
+    };
 }}}}
 
 
@@ -452,9 +453,9 @@ namespace Book {
 namespace fn {
 namespace setAuthor {
     inline constexpr std::string_view id = "setAuthor";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(std::string)"
+    };
 }}}}
 
 namespace type {
@@ -462,9 +463,9 @@ namespace Book {
 namespace fn {
 namespace getTitle {
     inline constexpr std::string_view id = "getTitle";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}}}
 
 namespace type {
@@ -472,9 +473,9 @@ namespace Book {
 namespace fn {
 namespace addCopyrightTag {
     inline constexpr std::string_view id = "addCopyrightTag";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(const std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(const std::string)"
+    };
 }}}}
 
 namespace type {
@@ -482,9 +483,9 @@ namespace Book {
 namespace fn {
 namespace setDescription {
     inline constexpr std::string_view id = "setDescription";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(std::string)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(std::string)"
+    };
 }}}}
 
 namespace type {
@@ -492,9 +493,9 @@ namespace Book {
 namespace fn {
 namespace getPublishedOn {
     inline constexpr std::string_view id = "getPublishedOn";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(void)"
+    };
 }}}}
 
 namespace type {
@@ -502,9 +503,9 @@ namespace Book {
 namespace fn {
 namespace getInstanceCount {
     inline constexpr std::string_view id = "getInstanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: int(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "int(void)"
+    };
 }}}}
 
 namespace type {
@@ -512,11 +513,11 @@ namespace Book {
 namespace fn {
 namespace updateBookInfo {
     inline constexpr std::string_view id = "updateBookInfo";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(void),"
-        "sign1: void(const char *, double, std::string),"
-        "sign2: void(std::string, double, const char *)"
-    "}";
+    inline constexpr std::array<std::string_view, 3> signatures = {
+        "void(void)",
+        "void(const char *, double, std::string)",
+        "void(std::string, double, const char *)"
+    };
 }}}}
 
 namespace type {
@@ -524,9 +525,9 @@ namespace Book {
 namespace fn {
 namespace addPreface {
     inline constexpr std::string_view id = "addPreface";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(const std::string, const std::string &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(const std::string, const std::string &)"
+    };
 }}}}
 
 
@@ -540,10 +541,10 @@ namespace StrMute {
 namespace fn {
 namespace revStrOverloadValCRef {
     inline constexpr std::string_view id = "revStrOverloadValCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -551,16 +552,16 @@ namespace StrMute {
 namespace fn {
 namespace reverseString {
     inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void),"
-        "sign1: std::string(const char *),"
-        "sign2: std::string(std::string),"
-        "sign3: std::string(std::string &),"
-        "sign4: std::string(std::string &&),"
-        "sign5: std::string(const std::string &),"
-        "sign6: std::string(std::string *),"
-        "sign7: std::string(const std::string *)"
-    "}";
+    inline constexpr std::array<std::string_view, 8> signatures = {
+        "std::string(void)",
+        "std::string(const char *)",
+        "std::string(std::string)",
+        "std::string(std::string &)",
+        "std::string(std::string &&)",
+        "std::string(const std::string &)",
+        "std::string(std::string *)",
+        "std::string(const std::string *)"
+    };
 }}}}
 
 namespace type {
@@ -568,9 +569,9 @@ namespace StrMute {
 namespace fn {
 namespace revStrConstRefArg {
     inline constexpr std::string_view id = "revStrConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -578,9 +579,9 @@ namespace StrMute {
 namespace fn {
 namespace revStrRValueRefArg {
     inline constexpr std::string_view id = "revStrRValueRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &&)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &&)"
+    };
 }}}}
 
 namespace type {
@@ -588,9 +589,9 @@ namespace StrMute {
 namespace fn {
 namespace revStrNonConstRefArg {
     inline constexpr std::string_view id = "revStrNonConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -598,10 +599,10 @@ namespace StrMute {
 namespace fn {
 namespace revStrOverloadRefAndCRef {
     inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view &)",
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -609,10 +610,10 @@ namespace StrMute {
 namespace fn {
 namespace revStrOverloadValRef {
     inline constexpr std::string_view id = "revStrOverloadValRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(std::string_view &)"
+    };
 }}}}
 
 
@@ -626,10 +627,10 @@ namespace StrStatic {
 namespace fn {
 namespace revStrOverloadValCRef {
     inline constexpr std::string_view id = "revStrOverloadValCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -637,16 +638,16 @@ namespace StrStatic {
 namespace fn {
 namespace reverseString {
     inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void),"
-        "sign1: std::string(const char *),"
-        "sign2: std::string(std::string),"
-        "sign3: std::string(std::string &),"
-        "sign4: std::string(std::string &&),"
-        "sign5: std::string(const std::string &),"
-        "sign6: std::string(std::string *),"
-        "sign7: std::string(const std::string *)"
-    "}";
+    inline constexpr std::array<std::string_view, 8> signatures = {
+        "std::string(void)",
+        "std::string(const char *)",
+        "std::string(std::string)",
+        "std::string(std::string &)",
+        "std::string(std::string &&)",
+        "std::string(const std::string &)",
+        "std::string(std::string *)",
+        "std::string(const std::string *)"
+    };
 }}}}
 
 namespace type {
@@ -654,9 +655,9 @@ namespace StrStatic {
 namespace fn {
 namespace revStrConstRefArg {
     inline constexpr std::string_view id = "revStrConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -664,9 +665,9 @@ namespace StrStatic {
 namespace fn {
 namespace revStrRValueRefArg {
     inline constexpr std::string_view id = "revStrRValueRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &&)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &&)"
+    };
 }}}}
 
 namespace type {
@@ -674,9 +675,9 @@ namespace StrStatic {
 namespace fn {
 namespace revStrNonConstRefArg {
     inline constexpr std::string_view id = "revStrNonConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -684,10 +685,10 @@ namespace StrStatic {
 namespace fn {
 namespace revStrOverloadRefAndCRef {
     inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view &)",
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -695,10 +696,10 @@ namespace StrStatic {
 namespace fn {
 namespace revStrOverloadValRef {
     inline constexpr std::string_view id = "revStrOverloadValRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(std::string_view &)"
+    };
 }}}}
 
 
@@ -712,10 +713,10 @@ namespace StrConstOverload {
 namespace fn {
 namespace reverseString {
     inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void),"
-        "sign1: std::string(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(void)",
+        "std::string(void)"
+    };
 }}}}
 
 
@@ -729,9 +730,9 @@ namespace StrWrap {
 namespace fn {
 namespace sstr {
     inline constexpr std::string_view id = "sstr";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: const std::string &(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "const std::string &(void)"
+    };
 }}}}
 
 
@@ -769,9 +770,9 @@ namespace Library {
 namespace fn {
 namespace getBookByTitle {
     inline constexpr std::string_view id = "getBookByTitle";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: Book(const std::string &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "Book(const std::string &)"
+    };
 }}}}
 
 namespace type {
@@ -779,9 +780,9 @@ namespace Library {
 namespace fn {
 namespace getInstanceCount {
     inline constexpr std::string_view id = "getInstanceCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: unsigned long long(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "unsigned long long(void)"
+    };
 }}}}
 
 namespace type {
@@ -789,9 +790,9 @@ namespace Library {
 namespace fn {
 namespace getBooksCount {
     inline constexpr std::string_view id = "getBooksCount";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: int(void)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "int(void)"
+    };
 }}}}
 
 namespace type {
@@ -799,9 +800,9 @@ namespace Library {
 namespace fn {
 namespace addBook {
     inline constexpr std::string_view id = "addBook";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: void(const Book &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "void(const Book &)"
+    };
 }}}}
 
 
@@ -815,10 +816,10 @@ namespace StrConst {
 namespace fn {
 namespace revStrOverloadValCRef {
     inline constexpr std::string_view id = "revStrOverloadValCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -826,16 +827,16 @@ namespace StrConst {
 namespace fn {
 namespace reverseString {
     inline constexpr std::string_view id = "reverseString";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(void),"
-        "sign1: std::string(const char *),"
-        "sign2: std::string(std::string),"
-        "sign3: std::string(std::string &),"
-        "sign4: std::string(std::string &&),"
-        "sign5: std::string(const std::string &),"
-        "sign6: std::string(std::string *),"
-        "sign7: std::string(const std::string *)"
-    "}";
+    inline constexpr std::array<std::string_view, 8> signatures = {
+        "std::string(void)",
+        "std::string(const char *)",
+        "std::string(std::string)",
+        "std::string(std::string &)",
+        "std::string(std::string &&)",
+        "std::string(const std::string &)",
+        "std::string(std::string *)",
+        "std::string(const std::string *)"
+    };
 }}}}
 
 namespace type {
@@ -843,9 +844,9 @@ namespace StrConst {
 namespace fn {
 namespace revStrConstRefArg {
     inline constexpr std::string_view id = "revStrConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -853,9 +854,9 @@ namespace StrConst {
 namespace fn {
 namespace revStrRValueRefArg {
     inline constexpr std::string_view id = "revStrRValueRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &&)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &&)"
+    };
 }}}}
 
 namespace type {
@@ -863,9 +864,9 @@ namespace StrConst {
 namespace fn {
 namespace revStrNonConstRefArg {
     inline constexpr std::string_view id = "revStrNonConstRefArg";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 1> signatures = {
+        "std::string(std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -873,10 +874,10 @@ namespace StrConst {
 namespace fn {
 namespace revStrOverloadRefAndCRef {
     inline constexpr std::string_view id = "revStrOverloadRefAndCRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view &),"
-        "sign1: std::string(const std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view &)",
+        "std::string(const std::string_view &)"
+    };
 }}}}
 
 namespace type {
@@ -884,10 +885,10 @@ namespace StrConst {
 namespace fn {
 namespace revStrOverloadValRef {
     inline constexpr std::string_view id = "revStrOverloadValRef";
-    inline constexpr std::string_view signatures = "{"
-        "sign0: std::string(std::string_view),"
-        "sign1: std::string(std::string_view &)"
-    "}";
+    inline constexpr std::array<std::string_view, 2> signatures = {
+        "std::string(std::string_view)",
+        "std::string(std::string_view &)"
+    };
 }}}}
 
 

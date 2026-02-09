@@ -46,6 +46,7 @@ namespace clmr
     void ASTCodeGen::emitRegisteredIDsHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
         pOut << "\n#pragma once"
+                "\n#include <array>"
                 "\n#include <string_view>\n"
                 "\nnamespace " + std::string(NS_CXX) + " {\n";
 
