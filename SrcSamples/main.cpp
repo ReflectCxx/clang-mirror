@@ -1,8 +1,7 @@
 
+#include <iostream>
 
 #include <cxx_mirror.h>
-
-#include "Date.h"
 
 int main(int argc, const char** argv)
 {
@@ -13,16 +12,16 @@ int main(int argc, const char** argv)
 
 		auto str = functor();
 	} {
-		auto clsDate = cxx::mirror().getRecord(cxx::type::nsdate::Date::id).value();
+		auto class_ = cxx::mirror().getRecord(cxx::type::nsdate::Date::id);
 
-		auto dateObj = clsDate.ctorT()(rtl::alloc::Stack).robject;
+		auto [err, dateObj] = class_->ctorT()(rtl::alloc::Stack);
 
-		auto getAsString = clsDate.getMethod(std::string(cxx::type::nsdate::Date::fn::getAsString::id));
+		auto methodMeta = class_->getMethod(cxx::type::nsdate::Date::fn::getAsString::id);
 
-		auto functor = getAsString->targetT<const nsdate::Date>().argsT().returnT<std::string>();
+		auto getAsString = methodMeta->targetT().argsT().returnT<std::string>();
 
-		auto str = functor(nsdate::Date())();
-		str;
+		auto [err0, str] = getAsString(std::cref(dateObj))();
+		std::cout << "\nReturned value : " << *str << std::endl;
 	}
 	return 0;
 }
