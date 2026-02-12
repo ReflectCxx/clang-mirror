@@ -2,34 +2,22 @@ name: linux-build
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
     steps:
-
-      # --------------------------------
-      # Checkout
-      # --------------------------------
       - uses: actions/checkout@v4
 
-      # --------------------------------
-      # Compute release label (same scheme as Windows)
-      # --------------------------------
       - name: Compute version
         run: echo "REL=main-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      # --------------------------------
-      # Install LLVM + Clang dev packages
-      # --------------------------------
-      - name: Install LLVM toolchain
+      - name: Install deps
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -38,67 +26,33 @@ jobs:
             libclang-dev \
             clang-tools
 
-      # --------------------------------
-      # Configure (system LLVM)
-      # --------------------------------
+      - name: Detect LLVM root
+        run: |
+          LLVM_ROOT=$(ls -d /usr/lib/llvm-* | sort -V | tail -n 1)
+          echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
+
       - name: Configure
         run: |
           cmake -S . -B build \
             -G Ninja \
-            -DLLVM_DIR=/usr/lib/llvm-*/lib/cmake/llvm \
-            -DClang_DIR=/usr/lib/llvm-*/lib/cmake/clang \
+            -DLLVM_ROOT=$LLVM_ROOT \
             -DCMAKE_BUILD_TYPE=Release
 
-      # --------------------------------
-      # Build
-      # --------------------------------
       - name: Build
         run: cmake --build build --parallel
 
-      # --------------------------------
-      # Package
-      # --------------------------------
       - name: Package
         run: |
           mkdir release
           cp bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
-      # --------------------------------
-      # Ensure release exists
-      # --------------------------------
       - name: Ensure release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "$REL" \
-            --title "$REL" \
-            --notes "Auto build from main" || true
+        run: gh release create "$REL" --title "$REL" --notes "Auto build from main" || true
 
-      # --------------------------------
-      # Upload asset
-      # --------------------------------
       - name: Upload asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload "$REL" clang-mirror-linux.tar.gz --clobber
-      # --------------------------------
-      # Ensure release exists
-      # --------------------------------
-      - name: Ensure release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "$REL" \
-            --title "$REL" \
-            --notes "Auto build from main" || true
-
-      # --------------------------------
-      # Upload asset
-      # --------------------------------
-      - name: Upload asset
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload "$REL" clang-mirror-linux.tar.gz --clobber
+        run: gh release upload "$REL" clang-mirror-linux.tar.gz --clobber
