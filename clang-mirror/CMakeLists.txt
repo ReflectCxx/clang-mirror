@@ -42,6 +42,20 @@ message(STATUS "LLVM includes: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "Clang includes: ${CLANG_INCLUDE_DIRS}")
 
 # --------------------------------------------------
+# 🔧 Remove DIA hard-link (fixes diaguids.lib CI failure)
+# --------------------------------------------------
+get_property(_allTargets DIRECTORY PROPERTY IMPORTED_TARGETS)
+
+foreach(t ${_allTargets})
+    get_target_property(_ilibs ${t} INTERFACE_LINK_LIBRARIES)
+    if(_ilibs)
+        list(FILTER _ilibs EXCLUDE REGEX "diaguids")
+        set_target_properties(${t} PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${_ilibs}")
+    endif()
+endforeach()
+
+# --------------------------------------------------
 # Target
 # --------------------------------------------------
 add_executable(${CXX_EXE_NAME})
@@ -87,7 +101,7 @@ target_link_libraries(${CXX_EXE_NAME}
 )
 
 # --------------------------------------------------
-# MSVC tuning + DIA SDK fix
+# MSVC tuning
 # --------------------------------------------------
 if (MSVC)
 
@@ -95,29 +109,10 @@ if (MSVC)
         _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
     )
 
-    # Treat LLVM/Clang headers as external
     target_compile_options(${CXX_EXE_NAME} PRIVATE
         /external:I"${LLVM_INCLUDE_DIRS}"
         /external:I"${CLANG_INCLUDE_DIRS}"
         /external:W0
     )
-
-    # ----------------------------------------
-    # DIA SDK (needed for LLVM PDB support)
-    # Fixes: diaguids.lib linker error in CI
-    # ----------------------------------------
-    set(DIA_PATHS
-        "C:/Program Files (x86)/Microsoft Visual Studio/2022/Enterprise/DIA SDK/lib/amd64"
-        "C:/Program Files (x86)/Microsoft Visual Studio/2022/Professional/DIA SDK/lib/amd64"
-        "C:/Program Files (x86)/Microsoft Visual Studio/2022/Community/DIA SDK/lib/amd64"
-    )
-
-    foreach(p ${DIA_PATHS})
-        if (EXISTS "${p}/diaguids.lib")
-            target_link_directories(${CXX_EXE_NAME} PRIVATE "${p}")
-            message(STATUS "Using DIA SDK lib path: ${p}")
-            break()
-        endif()
-    endforeach()
 
 endif()
