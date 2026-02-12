@@ -109,38 +109,8 @@ namespace clmr
     void ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
     {
         const int fileCount = pSrcFiles.size();
-
         Logger::resetDoneCounter(fileCount);
-
-        //TODO: get the number of threads from command line
-        const int numCores = 0; //*/std::thread::hardware_concurrency() - 2;
-        const int numThreads = (numCores <= 0 ? 1 : numCores);
-
-        int endIndex = 0;
-        int startIndex = 0;
-        int indexOffset = fileCount / numThreads;
-        int restOffset = fileCount % numThreads;
-        std::vector<std::thread> threadPool;
-
-        while (endIndex < fileCount - 1)
-        {
-            endIndex = startIndex + (indexOffset + (--restOffset >= 0 ? 1 : 0)) - 1;
-            endIndex = (endIndex > fileCount - 1) ? (fileCount - 1) : endIndex;
-
-            auto thread = std::thread(
-                [&](const int pStartIndex, const int pEndIndex) {
-
-                    ASTParser cxxParser(pSrcFiles, pCdb);
-                    cxxParser.parseFiles(pStartIndex, pEndIndex);
-                },
-                startIndex, endIndex);
-            threadPool.push_back(std::move(thread));
-            startIndex = endIndex + 1;
-        }
-
-        Logger::out("Running with number of threads: " + std::to_string(threadPool.size()));
-        for (auto& thread : threadPool) {
-            thread.join();
-        }
+        ASTParser cxxParser(pSrcFiles, pCdb);
+        cxxParser.parseFiles(0, fileCount - 1);
     }
 }
