@@ -87,7 +87,7 @@ target_link_libraries(${CXX_EXE_NAME}
 )
 
 # --------------------------------------------------
-# MSVC tuning
+# MSVC tuning + DIA SDK fix
 # --------------------------------------------------
 if (MSVC)
 
@@ -95,10 +95,29 @@ if (MSVC)
         _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
     )
 
-    # Treat LLVM/Clang headers as external (suppress warnings)
+    # Treat LLVM/Clang headers as external
     target_compile_options(${CXX_EXE_NAME} PRIVATE
         /external:I"${LLVM_INCLUDE_DIRS}"
         /external:I"${CLANG_INCLUDE_DIRS}"
         /external:W0
     )
+
+    # ----------------------------------------
+    # DIA SDK (needed for LLVM PDB support)
+    # Fixes: diaguids.lib linker error in CI
+    # ----------------------------------------
+    set(DIA_PATHS
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/Enterprise/DIA SDK/lib/amd64"
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/Professional/DIA SDK/lib/amd64"
+        "C:/Program Files (x86)/Microsoft Visual Studio/2022/Community/DIA SDK/lib/amd64"
+    )
+
+    foreach(p ${DIA_PATHS})
+        if (EXISTS "${p}/diaguids.lib")
+            target_link_directories(${CXX_EXE_NAME} PRIVATE "${p}")
+            message(STATUS "Using DIA SDK lib path: ${p}")
+            break()
+        endif()
+    endforeach()
+
 endif()
