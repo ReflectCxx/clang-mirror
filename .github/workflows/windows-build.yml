@@ -6,95 +6,58 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     env:
       LLVM_VERSION: 21.1.0
       LLVM_DIR_NAME: clang+llvm-21.1.0-x86_64-pc-windows-msvc
 
     steps:
-    # --------------------------------
-    # Checkout
-    # --------------------------------
-    - name: Checkout
-      uses: actions/checkout@v4
+      # --------------------------------------------------
+      # Checkout
+      # --------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # --------------------------------
-    # Ensure DIA SDK is installed (fix diaguids.lib link error)
-    # --------------------------------
-    - name: Install DIA SDK component
-      shell: cmd
-      run: |
-        "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vs_installer.exe" ^
-          modify ^
-          --installPath "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise" ^
-          --add Microsoft.VisualStudio.Component.DiaSdk ^
-          --quiet --norestart || exit /b 0
+      # --------------------------------------------------
+      # Download LLVM/Clang prebuilt bundle
+      # --------------------------------------------------
+      - name: Download LLVM bundle
+        shell: pwsh
+        run: |
+          curl -L -o llvm.tar.xz `
+            https://github.com/llvm/llvm-project/releases/download/llvmorg-${env:LLVM_VERSION}/${env:LLVM_DIR_NAME}.tar.xz
 
-    # --------------------------------
-    # Cache extracted LLVM bundle
-    # --------------------------------
-    - name: Cache LLVM
-      id: llvm-cache
-      uses: actions/cache@v4
-      with:
-        path: llvm
-        key: llvm-${{ env.LLVM_VERSION }}-windows
+      - name: Extract LLVM bundle
+        shell: pwsh
+        run: |
+          tar -xf llvm.tar.xz
+          Rename-Item "${env:LLVM_DIR_NAME}" llvm
 
-    # --------------------------------
-    # Install 7zip if cache miss
-    # --------------------------------
-    - name: Install 7zip
-      if: steps.llvm-cache.outputs.cache-hit != 'true'
-      run: choco install 7zip -y
+      # --------------------------------------------------
+      # Configure (Visual Studio generator)
+      # --------------------------------------------------
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -S . -B build `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DLLVM_ROOT="$pwd/llvm"
 
-    # --------------------------------
-    # Download LLVM if cache miss
-    # --------------------------------
-    - name: Download LLVM
-      if: steps.llvm-cache.outputs.cache-hit != 'true'
-      shell: cmd
-      run: |
-        curl -L ^
-          https://github.com/llvm/llvm-project/releases/download/llvmorg-%LLVM_VERSION%/%LLVM_DIR_NAME%.tar.xz ^
-          -o llvm.tar.xz
+      # --------------------------------------------------
+      # Build (Release)
+      # --------------------------------------------------
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --parallel
 
-    # --------------------------------
-    # Extract LLVM if cache miss
-    # --------------------------------
-    - name: Extract LLVM
-      if: steps.llvm-cache.outputs.cache-hit != 'true'
-      shell: cmd
-      run: |
-        7z x llvm.tar.xz
-        7z x llvm.tar
-        for /d %%D in (clang+llvm-*) do rename "%%D" llvm
-
-    # --------------------------------
-    # Configure CMake
-    # --------------------------------
-    - name: Configure
-      shell: cmd
-      run: |
-        cmake -S . -B build ^
-          -G "Visual Studio 17 2022" ^
-          -A x64 ^
-          -DLLVM_ROOT=%CD%\llvm
-
-    # --------------------------------
-    # Build Release
-    # --------------------------------
-    - name: Build
-      shell: cmd
-      run: |
-        cmake --build build --config Release
-
-    # --------------------------------
-    # Upload artifact
-    # --------------------------------
-    - name: Upload binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: clang-mirror-windows
-        path: bin/
-        
+      # --------------------------------------------------
+      # Upload artifact
+      # --------------------------------------------------
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: clang-mirror-windows
+          path: build/bin/Release/clang-mirror.exe
