@@ -74,7 +74,7 @@ jobs:
         shell: pwsh
         run: |
           mkdir release
-          copy build/bin/Release/clang-mirror.exe release/
+          copy bin/Release/clang-mirror.exe release/
           Compress-Archive release clang-mirror-windows.zip
 
       # ----------------------------
