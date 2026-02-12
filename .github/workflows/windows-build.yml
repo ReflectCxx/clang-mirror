@@ -2,8 +2,9 @@ name: windows-build
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,30 +19,38 @@ jobs:
 
     steps:
 
-      # --------------------------------------------------
+      # ----------------------------
       # Checkout
-      # --------------------------------------------------
-      - name: Checkout
-        uses: actions/checkout@v4
+      # ----------------------------
+      - uses: actions/checkout@v4
 
-      # --------------------------------------------------
-      # Download LLVM bundle
-      # --------------------------------------------------
-      - name: Download LLVM bundle
+      # ----------------------------
+      # Compute version label
+      # ----------------------------
+      - name: Compute version
+        shell: pwsh
+        run: |
+          $sha = "${{ github.sha }}".Substring(0,7)
+          echo "REL=main-$sha" >> $env:GITHUB_ENV
+
+      # ----------------------------
+      # Download LLVM
+      # ----------------------------
+      - name: Download LLVM
         shell: pwsh
         run: |
           curl -L -o llvm.tar.xz `
             https://github.com/llvm/llvm-project/releases/download/llvmorg-${env:LLVM_VERSION}/${env:LLVM_DIR_NAME}.tar.xz
 
-      - name: Extract LLVM bundle
+      - name: Extract LLVM
         shell: pwsh
         run: |
           tar -xf llvm.tar.xz
           Rename-Item "${env:LLVM_DIR_NAME}" llvm
 
-      # --------------------------------------------------
+      # ----------------------------
       # Configure
-      # --------------------------------------------------
+      # ----------------------------
       - name: Configure
         shell: pwsh
         run: |
@@ -50,42 +59,42 @@ jobs:
             -A x64 `
             -DLLVM_ROOT="$pwd/llvm"
 
-      # --------------------------------------------------
+      # ----------------------------
       # Build
-      # --------------------------------------------------
+      # ----------------------------
       - name: Build
         shell: pwsh
         run: |
           cmake --build build --config Release --parallel
 
-      # --------------------------------------------------
+      # ----------------------------
       # Package
-      # --------------------------------------------------
-      - name: Package binary
+      # ----------------------------
+      - name: Package
         shell: pwsh
         run: |
           mkdir release
           copy build/bin/Release/clang-mirror.exe release/
           Compress-Archive release clang-mirror-windows.zip
 
-      # --------------------------------------------------
-      # Create Release if missing
-      # --------------------------------------------------
-      - name: Ensure Release exists
+      # ----------------------------
+      # Create release
+      # ----------------------------
+      - name: Create release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} --generate-notes || exit 0
+          gh release create $env:REL `
+            --title $env:REL `
+            --notes "Auto build from main"
 
-      # --------------------------------------------------
-      # Upload asset to Release
-      # --------------------------------------------------
+      # ----------------------------
+      # Upload asset
+      # ----------------------------
       - name: Upload asset
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ github.ref_name }} `
-            clang-mirror-windows.zip `
-            --clobber
+          gh release upload $env:REL clang-mirror-windows.zip --clobber
