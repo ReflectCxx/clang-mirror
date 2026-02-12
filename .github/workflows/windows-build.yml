@@ -14,7 +14,7 @@ jobs:
 
     steps:
     # --------------------------------
-    # Checkout repo
+    # Checkout
     # --------------------------------
     - name: Checkout
       uses: actions/checkout@v4
@@ -30,14 +30,14 @@ jobs:
         key: llvm-${{ env.LLVM_VERSION }}-windows
 
     # --------------------------------
-    # Install 7zip if cache miss
+    # Install 7zip (only if needed)
     # --------------------------------
     - name: Install 7zip
       if: steps.llvm-cache.outputs.cache-hit != 'true'
       run: choco install 7zip -y
 
     # --------------------------------
-    # Download LLVM if cache miss
+    # Download LLVM (short filename)
     # --------------------------------
     - name: Download LLVM
       if: steps.llvm-cache.outputs.cache-hit != 'true'
@@ -48,15 +48,16 @@ jobs:
           -o llvm.tar.xz
 
     # --------------------------------
-    # Extract LLVM if cache miss
+    # Extract LLVM (fixed logic)
+    # llvm.tar.xz -> llvm.tar -> folder -> llvm/
     # --------------------------------
     - name: Extract LLVM
       if: steps.llvm-cache.outputs.cache-hit != 'true'
       shell: cmd
       run: |
         7z x llvm.tar.xz
-        7z x %LLVM_DIR_NAME%.tar
-        rename %LLVM_DIR_NAME% llvm
+        7z x llvm.tar
+        for /d %%D in (clang+llvm-*) do rename "%%D" llvm
 
     # --------------------------------
     # Configure CMake
