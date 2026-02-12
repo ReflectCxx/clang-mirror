@@ -1,0 +1,85 @@
+name: windows-build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    env:
+      LLVM_VERSION: 21.1.0
+      LLVM_DIR_NAME: clang+llvm-21.1.0-x86_64-pc-windows-msvc
+
+    steps:
+    # --------------------------------
+    # Checkout repo
+    # --------------------------------
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # --------------------------------
+    # Cache extracted LLVM bundle
+    # --------------------------------
+    - name: Cache LLVM
+      id: llvm-cache
+      uses: actions/cache@v4
+      with:
+        path: llvm
+        key: llvm-${{ env.LLVM_VERSION }}-windows
+
+    # --------------------------------
+    # Install 7zip if cache miss
+    # --------------------------------
+    - name: Install 7zip
+      if: steps.llvm-cache.outputs.cache-hit != 'true'
+      run: choco install 7zip -y
+
+    # --------------------------------
+    # Download LLVM if cache miss
+    # --------------------------------
+    - name: Download LLVM
+      if: steps.llvm-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        curl -L ^
+          https://github.com/llvm/llvm-project/releases/download/llvmorg-%LLVM_VERSION%/%LLVM_DIR_NAME%.tar.xz ^
+          -o llvm.tar.xz
+
+    # --------------------------------
+    # Extract LLVM if cache miss
+    # --------------------------------
+    - name: Extract LLVM
+      if: steps.llvm-cache.outputs.cache-hit != 'true'
+      shell: cmd
+      run: |
+        7z x llvm.tar.xz
+        7z x %LLVM_DIR_NAME%.tar
+        rename %LLVM_DIR_NAME% llvm
+
+    # --------------------------------
+    # Configure CMake
+    # --------------------------------
+    - name: Configure
+      run: |
+        cmake -S . -B build ^
+          -G "Visual Studio 17 2022" ^
+          -A x64 ^
+          -DLLVM_ROOT=%CD%/llvm
+
+    # --------------------------------
+    # Build Release
+    # --------------------------------
+    - name: Build
+      run: |
+        cmake --build build --config Release
+
+    # --------------------------------
+    # Upload artifact
+    # --------------------------------
+    - name: Upload binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: clang-mirror-windows
+        path: bin/

@@ -2,13 +2,6 @@
 build/
 bin/
 
-# CMake
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-compile_commands.json
-Makefile
-
 # Visual Studio
 .vs/
 *.VC.db
