@@ -30,14 +30,14 @@ jobs:
         key: llvm-${{ env.LLVM_VERSION }}-windows
 
     # --------------------------------
-    # Install 7zip (only if needed)
+    # Install 7zip (only if cache miss)
     # --------------------------------
     - name: Install 7zip
       if: steps.llvm-cache.outputs.cache-hit != 'true'
       run: choco install 7zip -y
 
     # --------------------------------
-    # Download LLVM (short filename)
+    # Download LLVM (only if cache miss)
     # --------------------------------
     - name: Download LLVM
       if: steps.llvm-cache.outputs.cache-hit != 'true'
@@ -48,8 +48,7 @@ jobs:
           -o llvm.tar.xz
 
     # --------------------------------
-    # Extract LLVM (fixed logic)
-    # llvm.tar.xz -> llvm.tar -> folder -> llvm/
+    # Extract LLVM (fixed + robust)
     # --------------------------------
     - name: Extract LLVM
       if: steps.llvm-cache.outputs.cache-hit != 'true'
@@ -60,19 +59,21 @@ jobs:
         for /d %%D in (clang+llvm-*) do rename "%%D" llvm
 
     # --------------------------------
-    # Configure CMake
+    # Configure CMake (cmd shell required)
     # --------------------------------
     - name: Configure
+      shell: cmd
       run: |
         cmake -S . -B build ^
           -G "Visual Studio 17 2022" ^
           -A x64 ^
-          -DLLVM_ROOT=%CD%/llvm
+          -DLLVM_ROOT=%CD%\llvm
 
     # --------------------------------
     # Build Release
     # --------------------------------
     - name: Build
+      shell: cmd
       run: |
         cmake --build build --config Release
 
