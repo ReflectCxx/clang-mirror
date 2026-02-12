@@ -15,46 +15,51 @@ jobs:
 
     env:
       LLVM_VERSION: 21.1.0
-      LLVM_DIR_NAME: clang+llvm-21.1.0-x86_64-linux-gnu-ubuntu-22.04
+      LLVM_DIR_NAME: clang+llvm-21.1.0-x86_64-linux-gnu
 
     steps:
 
-      # ----------------------------
+      # --------------------------------
       # Checkout
-      # ----------------------------
+      # --------------------------------
       - uses: actions/checkout@v4
 
-      # ----------------------------
-      # Compute version label
-      # ----------------------------
+      # --------------------------------
+      # Compute release label
+      # --------------------------------
       - name: Compute version
-        run: |
-          echo "REL=main-${GITHUB_SHA::7}" >> $GITHUB_ENV
+        run: echo "REL=main-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      # ----------------------------
+      # --------------------------------
       # Install build tools
-      # ----------------------------
+      # --------------------------------
       - name: Install deps
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      # ----------------------------
+      # --------------------------------
       # Download LLVM bundle
-      # ----------------------------
+      # --------------------------------
       - name: Download LLVM
         run: |
-          curl -L -o llvm.tar.xz \
+          curl -fL -o llvm.tar.xz \
             https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/${LLVM_DIR_NAME}.tar.xz
 
+      - name: Verify archive
+        run: ls -lh llvm.tar.xz
+
+      # --------------------------------
+      # Extract LLVM
+      # --------------------------------
       - name: Extract LLVM
         run: |
           tar -xf llvm.tar.xz
           mv ${LLVM_DIR_NAME} llvm
 
-      # ----------------------------
+      # --------------------------------
       # Configure
-      # ----------------------------
+      # --------------------------------
       - name: Configure
         run: |
           cmake -S . -B build \
@@ -62,26 +67,25 @@ jobs:
             -DLLVM_ROOT=$PWD/llvm \
             -DCMAKE_BUILD_TYPE=Release
 
-      # ----------------------------
+      # --------------------------------
       # Build
-      # ----------------------------
+      # --------------------------------
       - name: Build
-        run: |
-          cmake --build build --parallel
+        run: cmake --build build --parallel
 
-      # ----------------------------
+      # --------------------------------
       # Package
-      # ----------------------------
+      # --------------------------------
       - name: Package
         run: |
           mkdir release
           cp bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
-      # ----------------------------
-      # Create release (same tag as Windows job)
-      # ----------------------------
-      - name: Create release
+      # --------------------------------
+      # Ensure release exists
+      # --------------------------------
+      - name: Ensure release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -89,9 +93,9 @@ jobs:
             --title "$REL" \
             --notes "Auto build from main" || true
 
-      # ----------------------------
+      # --------------------------------
       # Upload asset
-      # ----------------------------
+      # --------------------------------
       - name: Upload asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
