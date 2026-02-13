@@ -37,7 +37,7 @@ target_link_libraries(srcsamples_app
 
 add_subdirectory(rtl_reflection)
 
-# 🔴 THIS LINE IS THE KEY FIX
+# THIS LINE IS THE KEY FIX
 target_link_libraries(rtl_reflection PUBLIC srcsamples_core)
 
 target_link_libraries(srcsamples_app
