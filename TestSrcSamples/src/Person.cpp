@@ -1,7 +1,7 @@
 
 #include "Person.h"
 
-Person::Person(const std::string& pName, std::string pDob)
+Person::Person(const std::string_view pName, const std::string_view pDob)
 	: m_firstName(pName)
 	, m_dob(pDob)
 	, m_address("NA")
@@ -15,22 +15,22 @@ std::string Person::getFirstName() const
 }
 
 
-void Person::setAddress(std::string pAddress)
+void Person::setAddress(const std::string_view pAddress)
 {
-	m_address = pAddress;
+	m_address = std::string(pAddress);
 }
 
 
-void Person::setLastName(std::string pLastName)
+void Person::setLastName(const std::string_view pLastName)
 {
-	m_lastName = pLastName;
+	m_lastName = std::string(pLastName);
 }
 
 
-std::string Person::getAccessCard(const std::string& pVisitPurpose, const Person& pObj)
+std::string Person::getAccessCard(const std::string_view pVisitPurpose, const Person& pObj)
 {
-	return ("\nName: " + pObj.m_firstName + " " + pObj.m_lastName +
+	return (std::string("\nName: ") + pObj.m_firstName + " " + pObj.m_lastName +
 		    "\nDOB: " + pObj.m_dob +
 		    "\nAddress: " + pObj.m_address +
-			"\nPurpoe of visit: " + pVisitPurpose);
+			"\nPurpoe of visit: " + std::string(pVisitPurpose));
 }

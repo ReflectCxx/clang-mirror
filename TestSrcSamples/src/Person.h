@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 class Person
 {
@@ -13,13 +14,17 @@ class Person
 
 public:
 
-    Person(const std::string& pName, std::string pDob) noexcept;
-
+	Person() = default;
+	Person(Person&&) = default;
+	Person(const Person&) = default;
+	
+    Person(const std::string_view pName, const std::string_view pDob);
+	
     std::string getFirstName() const;
 
-    void setAddress(std::string pAddress);
+    void setAddress(const std::string_view pAddress);
 
-    void setLastName(std::string pLastName);
+    void setLastName(const std::string_view pLastName);
 
-    static std::string getAccessCard(const std::string& pVisitPurpose, const Person& pObj);
+    static std::string getAccessCard(const std::string_view pVisitPurpose, const Person& pObj);
 };

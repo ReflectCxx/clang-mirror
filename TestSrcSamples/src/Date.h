@@ -8,15 +8,7 @@ namespace nsdate
 {
 	struct Date
 	{
-		Date() = default;
-		Date(Date&&) = default;
-		Date(const Date&) = default;
-		Date& operator=(Date&&) = default;
-		Date& operator=(const Date&) = default;
-
-		Date(const std::string& pDateStr);
-
-		void set(std::string pDateStr);
+		bool set(const std::string_view pDateStr);
 
 		unsigned day() const { return m_day; }
 		unsigned month() const { return m_day; }
