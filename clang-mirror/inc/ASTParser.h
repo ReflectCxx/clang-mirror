@@ -25,6 +25,6 @@ namespace clmr
 
 		ASTParser(const std::vector<std::string>& pFiles, clang::tooling::CompilationDatabase& pCdb);
 
-		const int parseFiles(const int pStartIndex, const int pEndIndex);
+		bool parseFiles(const int pStartIndex, const int pEndIndex);
 	};
 }

@@ -8,7 +8,7 @@ namespace clmr
 {
     class ClangDriver
     {
-        static void runClangParser(const std::vector<std::string>& pSrcFiles, clang::tooling::CompilationDatabase& pCdb);
+        static bool runClangParser(const std::vector<std::string>& pSrcFiles, clang::tooling::CompilationDatabase& pCdb);
 
     public:
 

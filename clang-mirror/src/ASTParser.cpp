@@ -28,7 +28,7 @@ namespace clmr
 	{ }
 
 
-	const int ASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
+	bool ASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
 	{
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
@@ -74,6 +74,6 @@ namespace clmr
 			}
 		}
 
-		return 0;
+		return true;
 	}
 }

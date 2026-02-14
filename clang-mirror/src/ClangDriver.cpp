@@ -85,32 +85,18 @@ namespace clmr
             cdbPathStr = pathList.front();
         }
 
-        auto cdb = CompilationDatabase::loadFromDirectory(cdbPathStr, cdbLoadErr);
-
-        if (cdb)
-        {
-            const auto& srcFiles = cdb->getAllFiles();
-            Logger::out("Number of source files in CDB: " + std::to_string(srcFiles.size()));
-            std::unordered_set<std::string> distinctSrcFiles(srcFiles.begin(), srcFiles.end());
-            Logger::out("Number of distinct source files in CDB: " + std::to_string(distinctSrcFiles.size()));
-            const auto& finalSrcFiles = std::vector<std::string>(distinctSrcFiles.begin(), distinctSrcFiles.end());
-            runClangParser(finalSrcFiles, *cdb);
-        }
-        else
-        {
-            Logger::out("CDB not found at location : " + cdbPathStr.str());
-            Logger::out("error : " + cdbLoadErr);
-            return false;
-        }
-        return true;
+        std::unordered_set<std::string> distinctSrcFiles(pathList.begin(), pathList.end());
+        Logger::out("Number of source files to process: " + std::to_string(distinctSrcFiles.size()));
+        const auto& finalSrcFiles = std::vector<std::string>(distinctSrcFiles.begin(), distinctSrcFiles.end());
+        return runClangParser(finalSrcFiles, OptionsParser->getCompilations());
     }
 
 
-    void ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
+    bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
     {
         const int fileCount = pSrcFiles.size();
         Logger::resetDoneCounter(fileCount);
         ASTParser cxxParser(pSrcFiles, pCdb);
-        cxxParser.parseFiles(0, fileCount - 1);
+        return cxxParser.parseFiles(0, fileCount - 1);
     }
 }
