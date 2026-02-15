@@ -11,8 +11,8 @@ namespace nsdate
 		bool set(const std::string_view pDateStr);
 
 		unsigned day() const { return m_day; }
-		unsigned month() const { return m_day; }
-		unsigned year() const { return m_day; }
+		unsigned month() const { return m_month; }
+		unsigned year() const { return m_year; }
 
 	private:
 

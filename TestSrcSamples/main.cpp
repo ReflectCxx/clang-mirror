@@ -2,19 +2,23 @@
 #include <iostream>
 #include <cxx_mirror.h>
 
+#include "Date.h"
+
 int main() {
 
-	auto oGetDateAsStr = cxx::mirror().getFunction(cxx::fn::nsdate::getDateAsString::id);
+	nsdate::Date dateObj;
 
-	auto getDateAsString = oGetDateAsStr->argsT<unsigned, unsigned, unsigned>()
-		                                .returnT<std::string>();
+	auto fnGetDateStr = cxx::mirror().getFunction(cxx::fn::nsdate::getDateAsString::id);
+
+	auto getDateAsString = fnGetDateStr->argsT<nsdate::Date>()
+		                               .returnT<std::string>();
 	if (!getDateAsString) {
-		std::cout << "\n Refleceted functor " << cxx::fn::nsdate::getDateAsString::id << " not initialized.";
-		std::cout << "\n Error - " << rtl::to_string(getDateAsString.get_init_error());
-		return 0;
+		std::cout << "\n Functor initialization error : " << rtl::to_string(getDateAsString.get_init_error());
+		return 1;
 	}
 
-	std::cout << "\n Reflected Date : " << getDateAsString(15, 2, 2026);
+	std::string dateStr = getDateAsString(dateObj);
+	std::cout << "\n Default date : " << dateStr;
 
 	return 0;
 }
