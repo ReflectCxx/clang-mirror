@@ -23,20 +23,20 @@ namespace Person {
 namespace type {
 namespace Person {
 namespace fn {
-namespace setLastName {
-    inline constexpr std::string_view id = "setLastName";
+namespace getAccessCard {
+    inline constexpr std::string_view id = "getAccessCard";
     inline constexpr std::array<std::string_view, 1> signatures = {
-        "void(const std::string_view)"
+        "std::string(const std::string_view, const Person &)"
     };
 }}}}
 
 namespace type {
 namespace Person {
 namespace fn {
-namespace getFirstName {
-    inline constexpr std::string_view id = "getFirstName";
+namespace setLastName {
+    inline constexpr std::string_view id = "setLastName";
     inline constexpr std::array<std::string_view, 1> signatures = {
-        "std::string(void)"
+        "void(const std::string_view)"
     };
 }}}}
 
@@ -53,10 +53,10 @@ namespace setAddress {
 namespace type {
 namespace Person {
 namespace fn {
-namespace getAccessCard {
-    inline constexpr std::string_view id = "getAccessCard";
+namespace getFirstName {
+    inline constexpr std::string_view id = "getFirstName";
     inline constexpr std::array<std::string_view, 1> signatures = {
-        "std::string(const std::string_view, const Person &)"
+        "std::string(void)"
     };
 }}}}
 
