@@ -34,5 +34,4 @@ namespace nsdate
 		m_year  = std::stoi(std::string(yearStr));
 		return true;
 	}
-
 }
