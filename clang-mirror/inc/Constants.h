@@ -60,7 +60,7 @@ namespace clmr
 	struct File 
 	{
 		static constexpr std::string_view dirSrc = "reg_src";
-		static constexpr std::string_view dirRoot = "RTLRegistration";
+		static constexpr std::string_view dirRoot = "clang-mirror";
 		static constexpr std::string_view prefixRegs = "regs";
 		static constexpr std::string_view nameIDsHeader = "reg_ids.h";
 		static constexpr std::string_view nameRegHeader = "reg_decls.h";
