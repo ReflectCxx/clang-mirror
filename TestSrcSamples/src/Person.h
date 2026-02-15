@@ -14,7 +14,7 @@ class Person
 
 public:
 
-	Person() = default;
+	Person() = delete;
 	Person(Person&&) = default;
 	Person(const Person&) = default;
 	

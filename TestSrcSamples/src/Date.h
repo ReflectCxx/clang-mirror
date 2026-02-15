@@ -18,7 +18,7 @@ namespace nsdate
 
 		unsigned m_day = 1;
 		unsigned m_month = 1;
-		unsigned m_year = 2020;
+		unsigned m_year = 2000;
 	};
 }
 

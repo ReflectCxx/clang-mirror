@@ -29,8 +29,8 @@ void Person::setLastName(const std::string_view pLastName)
 
 std::string Person::getAccessCard(const std::string_view pVisitPurpose, const Person& pObj)
 {
-	return (std::string("\nName: ") + pObj.m_firstName + " " + pObj.m_lastName +
-		    "\nDOB: " + pObj.m_dob +
-		    "\nAddress: " + pObj.m_address +
-			"\nPurpoe of visit: " + std::string(pVisitPurpose));
+	return (std::string("\n\tName: ") + pObj.m_firstName + " " + pObj.m_lastName +
+		    "\n\tDOB: " + pObj.m_dob +
+		    "\n\tAddress: " + pObj.m_address +
+			"\n\tPurpoe of visit: " + std::string(pVisitPurpose));
 }
