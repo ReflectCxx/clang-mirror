@@ -32,5 +32,5 @@ std::string Person::getAccessCard(const std::string_view pVisitPurpose, const Pe
 	return (std::string("\n\tName: ") + pObj.m_firstName + " " + pObj.m_lastName +
 		    "\n\tDOB: " + pObj.m_dob +
 		    "\n\tAddress: " + pObj.m_address +
-			"\n\tPurpoe of visit: " + std::string(pVisitPurpose));
+			"\n\tPurpose of visit: " + std::string(pVisitPurpose));
 }

@@ -9,8 +9,8 @@ class Person
     const std::string m_dob;
     const std::string m_firstName;
  
-    std::string m_address;
     std::string m_lastName;
+    mutable std::string m_address;
 
 public:
 
@@ -22,9 +22,9 @@ public:
 	
     std::string getFirstName() const;
 
-    void setAddress(const std::string_view pAddress);
-
     void setLastName(const std::string_view pLastName);
+
+    void setAddress(const std::string_view pAddress);
 
     static std::string getAccessCard(const std::string_view pVisitPurpose, const Person& pObj);
 };

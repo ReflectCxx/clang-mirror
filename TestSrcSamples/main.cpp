@@ -39,8 +39,10 @@ int main() {
     std::cout << "\n set date of birth : " << dobStr;
 
     auto clsPerson = cxx::mirror().getRecord(cxx::type::Person::id);
+    auto fnSetAddress = clsPerson->getMethod(cxx::type::Person::fn::setAddress::id);
+    auto fnSetLastName = clsPerson->getMethod(cxx::type::Person::fn::setLastName::id);
     auto fnGetAccessCard = clsPerson->getMethod(cxx::type::Person::fn::getAccessCard::id);
-
+    
     auto getAccessCard = fnGetAccessCard->argsT<std::string_view, const Person&>()
                                         .returnT<std::string>();
     if (!getAccessCard) {
@@ -52,7 +54,6 @@ int main() {
 
     std::cout << "\n created access-card :\n" << getAccessCard("", personObj) << std::endl;
 
-    auto fnSetLastName = clsPerson->getMethod(cxx::type::Person::fn::setLastName::id);
     auto setLastName = fnSetLastName->targetT<Person>()
                                     .argsT<std::string_view>().returnT();
     if (!setLastName) {
@@ -62,8 +63,20 @@ int main() {
 
     setLastName(personObj)("Winston");
 
+    auto setAddress = fnSetAddress->targetT<Person>()
+                                  .argsT<std::string_view>().returnT();
+    if (!setAddress) {
+        std::cout << "\n functor init error : " << rtl::to_string(setLastName.get_init_error());
+        std::abort();
+    }
+
+    setAddress(personObj)("221 street, Baker's Hut.");
+
     constexpr auto purposeStr = "Safety & Security audit.";
-    std::cout << "\n updated access-card :\n" << getAccessCard(purposeStr, personObj) << std::endl;
+
+    auto accessCardStr = getAccessCard(purposeStr, personObj);
+
+    std::cout << "\n updated access-card :\n" <<  accessCardStr << std::endl;
 
 	return 0;
 }
