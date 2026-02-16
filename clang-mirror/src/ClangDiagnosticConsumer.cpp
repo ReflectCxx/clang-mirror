@@ -9,7 +9,7 @@ using namespace clang::tidy;
 namespace clmr
 {
     ClangDiagnosticConsumer::ClangDiagnosticConsumer(ClangTidyContext& pContext)
-        : clang::tidy::ClangTidyDiagnosticConsumer(pContext)
+        : ClangTidyDiagnosticConsumer(pContext)
     { }
 
     const std::vector<ErrorTuple>& ClangDiagnosticConsumer::getCompilationErrors() {
@@ -18,6 +18,8 @@ namespace clmr
 
     void ClangDiagnosticConsumer::HandleDiagnostic(DiagnosticsEngine::Level pDiagLevel, const Diagnostic& pInfo)
     {
+        ClangTidyDiagnosticConsumer::HandleDiagnostic(pDiagLevel, pInfo);
+
         if (pInfo.hasSourceManager() && pInfo.getLocation().isValid())
         {
             const SourceManager& srcManager = pInfo.getSourceManager();
