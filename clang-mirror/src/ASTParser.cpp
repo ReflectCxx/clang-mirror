@@ -66,8 +66,11 @@ namespace clmr
 			auto actionFactory = std::make_unique<ClangActionFactory>();
 			clangTool.run(actionFactory.get());
 
-			const auto& errors = diagConsumer.take();
-			if (errors.empty()) {
+			bool foundErrors = llvm::any_of(diagConsumer.take(), [](const ClangTidyError& E) {
+				return E.DiagLevel == ClangTidyError::Error;
+			});
+
+			if (!foundErrors) {
 				ASTCodeManager::instance().emitRegistrationSource(srcFilePath, index);
 				anyRegistrationSrcEmitted = true;
 			}
