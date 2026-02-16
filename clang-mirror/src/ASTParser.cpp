@@ -31,6 +31,7 @@ namespace clmr
 
 	bool ASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
 	{
+		bool anyRegistrationSrcEmitted = false;
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
 			const auto& srcFilePath = m_srcFiles.at(index).c_str();
@@ -68,12 +69,12 @@ namespace clmr
 			const auto& errors = diagConsumer.take();
 			if (errors.empty()) {
 				ASTCodeManager::instance().emitRegistrationSource(srcFilePath, index);
+				anyRegistrationSrcEmitted = true;
 			}
 			else {
 				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
-				return false;
 			}
 		}
-		return true;
+		return anyRegistrationSrcEmitted;
 	}
 }
