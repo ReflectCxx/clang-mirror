@@ -2,14 +2,9 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <mutex>
 
 #include "Constants.h"
 #include "Logger.h"
-
-namespace {
-    static  std::mutex g_mutex;
-}
 
 namespace clmr {
 
@@ -39,25 +34,21 @@ namespace clmr {
 
     void Logger::out(const std::string& pMsg)
     {
-        std::lock_guard<std::mutex> lock(g_mutex);
         std::cout << color::GREY << "\n[clang-mirror]\t" << color::RESET << pMsg;
     }
 
     void Logger::outgen(const std::string& pMsg)
     {
-        std::lock_guard<std::mutex> lock(g_mutex);
         std::cout << color::GREY << "\n[clang-mirror]\t" << color::TEAL << "generated: " << color::GREY << pMsg;
     }
 
     void Logger::outException(const std::string& pMsg)
     {
-        std::lock_guard<std::mutex> lock(g_mutex);
         std::cout << color::DARK_RED << "\n\t\t[exception] " << pMsg;
     }
 
     void Logger::outProgress(const std::string& pMsg, bool pUpdate/* = true*/)
     {
-        std::lock_guard<std::mutex> lock(g_mutex);
         if (pUpdate) {
             m_currentCount++;
         }
@@ -66,8 +57,6 @@ namespace clmr {
 
     void Logger::outError(const std::string& pSrcFile, const std::vector<std::string>& pUnreflectedFuncs, const std::vector<ErrorTuple>& pErrors)
     {
-        std::lock_guard<std::mutex> lock(g_mutex);
-
         if (pErrors.empty() && pUnreflectedFuncs.empty()) {
             return;
         }
