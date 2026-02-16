@@ -5,7 +5,6 @@ set(CLREFLECT_SRCS
 	"${CMAKE_CURRENT_LIST_DIR}/ClangPPCallbacks.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ClangASTVisitor.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ClangActionFactory.cpp"
-	"${CMAKE_CURRENT_LIST_DIR}/ClangDiagnosticConsumer.cpp"
 	
 	"${CMAKE_CURRENT_LIST_DIR}/ASTParser.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ASTCodeGen.cpp"

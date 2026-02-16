@@ -1,8 +1,6 @@
 #pragma once
 
-#include <tuple>
 #include <string>
-#include <vector>
 #include <chrono>
 #include <string_view>
 #include <unordered_map>
@@ -78,7 +76,6 @@ namespace clmr
 
 	using Clock = std::chrono::high_resolution_clock;
 	using Second = std::chrono::duration<double, std::ratio<1> >;
-	using ErrorTuple = std::tuple<std::string, std::string, std::string>;
 }
 
 

@@ -11,8 +11,9 @@
 #include "Constants.h"
 #include "ASTCodeManager.h"
 #include "ClangActionFactory.h"
-#include "ClangDiagnosticConsumer.h"
 
+#include "clang/Basic/Diagnostic.h"
+#include "clang-tidy/ClangTidy.h"
 
 using namespace llvm;
 using namespace clang;
@@ -54,7 +55,7 @@ namespace clmr
 			ClangTidyContext context(std::move(OwningOptionsProvider), false, false);
 			context.setEnableProfiling(false);
 
-			ClangDiagnosticConsumer diagConsumer(context);
+			ClangTidyDiagnosticConsumer diagConsumer(context);
 			auto diagOpts = std::make_unique<DiagnosticOptions>();
 			DiagnosticsEngine diagEngine(new DiagnosticIDs(), *diagOpts, &diagConsumer, false);
 			
@@ -64,16 +65,15 @@ namespace clmr
 			auto actionFactory = std::make_unique<ClangActionFactory>();
 			clangTool.run(actionFactory.get());
 
-			const auto& errors = diagConsumer.getCompilationErrors();
+			const auto& errors = diagConsumer.take();
 			if (errors.empty()) {
 				ASTCodeManager::instance().emitRegistrationSource(srcFilePath, index);
 			}
 			else {
 				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
-				Logger::outError(srcFilePath, std::vector<std::string>(), errors);
+				return false;
 			}
 		}
-
 		return true;
 	}
 }

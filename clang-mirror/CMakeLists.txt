@@ -2,18 +2,18 @@ cmake_minimum_required(VERSION 3.21)
 
 project(clang-mirror LANGUAGES CXX)
 
-# --------------------------------------------------
+# ---------------
 # Language setup
-# --------------------------------------------------
+# ---------------
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CXX_EXE_NAME clang-mirror)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-# --------------------------------------------------
+# --------------------------------------
 # LLVM / Clang location (user supplied)
-# --------------------------------------------------
+# --------------------------------------
 set(LLVM_ROOT "" CACHE PATH "Root directory of extracted clang+llvm bundle")
 
 if (NOT LLVM_ROOT)
@@ -42,7 +42,7 @@ message(STATUS "LLVM includes: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "Clang includes: ${CLANG_INCLUDE_DIRS}")
 
 # --------------------------------------------------
-# 🔧 Remove DIA hard-link (fixes diaguids.lib CI failure)
+# Remove DIA hard-link (fixes diaguids.lib CI failure)
 # --------------------------------------------------
 get_property(_allTargets DIRECTORY PROPERTY IMPORTED_TARGETS)
 
@@ -55,9 +55,9 @@ foreach(t ${_allTargets})
     endif()
 endforeach()
 
-# --------------------------------------------------
+# -------
 # Target
-# --------------------------------------------------
+# -------
 add_executable(${CXX_EXE_NAME})
 
 add_subdirectory(inc)
@@ -71,16 +71,16 @@ target_include_directories(${CXX_EXE_NAME}
         ${CLANG_INCLUDE_DIRS}
 )
 
-# --------------------------------------------------
+# ----------------
 # LLVM components
-# --------------------------------------------------
+# ----------------
 llvm_map_components_to_libnames(LLVM_LIBS
     support
 )
 
-# --------------------------------------------------
+# -------------------------
 # Link clang tooling stack
-# --------------------------------------------------
+# -------------------------
 target_link_libraries(${CXX_EXE_NAME}
     PRIVATE
         clangTooling
@@ -100,9 +100,9 @@ target_link_libraries(${CXX_EXE_NAME}
         ${LLVM_LIBS}
 )
 
-# --------------------------------------------------
+# ------------
 # MSVC tuning
-# --------------------------------------------------
+# ------------
 if (MSVC)
 
     target_compile_definitions(${CXX_EXE_NAME} PRIVATE

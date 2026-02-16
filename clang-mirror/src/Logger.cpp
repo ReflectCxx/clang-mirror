@@ -54,39 +54,4 @@ namespace clmr {
         }
         std::cout << color::GREEN << "\n[" << formatProgress() << "]\t" << color::TEAL << "compiling: " << color::RESET << pMsg;
     }
-
-    void Logger::outError(const std::string& pSrcFile, const std::vector<std::string>& pUnreflectedFuncs, const std::vector<ErrorTuple>& pErrors)
-    {
-        if (pErrors.empty() && pUnreflectedFuncs.empty()) {
-            return;
-        }
-
-        std::cout << color::DARK_RED << "\n\t\t[error]" << color::GREY << " errors while compiling: " << color::CYAN << pSrcFile << color::GREY << ",";
-        for (const auto& tuple : pErrors)
-        {
-            std::string missingMsg = std::get<2>(tuple);
-            std::size_t start = missingMsg.find('\'');
-            std::size_t end = missingMsg.find('\'', start + 1);
-            if (start != std::string::npos && end != std::string::npos && end > start)
-            {
-                std::string quotedText = missingMsg.substr(start + 1, end - start - 1);
-                std::string restOfMsg = missingMsg.substr(end + 1);
-                std::cout << color::DARK_RED << "\n\t\t[error]\t"
-                          << color::GREY << std::get<0>(tuple) << color::CYAN << std::get<1>(tuple)
-                          << color::RESET << ": " << color::RED << "\'" << quotedText << "\'" << color::GREY << restOfMsg;
-            }
-            else
-            {
-                std::cout << color::DARK_RED << "\n\t\t[error]\t"
-                          << color::GREY << std::get<0>(tuple) << color::CYAN << std::get<1>(tuple)
-                          << color::RESET << ": " << color::RED << std::get<2>(tuple);
-            }
-        }
-
-        for (const auto& func : pUnreflectedFuncs)
-        {
-            std::cout << color::DARK_RED << "\n\t\t[error]" << color::GREY << " unable to reflect: "
-                      << color::YELLOW << func << "()";
-        }
-    }
 }
