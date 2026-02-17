@@ -96,7 +96,7 @@ namespace clmr
     {
         const int fileCount = pSrcFiles.size();
         Logger::resetDoneCounter(fileCount);
-        ASTParser cxxParser(pSrcFiles, pCdb);
-        return cxxParser.parseFiles(0, fileCount - 1);
+        ASTParser cxxParser(pSrcFiles);
+        return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
     }
 }

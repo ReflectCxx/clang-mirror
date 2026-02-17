@@ -33,14 +33,12 @@ namespace {
 
 namespace clmr
 {
-	ASTParser::ASTParser(const std::vector<std::string>& pFiles,
-					     clang::tooling::CompilationDatabase& pCdb)
+	ASTParser::ASTParser(const std::vector<std::string>& pFiles)
 		: m_srcFiles(pFiles)
-		, m_compileDb(pCdb)
 	{ }
 
 
-	bool ASTParser::parseFiles(const int pStartIndex, const int pEndIndex)
+	bool ASTParser::parseFiles(clang::tooling::CompilationDatabase& pCdb, const int pStartIndex, const int pEndIndex)
 	{
 		bool anyRegistrationSrcEmitted = false;
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
@@ -54,7 +52,7 @@ namespace clmr
 				continue;
 			}
 
-			ClangTool clangTool(m_compileDb, { srcFilePath }, std::make_shared<PCHContainerOperations>());
+			ClangTool clangTool(pCdb, { srcFilePath }, std::make_shared<PCHContainerOperations>());
 
 			auto OwningOptionsProvider = createOptionsProvider();
 

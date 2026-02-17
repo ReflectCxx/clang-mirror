@@ -16,15 +16,13 @@ namespace clmr
 	class ASTParser
 	{
 		const std::vector<std::string>& m_srcFiles;
-		
-		clang::tooling::CompilationDatabase& m_compileDb;
 
 		ASTParser() = delete;
 
 	public:
 
-		ASTParser(const std::vector<std::string>& pFiles, clang::tooling::CompilationDatabase& pCdb);
+		ASTParser(const std::vector<std::string>& pFiles);
 
-		bool parseFiles(const int pStartIndex, const int pEndIndex);
+		bool parseFiles(clang::tooling::CompilationDatabase& pCdb, const int pStartIndex, const int pEndIndex);
 	};
 }
