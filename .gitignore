@@ -4,6 +4,7 @@ bin/
 
 # Visual Studio
 .vs/
+.cache/
 *.VC.db
 *.VC.opendb
 
