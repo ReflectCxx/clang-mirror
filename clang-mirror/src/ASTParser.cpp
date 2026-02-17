@@ -52,9 +52,9 @@ namespace clmr
 
 			ClangTool clangTool(pCdb, { srcFilePath }, std::make_shared<PCHContainerOperations>());
 
-			auto OwningOptionsProvider = createOptionsProvider();
+			auto OwningOptionsProvider = createOptionsProvider().release();
 
-			ClangTidyContext context(std::move(OwningOptionsProvider), false, false);
+			ClangTidyContext context(std::unique_ptr<clang::tidy::ClangTidyOptionsProvider>(OwningOptionsProvider), false, false);
 			context.setEnableProfiling(false);
 
 			ClangTidyDiagnosticConsumer diagConsumer(context);
