@@ -71,33 +71,16 @@ target_include_directories(${CXX_EXE_NAME}
         ${CLANG_INCLUDE_DIRS}
 )
 
-# ----------------
-# LLVM components
-# ----------------
-llvm_map_components_to_libnames(LLVM_LIBS
-    support
-)
 
 # -------------------------
 # Link clang tooling stack
 # -------------------------
 target_link_libraries(${CXX_EXE_NAME}
     PRIVATE
-        clangTooling
-        clangBasic
-        clangAST
-        clangFrontend
-        clangSerialization
-        clangDriver
-        clangParse
-        clangSema
-        clangAnalysis
-        clangEdit
-        clangLex
-        clangRewrite
-        clangRewriteFrontend
+        clang-cpp
+        LLVM
         clangTidy
-        ${LLVM_LIBS}
+        clangTidyUtils
 )
 
 # ------------
