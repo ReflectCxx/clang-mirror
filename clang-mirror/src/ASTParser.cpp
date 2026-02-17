@@ -1,7 +1,6 @@
 
 
 #include "ASTParser.h"
-#include "ASTParserUtils.h"
 
 #include <mutex>
 #include <iostream>
@@ -19,6 +18,18 @@ using namespace llvm;
 using namespace clang;
 using namespace clang::tidy;
 using namespace clang::tooling;
+
+namespace {
+	static std::unique_ptr<clang::tidy::ClangTidyOptionsProvider> createOptionsProvider()
+	{
+		clang::tidy::ClangTidyOptions DefaultOptions;
+		clang::tidy::ClangTidyOptions OverrideOptions;
+		clang::tidy::ClangTidyGlobalOptions GlobalOptions;
+
+		return std::make_unique<clang::tidy::FileOptionsProvider>(std::move(GlobalOptions), std::move(DefaultOptions),
+			std::move(OverrideOptions));
+	}
+}
 
 namespace clmr
 {
@@ -43,15 +54,9 @@ namespace clmr
 				continue;
 			}
 
-			llvm::IntrusiveRefCntPtr<vfs::OverlayFileSystem> baseFS = createBaseFS();
-			if (!baseFS) {
-				Logger::out("Failed to initialize vfs::OverlayFileSystem.");
-				return false;
-			}
+			ClangTool clangTool(m_compileDb, { srcFilePath }, std::make_shared<PCHContainerOperations>());
 
-			ClangTool clangTool(m_compileDb, { srcFilePath }, std::make_shared<PCHContainerOperations>(), baseFS);
-
-			auto OwningOptionsProvider = createOptionsProvider(baseFS);
+			auto OwningOptionsProvider = createOptionsProvider();
 
 			ClangTidyContext context(std::move(OwningOptionsProvider), false, false);
 			context.setEnableProfiling(false);
