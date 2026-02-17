@@ -1,13 +1,7 @@
 
-
 #include "ASTParser.h"
 
-#include <mutex>
-#include <iostream>
-#include <filesystem>
-
 #include "Logger.h"
-#include "Constants.h"
 #include "ASTCodeManager.h"
 #include "ClangActionFactory.h"
 
@@ -19,15 +13,19 @@ using namespace clang;
 using namespace clang::tidy;
 using namespace clang::tooling;
 
-namespace {
-	static std::unique_ptr<clang::tidy::ClangTidyOptionsProvider> createOptionsProvider()
-	{
-		clang::tidy::ClangTidyOptions DefaultOptions;
-		clang::tidy::ClangTidyOptions OverrideOptions;
-		clang::tidy::ClangTidyGlobalOptions GlobalOptions;
+namespace 
+{
+    static std::unique_ptr<clang::tidy::ClangTidyOptionsProvider> createOptionsProvider()
+    {
+        clang::tidy::ClangTidyOptions DefaultOptions;
+        clang::tidy::ClangTidyOptions OverrideOptions;
+        clang::tidy::ClangTidyGlobalOptions GlobalOptions;
 
-		return std::make_unique<clang::tidy::FileOptionsProvider>(std::move(GlobalOptions), std::move(DefaultOptions),
-			std::move(OverrideOptions));
+        return std::make_unique<clang::tidy::FileOptionsProvider>(
+			std::move(GlobalOptions), 
+			std::move(DefaultOptions), 
+			std::move(OverrideOptions)
+		);
 	}
 }
 
