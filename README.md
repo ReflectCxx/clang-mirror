@@ -81,7 +81,9 @@ Given one or more source files, it uses the `clang` frontend to analyze the AST 
 
 The generated sources are compiled and linked statically alongside **RTL** as part of your build.
 
-Integration is straightforward: include the generated header (`cxx_mirror.h`) and link against the **RTL** library. Your project then becomes runtime-reflection ready. You can introspect registered types and invoke functions through **RTL**’s APIs, with full runtime resolution handled automatically.
+Integration is straightforward: include the generated header (`cxx_mirror.h`) and link against the **RTL** library. 
+
+Your project then becomes runtime-reflection ready. You can introspect registered types and invoke functions through **RTL**’s APIs, with full runtime resolution handled automatically.
 
 ## Key Features
 
