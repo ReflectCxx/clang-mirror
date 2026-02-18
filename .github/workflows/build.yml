@@ -1,0 +1,179 @@
+name: release-build
+
+on:
+  push:
+    branches: [ release ]
+  workflow_dispatch:
+
+concurrency:
+  group: release-build
+  cancel-in-progress: true
+
+jobs:
+
+  # =============
+  # MATRIX BUILD
+  # =============
+
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: write
+
+    env:
+      REL: release-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ------------
+      # LINUX BUILD
+      # ------------
+      - name: Linux - Install LLVM
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          echo "REL=release-latest" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+
+          sudo apt-get install -y \
+            ninja-build \
+            clang-21 \
+            clang-tools-21 \
+            llvm-21-dev \
+            libclang-21-dev
+
+          echo "LLVM_ROOT=/usr/lib/llvm-21" >> $GITHUB_ENV
+
+      - name: Linux - Configure
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          rm -rf build
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_C_COMPILER=clang-21 \
+            -DCMAKE_CXX_COMPILER=clang++-21 \
+            -DLLVM_ROOT=$LLVM_ROOT \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Linux - Build
+        if: matrix.os == 'ubuntu-latest'
+        run: cmake --build build --parallel
+
+      - name: Linux - Package
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p release
+          cp bin/clang-mirror release/
+          tar -czf clang-mirror-linux.tar.gz -C release .
+
+      - name: Linux - Upload Artifact (temporary)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifact
+          path: clang-mirror-linux.tar.gz
+
+      # --------------
+      # WINDOWS BUILD
+      # --------------
+      - name: Windows - Setup env
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          echo "REL=release-latest" >> $env:GITHUB_ENV
+
+      - name: Windows - Download LLVM
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $LLVM_VERSION="21.1.0"
+          $LLVM_DIR_NAME="clang+llvm-21.1.0-x86_64-pc-windows-msvc"
+
+          curl -L -o llvm.tar.xz `
+            https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/$LLVM_DIR_NAME.tar.xz
+
+          tar -xf llvm.tar.xz
+          Rename-Item $LLVM_DIR_NAME llvm
+
+      - name: Windows - Configure
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          cmake -S . -B build `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DLLVM_ROOT="$pwd/llvm"
+
+      - name: Windows - Build
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --parallel
+
+      - name: Windows - Package
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item bin/Release/clang-mirror.exe release/
+          Compress-Archive release clang-mirror-windows.zip -Force
+
+      - name: Windows - Upload Artifact (temporary)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifact
+          path: clang-mirror-windows.zip
+
+
+  # ===================
+  # SINGLE RELEASE JOB
+  # ===================
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-artifact
+          path: artifacts
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-artifact
+          path: artifacts
+
+      - name: Update rolling tag
+        run: |
+          git tag -f release-latest
+          git push origin release-latest --force
+
+      - name: Create or Update Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create release-latest \
+            --title "Rolling Release" \
+            --notes "Latest build from release branch" \
+            || true
+
+      - name: Upload Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload release-latest artifacts/* --clobber
