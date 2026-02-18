@@ -161,16 +161,19 @@ jobs:
           git tag -f release-latest
           git push origin release-latest --force
 
-      - name: Create or Update Release
+      - name: Delete existing release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete release-latest -y || true
+
+      - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create release-latest \
             --title "Rolling Release" \
-            --notes "Latest build from release branch" \
-             || gh release edit release-latest \
-               --title "Rolling Release" \
-               --notes "Latest build from release branch - Updated $(date -u)"
+            --notes "Latest build from release branch - Updated $(date -u)"
 
       - name: Upload Assets
         env:
