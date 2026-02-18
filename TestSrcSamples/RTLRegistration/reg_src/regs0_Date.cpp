@@ -5,7 +5,7 @@
 #include "Date.h"
 
 
-namespace regs1::fn {
+namespace regs0::fn {
     void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().function<nsdate::Date>(cxx::fn::nsdate::getDateAsString::id)
@@ -17,7 +17,7 @@ namespace regs1::fn {
 }
 
 
-namespace regs1::type0 {
+namespace regs0::type0 {
     void init(std::vector<rtl::Function>& fns) {
 
         fns.push_back(rtl::type().record<nsdate::Date>(cxx::type::nsdate::Date::id)
