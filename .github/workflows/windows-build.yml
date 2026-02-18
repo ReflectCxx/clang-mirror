@@ -74,29 +74,7 @@ jobs:
           Compress-Archive release clang-mirror-windows.zip -Force
 
       # ----------------------------
-      # Update rolling tag
-      # ----------------------------
-      - name: Update rolling tag
-        shell: pwsh
-        run: |
-          git tag -f $env:REL
-          git push origin $env:REL --force
-
-      # ----------------------------
-      # Create or Update Release
-      # ----------------------------
-      - name: Create or Update Release
-        shell: pwsh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create $env:REL `
-            --title "Rolling Release" `
-            --notes "Latest build from release branch" `
-            2>$null
-
-      # ----------------------------
-      # Upload asset
+      # Upload asset (Release created by Linux workflow)
       # ----------------------------
       - name: Upload asset
         shell: pwsh
