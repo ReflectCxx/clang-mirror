@@ -1,21 +1,26 @@
-name: linux-build
+name: linux-release-build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ release ]
   workflow_dispatch:
+
+concurrency:
+  group: release-build
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compute version
-        run: echo "REL=main-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Set rolling release tag
+        run: echo "REL=release-latest" >> $GITHUB_ENV
 
       - name: Install LLVM 21 and deps
         run: |
@@ -57,12 +62,24 @@ jobs:
           cp bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
-      - name: Ensure release
+      - name: Update rolling tag
+        run: |
+          git tag -f $REL
+          git push origin $REL --force
+
+      - name: Create or Update Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "$REL" --title "$REL" --notes "Auto build from main" || true
+        run: |
+          gh release create "$REL" \
+            --title "Rolling Release" \
+            --notes "Latest build from release branch" \
+            || true
 
       - name: Upload asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$REL" clang-mirror-linux.tar.gz --clobber
+        run: |
+          gh release upload "$REL" \
+            clang-mirror-linux.tar.gz \
+            --clobber
