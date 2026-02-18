@@ -35,7 +35,7 @@ jobs:
       - name: Clean build
         run: rm -rf build
 
-      - name: Configure (force Clang)
+      - name: Configure
         run: |
           cmake -S . -B build \
             -G Ninja \
