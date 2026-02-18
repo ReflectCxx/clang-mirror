@@ -93,9 +93,10 @@ Your project then becomes runtime-reflection ready. You can introspect registere
 
 * ✅ **Non-Intrusive** – No modifications to your source code required.
 
+---
 
-## Current Status
+clang-mirror produces the boilerplate and metadata that would otherwise need to be written manually to enable a runtime reflection system in C++.
 
-**⚠️ Early Development – Bootstrapping Phase**
+The runtime engine that consumes this generated metadata – providing runtime type access and invocation APIs – is the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP).
 
-clang-mirror is actively being built and is not yet ready for general use. In the meantime, you can check out [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to explore the underlying runtime reflection system that `clang-mirror` is designed to support.
+Together, clang-mirror and RTL form a complete, portable runtime reflection solution for modern C++.
