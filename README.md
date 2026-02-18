@@ -58,16 +58,16 @@ auto clsId = cxx::type::Person::id;
 auto fnId  = cxx::type::Person::fn::getName::id;
 
 // Lookup the class by ID.
-auto classPerson = cxx::mirror().getRecord(clsId);
-auto getName = classPerson->getMethod(fnId);  // Query method metadata.
+auto clsPerson = cxx::mirror().getRecord(clsId);
+auto fnGetName = classPerson->getMethod(fnId);  // Query method metadata.
 
 // Get functor from metadata.
-auto method = getName->targetT<Person>()
-                     .argsT()
-                     .returnT<std::string>();
+auto getName = fnGetName->targetT<Person>()
+                        .argsT()
+                        .returnT<std::string>();
 					 
 if(method) {  // Functor valid?
-    std::string name = method(personObj)();  // invokes Person::getName()
+    std::string name = getName(personObj)();  // invokes Person::getName()
 }
 
 ```
