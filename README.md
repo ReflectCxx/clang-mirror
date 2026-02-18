@@ -6,7 +6,7 @@
 &nbsp;
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?logo=c%2B%2B&logoColor=white)](https://isocpp.org)
 &nbsp;
-[![Release Build](https://github.com/ReflectCxx/clang-mirror/actions/workflows/release.yml/badge.svg?branch=release)](https://github.com/ReflectCxx/clang-mirror/actions/workflows/release.yml?query=branch%3Arelease)
+[![Build](https://github.com/ReflectCxx/clang-mirror/actions/workflows/build.yml/badge.svg?branch=release)](https://github.com/ReflectCxx/clang-mirror/actions/workflows/build.yml?query=branch%3Arelease)
 
 `clang-mirror` is a Clang-based code generation tool that produces AST-driven IDs and metadata registration code to enable portable runtime reflection for C++ without compiler extensions.
 
