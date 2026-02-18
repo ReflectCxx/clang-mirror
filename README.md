@@ -1,5 +1,13 @@
 # clang-mirror
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-2EA44F?logo=open-source-initiative&logoColor=white)](LICENSE)
+&nbsp;
+[![CMake](https://img.shields.io/badge/CMake-Enabled-064F8C?logo=cmake&logoColor=white)](https://cmake.org)
+&nbsp;
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?logo=c%2B%2B&logoColor=white)](https://isocpp.org)
+&nbsp;
+[![Release Build](https://github.com/ReflectCxx/clang-mirror/actions/workflows/release.yml/badge.svg?branch=release)](https://github.com/ReflectCxx/clang-mirror/actions/workflows/release.yml?query=branch%3Arelease)
+
 `clang-mirror` is a Clang-based code generation tool that produces AST-driven IDs and metadata registration code to enable portable runtime reflection for C++ without compiler extensions.
 
 It enables user-defined types, functions, and member functions to be discovered and invoked at runtime using compile-time validated IDs – without manual registration.
