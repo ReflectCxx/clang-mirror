@@ -168,7 +168,9 @@ jobs:
           gh release create release-latest \
             --title "Rolling Release" \
             --notes "Latest build from release branch" \
-            || true
+             || gh release edit release-latest \
+               --title "Rolling Release" \
+               --notes "Latest build from release branch - Updated $(date -u)"
 
       - name: Upload Assets
         env:
