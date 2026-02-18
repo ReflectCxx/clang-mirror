@@ -17,14 +17,14 @@ namespace
 {
     static std::unique_ptr<clang::tidy::ClangTidyOptionsProvider> createOptionsProvider()
     {
-        clang::tidy::ClangTidyOptions DefaultOptions;
-        clang::tidy::ClangTidyOptions OverrideOptions;
-        clang::tidy::ClangTidyGlobalOptions GlobalOptions;
+        clang::tidy::ClangTidyOptions defaultOptions;
+        clang::tidy::ClangTidyOptions overrideOptions;
+        clang::tidy::ClangTidyGlobalOptions globalOptions;
 
         return std::make_unique<clang::tidy::FileOptionsProvider>(
-			std::move(GlobalOptions), 
-			std::move(DefaultOptions), 
-			std::move(OverrideOptions)
+			std::move(globalOptions), 
+			std::move(defaultOptions),
+			std::move(overrideOptions)
 		);
 	}
 }
