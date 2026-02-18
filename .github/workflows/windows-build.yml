@@ -1,10 +1,14 @@
-name: windows-build
+name: windows-release-build
 
 on:
   push:
     branches:
-      - main
+      - release
   workflow_dispatch:
+
+concurrency:
+  group: release-build
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -16,6 +20,7 @@ jobs:
     env:
       LLVM_VERSION: 21.1.0
       LLVM_DIR_NAME: clang+llvm-21.1.0-x86_64-pc-windows-msvc
+      REL: release-latest
 
     steps:
 
@@ -23,15 +28,6 @@ jobs:
       # Checkout
       # ----------------------------
       - uses: actions/checkout@v4
-
-      # ----------------------------
-      # Compute version label
-      # ----------------------------
-      - name: Compute version
-        shell: pwsh
-        run: |
-          $sha = "${{ github.sha }}".Substring(0,7)
-          echo "REL=main-$sha" >> $env:GITHUB_ENV
 
       # ----------------------------
       # Download LLVM
@@ -73,21 +69,31 @@ jobs:
       - name: Package
         shell: pwsh
         run: |
-          mkdir release
-          copy bin/Release/clang-mirror.exe release/
-          Compress-Archive release clang-mirror-windows.zip
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item build/Release/clang-mirror.exe release/
+          Compress-Archive release clang-mirror-windows.zip -Force
 
       # ----------------------------
-      # Create release
+      # Update rolling tag
       # ----------------------------
-      - name: Create release
+      - name: Update rolling tag
+        shell: pwsh
+        run: |
+          git tag -f $env:REL
+          git push origin $env:REL --force
+
+      # ----------------------------
+      # Create or Update Release
+      # ----------------------------
+      - name: Create or Update Release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create $env:REL `
-            --title $env:REL `
-            --notes "Auto build from main"
+            --title "Rolling Release" `
+            --notes "Latest build from release branch" `
+            2>$null
 
       # ----------------------------
       # Upload asset
@@ -97,4 +103,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload $env:REL clang-mirror-windows.zip --clobber
+          gh release upload $env:REL `
+            clang-mirror-windows.zip `
+            --clobber
