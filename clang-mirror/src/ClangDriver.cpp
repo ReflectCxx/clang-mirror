@@ -1,13 +1,7 @@
 
 #include <set>
-#include <map>
-#include <deque>
 #include <vector>
 #include <string>
-#include <thread>
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
 
 #include "Logger.h"
 #include "ClangDriver.h"
@@ -85,7 +79,8 @@ namespace clmr
             cdbPathStr = pathList.front();
         }
 
-        std::unordered_set<std::string> distinctSrcFiles(pathList.begin(), pathList.end());
+        // For definite ordering, so the registration output on different platform remains same.
+        std::set<std::string> distinctSrcFiles(pathList.begin(), pathList.end());
         Logger::out("Number of source files to process: " + std::to_string(distinctSrcFiles.size()));
         const auto& finalSrcFiles = std::vector<std::string>(distinctSrcFiles.begin(), distinctSrcFiles.end());
         return runClangParser(finalSrcFiles, OptionsParser->getCompilations());
