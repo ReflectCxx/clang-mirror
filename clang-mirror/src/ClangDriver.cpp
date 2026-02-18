@@ -25,65 +25,65 @@ using namespace clang::tooling;
 
 namespace 
 {
-    static cl::OptionCategory ClangMirrorCategory("clang-mirror options");
+    static cl::OptionCategory g_clangMirrorCategory("clang-mirror options");
 
-    static cl::opt<std::string> OutDir(
+    static cl::opt<std::string> outDir(
         "out-dir",
         cl::desc("Directory where generated RTL registration code will be written"),
         cl::value_desc("path"),
-        cl::cat(ClangMirrorCategory)
+        cl::cat(g_clangMirrorCategory)
     );
 }
 
 
 namespace clmr
 {
-    bool ClangDriver::compileSourceFiles(int argc, const char** argv)
+    bool ClangDriver::compileSourceFiles(int p_argc, const char** p_argv)
     {
-        InitLLVM X(argc, argv);
-        SmallVector<const char*> Args{ argv, argv + argc };
+        InitLLVM X(p_argc, p_argv);
+        SmallVector<const char*> args{ p_argv, p_argv + p_argc };
 
         const bool isWin = Triple(sys::getProcessTriple()).isOSWindows();
         cl::TokenizerCallback Tokenizer = isWin ? cl::TokenizeWindowsCommandLine
                                                 : cl::TokenizeGNUCommandLine;
-        BumpPtrAllocator Alloc;
-        cl::ExpansionContext ECtx(Alloc, Tokenizer);
-        if (Error Err = ECtx.expandResponseFiles(Args)) {
-            WithColor::error() << toString(std::move(Err)) << "\n";
+        BumpPtrAllocator alloc;
+        cl::ExpansionContext ectx(alloc, Tokenizer);
+        if (Error err = ectx.expandResponseFiles(args)) {
+            WithColor::error() << toString(std::move(err)) << "\n";
             return false;
         }
 
-        argc = static_cast<int>(Args.size());
-        argv = Args.data();
+        p_argc = static_cast<int>(args.size());
+        p_argv = args.data();
 
-        Expected<CommonOptionsParser> OptionsParser = 
-            CommonOptionsParser::create(argc, argv, ClangMirrorCategory, cl::ZeroOrMore);
+        Expected<CommonOptionsParser> optionsParser = 
+            CommonOptionsParser::create(p_argc, p_argv, g_clangMirrorCategory, cl::ZeroOrMore);
 
-        if (!OptionsParser) {
-            llvm::WithColor::error() << llvm::toString(OptionsParser.takeError());
+        if (!optionsParser) {
+            llvm::WithColor::error() << llvm::toString(optionsParser.takeError());
             Logger::out("Failed to initialize CommonOptionsParser.");
             return false;
         }
 
-        if (OutDir.empty()) {
+        if (outDir.empty()) {
             llvm::WithColor::error() << "error: --out-dir is required\n";
             return false;
         }
 
-        ASTCodeManager::instance().setOutDir(OutDir);
+        ASTCodeManager::instance().setOutDir(outDir);
 
         std::string cdbLoadErr;
         StringRef cdbPathStr;
-        const auto& pathList = OptionsParser->getSourcePathList();
+        const auto& pathList = optionsParser->getSourcePathList();
         if (!pathList.empty()) {
             cdbPathStr = pathList.front();
         }
 
-        // For definite ordering, so the registration output on different platform remains same.
+        // For definite ordering, so the registration namespace creation on different platform remains same.
         std::set<std::string> distinctSrcFiles(pathList.begin(), pathList.end());
         Logger::out("Number of source files to process: " + std::to_string(distinctSrcFiles.size()));
         const auto& finalSrcFiles = std::vector<std::string>(distinctSrcFiles.begin(), distinctSrcFiles.end());
-        return runClangParser(finalSrcFiles, OptionsParser->getCompilations());
+        return runClangParser(finalSrcFiles, optionsParser->getCompilations());
     }
 
 

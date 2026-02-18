@@ -5,7 +5,6 @@
 # --------------------------------------------------
 # Attach generated registration sources to a target
 # --------------------------------------------------
-
 function(rtl_attach_registration TARGET REG_DIR)
 
     # Validate registration directory exists
@@ -18,6 +17,8 @@ function(rtl_attach_registration TARGET REG_DIR)
     endif()
 
     # Validate reg_src exists
+	# clang-mirror generates the files in the same folder.
+	# TODO: remove hard-coding.
     if(NOT EXISTS "${REG_DIR}/reg_src")
         message(FATAL_ERROR
             "\nRTL ERROR: Registration source folder not found in:\n"
@@ -71,7 +72,6 @@ endfunction()
 # -------------------
 # Public entry point
 # -------------------
-
 function(rtl_enable TARGET)
 
     if(NOT TARGET ${TARGET})
@@ -92,7 +92,9 @@ function(rtl_enable TARGET)
         )
     endif()
 
-    # Define folder name locally (fixes your bug)
+    # Define folder name locally, hard-coded for now.
+	# clang-mirror generates the files in the same folder.
+	# TODO: remove hard-coding.
     set(RTL_REGISTRATION_FOLDER "RTLRegistration")
 
     set(REG_DIR

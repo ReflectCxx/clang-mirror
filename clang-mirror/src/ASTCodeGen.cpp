@@ -8,7 +8,8 @@ namespace clmr
 {
     void ASTCodeGen::emitCxxMirrorHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
-        pOut << "\n#pragma once\n"
+        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT
+             << "\n#pragma once\n"
                 "\n#include \"" << File::nameIDsHeader << "\""
                 "\n#include \"" << File::incRtlAccess << "\"\n"
                 "\nnamespace rtl { class CxxMirror; }"
@@ -18,7 +19,8 @@ namespace clmr
 
     void ASTCodeGen::emitRegistrationInitsHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
-        pOut << std::string("\n#pragma once"
+        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT 
+             << std::string("\n#pragma once"
                             "\n#include <vector>\n"
                             "\n#include \"" + std::string(File::incRtlBuilder) + "\""
                             "\n\n");
@@ -45,7 +47,8 @@ namespace clmr
 
     void ASTCodeGen::emitRegisteredIDsHeader(std::ofstream& pOut, ASTCodeBuffer*)
     {
-        pOut << "\n#pragma once"
+        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT
+             << "\n#pragma once"
                 "\n#include <array>"
                 "\n#include <string_view>\n"
                 "\nnamespace " + std::string(NS_CXX) + " {\n";
@@ -70,7 +73,8 @@ namespace clmr
         std::string headerIds = std::string("../").append(File::nameIDsHeader);
         std::string headerInits = std::string("../").append(File::nameRegHeader);
 
-        pOut << "\n"
+        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT 
+             << "\n"
                 "\n#include \"" << headerIds << "\""
                 "\n#include \"" << headerInits << "\"";
 
@@ -90,7 +94,8 @@ namespace clmr
         std::string varName = "fns";
         std::string regIDHeader = std::string("../").append(File::nameRegHeader);
 
-        pOut << "\n"
+        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT 
+             << "\n"
                 "\n#include <vector>"
                 "\n"
                 "\n#include \"" << regIDHeader << "\""
