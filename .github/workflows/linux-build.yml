@@ -59,7 +59,7 @@ jobs:
       - name: Package
         run: |
           mkdir -p release
-          cp build/bin/clang-mirror release/
+          cp bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
       - name: Ensure release
