@@ -59,7 +59,7 @@ auto fnId  = cxx::type::Person::fn::getName::id;
 
 // Lookup the class by ID.
 auto clsPerson = cxx::mirror().getRecord(clsId);
-auto fnGetName = classPerson->getMethod(fnId);  // Query method metadata.
+auto fnGetName = clsPerson->getMethod(fnId);  // Query method metadata.
 
 // Get functor from metadata.
 auto getName = fnGetName->targetT<Person>()
