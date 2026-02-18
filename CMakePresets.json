@@ -6,9 +6,13 @@
       "displayName": "Linux Release",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build",
+
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "LLVM_ROOT": "/usr/lib/llvm-21"
+        "LLVM_ROOT": "/usr/lib/llvm-21",
+
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
       }
     }
   ]
