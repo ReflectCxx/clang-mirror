@@ -33,7 +33,7 @@ int main() {
 
     std::cout << "\n default date : " << getDateAsString(dateObj);
 
-    dateObj.set(getDOBstr(20, 9, 2023));
+    dateObj.set(getDOBstr(20, 9, 1993));
     std::string dobStr = getDateAsString(dateObj);
 
     std::cout << "\n set date of birth : " << dobStr;
@@ -55,28 +55,31 @@ int main() {
     std::cout << "\n created access-card :\n" << getAccessCard("", personObj) << std::endl;
 
     auto setLastName = fnSetLastName->targetT<Person>()
-                                    .argsT<std::string_view>().returnT();
+                                    .argsT<std::string_view>().returnT<void>();
     if (!setLastName) {
         std::cout << "\n functor init error : " << rtl::to_string(setLastName.get_init_error());
         std::abort();
     }
 
+    // Set the name via reflection call (as fast as native function-pointer call).
     setLastName(personObj)("Winston");
 
     auto setAddress = fnSetAddress->targetT<Person>()
-                                  .argsT<std::string_view>().returnT();
+                                  .argsT<std::string_view>().returnT<void>();
     if (!setAddress) {
         std::cout << "\n functor init error : " << rtl::to_string(setLastName.get_init_error());
         std::abort();
     }
 
+    // Set the address via reflection call (as fast as native function-pointer call).
     setAddress(personObj)("221 street, Baker's Hut.");
 
     constexpr auto purposeStr = "Safety & Security audit.";
 
-    auto accessCardStr = getAccessCard(purposeStr, personObj);
+    // call Person::getAccessCard via reflection (as fast as native function-pointer call).
+    auto cardStr = getAccessCard(purposeStr, personObj);
 
-    std::cout << "\n updated access-card :\n" <<  accessCardStr << std::endl;
+    std::cout << "\n updated access-card :\n" << cardStr << std::endl;
 
 	return 0;
 }

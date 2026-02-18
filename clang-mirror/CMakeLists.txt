@@ -72,16 +72,42 @@ target_include_directories(${CXX_EXE_NAME}
 )
 
 
-# -------------------------
-# Link clang tooling stack
-# -------------------------
-target_link_libraries(${CXX_EXE_NAME}
-    PRIVATE
-        clang-cpp
-        LLVM
-        clangTidy
-        clangTidyUtils
-)
+if (WIN32)
+
+    llvm_map_components_to_libnames(LLVM_LIBS support)
+
+    target_link_libraries(${CXX_EXE_NAME}
+        PRIVATE
+            clangTooling
+            clangBasic
+            clangAST
+            clangFrontend
+            clangSerialization
+            clangDriver
+            clangParse
+            clangSema
+            clangAnalysis
+            clangEdit
+            clangLex
+            clangRewrite
+            clangRewriteFrontend
+            clangTidy
+            clangTidyUtils
+            ${LLVM_LIBS}
+    )
+
+else()
+
+    target_link_libraries(${CXX_EXE_NAME}
+        PRIVATE
+            clang-cpp
+            LLVM
+            clangTidy
+            clangTidyUtils
+    )
+
+endif()
+
 
 # ------------
 # MSVC tuning

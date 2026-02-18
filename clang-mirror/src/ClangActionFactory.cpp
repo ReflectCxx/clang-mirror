@@ -16,7 +16,6 @@ namespace {
 
 	class ClangASTConsumer : public clang::ASTConsumer
 	{
-		
 		const std::string& m_currentSrcFile;
 		clmr::ClangPPCallbacks& m_preProcessor;
 
