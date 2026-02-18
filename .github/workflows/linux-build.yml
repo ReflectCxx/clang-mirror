@@ -17,20 +17,29 @@ jobs:
       - name: Compute version
         run: echo "REL=main-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      - name: Install deps
+      - name: Install LLVM 21 and deps
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            ninja-build \
-            llvm-dev \
-            libclang-dev \
-            clang-tools \
-            clang
+            wget \
+            gnupg \
+            lsb-release \
+            software-properties-common
 
-      - name: Detect LLVM root
-        run: |
-          LLVM_ROOT=$(ls -d /usr/lib/llvm-* | sort -V | tail -n 1)
-          echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
+          # Install LLVM 21 from official repository
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+
+          sudo apt-get install -y \
+            ninja-build \
+            clang-21 \
+            clang-tools-21 \
+            llvm-21-dev \
+            libclang-21-dev
+
+      - name: Set LLVM root
+        run: echo "LLVM_ROOT=/usr/lib/llvm-21" >> $GITHUB_ENV
 
       - name: Clean build
         run: rm -rf build
@@ -39,8 +48,8 @@ jobs:
         run: |
           cmake -S . -B build \
             -G Ninja \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_C_COMPILER=clang-21 \
+            -DCMAKE_CXX_COMPILER=clang++-21 \
             -DLLVM_ROOT=$LLVM_ROOT \
             -DCMAKE_BUILD_TYPE=Release
 
