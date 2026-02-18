@@ -70,7 +70,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path release | Out-Null
-          Copy-Item build/Release/clang-mirror.exe release/
+          Copy-Item bin/Release/clang-mirror.exe release/
           Compress-Archive release clang-mirror-windows.zip -Force
 
       # ----------------------------
