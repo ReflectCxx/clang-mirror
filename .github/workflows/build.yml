@@ -11,9 +11,9 @@ concurrency:
 
 jobs:
 
-  # =============
+  # ============================================================
   # MATRIX BUILD
-  # =============
+  # ============================================================
 
   build:
     strategy:
@@ -31,13 +31,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ------------
+      # ----------------------------
       # LINUX BUILD
-      # ------------
+      # ----------------------------
       - name: Linux - Install LLVM
         if: matrix.os == 'ubuntu-latest'
         run: |
-          echo "REL=release-latest" >> $GITHUB_ENV
           sudo apt-get update
           sudo apt-get install -y wget gnupg
 
@@ -76,22 +75,16 @@ jobs:
           cp bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
-      - name: Linux - Upload Artifact (temporary)
+      - name: Linux - Upload Artifact
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
           path: clang-mirror-linux.tar.gz
 
-      # --------------
+      # ----------------------------
       # WINDOWS BUILD
-      # --------------
-      - name: Windows - Setup env
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          echo "REL=release-latest" >> $env:GITHUB_ENV
-
+      # ----------------------------
       - name: Windows - Download LLVM
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -128,7 +121,7 @@ jobs:
           Copy-Item bin/Release/clang-mirror.exe release/
           Compress-Archive release clang-mirror-windows.zip -Force
 
-      - name: Windows - Upload Artifact (temporary)
+      - name: Windows - Upload Artifact
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
@@ -136,9 +129,9 @@ jobs:
           path: clang-mirror-windows.zip
 
 
-  # ===================
+  # ============================================================
   # SINGLE RELEASE JOB
-  # ===================
+  # ============================================================
 
   release:
     needs: build
@@ -148,6 +141,11 @@ jobs:
       contents: write
 
     steps:
+      # FIX: checkout repository so git tag works
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v4
         with:
           name: linux-artifact
