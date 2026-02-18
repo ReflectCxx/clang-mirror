@@ -1,8 +1,13 @@
-name: release-build
+name: Build
 
 on:
   push:
     branches: [ release ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'README*'
+      - 'LICENSE'
   workflow_dispatch:
 
 concurrency:
