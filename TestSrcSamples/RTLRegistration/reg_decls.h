@@ -10,12 +10,12 @@ namespace regs0::fn {
 }
 
 
-namespace regs1::type0 {
+namespace regs0::type0 {
     void init(std::vector<rtl::Function>&);
 }
 
 
-namespace regs0::type0 {
+namespace regs1::type0 {
     void init(std::vector<rtl::Function>&);
 }
 

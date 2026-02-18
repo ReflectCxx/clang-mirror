@@ -13,8 +13,8 @@ namespace cxx {
             std::vector<rtl::Function> fns;
 
             regs0::fn::init(fns);
-            regs1::type0::init(fns);
             regs0::type0::init(fns);
+            regs1::type0::init(fns);
             return fns;
         }());
         return mirror;
