@@ -66,7 +66,7 @@ auto getName = fnGetName->targetT<Person>()
                         .argsT()
                         .returnT<std::string>();
 					 
-if(method) {  // Functor valid?
+if(getName) {  // Functor valid?
     std::string name = getName(personObj)();  // invokes Person::getName()
 }
 
