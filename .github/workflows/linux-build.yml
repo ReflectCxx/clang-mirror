@@ -24,17 +24,23 @@ jobs:
             ninja-build \
             llvm-dev \
             libclang-dev \
-            clang-tools
+            clang-tools \
+            clang
 
       - name: Detect LLVM root
         run: |
           LLVM_ROOT=$(ls -d /usr/lib/llvm-* | sort -V | tail -n 1)
           echo "LLVM_ROOT=$LLVM_ROOT" >> $GITHUB_ENV
 
-      - name: Configure
+      - name: Clean build
+        run: rm -rf build
+
+      - name: Configure (force Clang)
         run: |
           cmake -S . -B build \
             -G Ninja \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
             -DLLVM_ROOT=$LLVM_ROOT \
             -DCMAKE_BUILD_TYPE=Release
 
@@ -43,8 +49,8 @@ jobs:
 
       - name: Package
         run: |
-          mkdir release
-          cp bin/clang-mirror release/
+          mkdir -p release
+          cp build/bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
       - name: Ensure release
