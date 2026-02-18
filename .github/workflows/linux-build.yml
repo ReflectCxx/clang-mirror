@@ -20,13 +20,8 @@ jobs:
       - name: Install LLVM 21 and deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            wget \
-            gnupg \
-            lsb-release \
-            software-properties-common
+          sudo apt-get install -y wget gnupg
 
-          # Install LLVM 21 from official repository
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 21
