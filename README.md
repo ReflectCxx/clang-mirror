@@ -38,7 +38,7 @@ You can call it at runtime by `id` :
 
     // `cToStr` is a functor that encapsulates the underlying function pointer.
     if (cToStr) {  // Functor valid?
-        std::string result = cToStr(61, 35);  // Works!
+        std::string result = cToStr(61, 35);  // essentially just a function-pointer indirection.
     }
 }
 ```
