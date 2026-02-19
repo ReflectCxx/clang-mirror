@@ -30,7 +30,8 @@ You can call it at runtime by `id` :
 // ...
 
 {
-    // Find the function using its AST-generated, compile-time-checked, constexpr ID.
+    // Find the function using its AST-generated, compile-time-checked,
+    // constexpr std::string_view ID.
     auto cToStr = cxx::mirror().getFunction(cxx::fn::complexToStr::id)
                                ->argsT<float, float>()
                                .returnT<std::string>();
