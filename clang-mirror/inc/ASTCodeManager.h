@@ -27,7 +27,7 @@ namespace clmr
 		using Emitter = void(*)(std::ofstream&, ASTCodeBuffer*);
 		using GetDir = std::filesystem::path(*)(std::string_view);
 
-		void dump(std::string_view pFile, GetDir pGetDir, 
+		bool dump(std::string_view pFile, GetDir pGetDir, 
 			      Emitter pEmiter, ASTCodeBuffer* pCodeBff = nullptr);
 
 		ASTCodeManager() = default;
@@ -51,6 +51,6 @@ namespace clmr
 
 		void compilationFailedFor(const std::string& pSrcFile);
 
-		void emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex);
+		bool emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex);
 	};
 }

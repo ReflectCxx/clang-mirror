@@ -41,16 +41,16 @@ namespace clmr
 		bool anyRegistrationSrcEmitted = false;
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
-			const auto& srcFilePath = m_srcFiles.at(index).c_str();
+			const auto& cmdSrcFilePath = m_srcFiles.at(index).c_str();
 
-			Logger::outProgress(std::string(srcFilePath));
+			Logger::outProgress(std::string(cmdSrcFilePath));
 
-			if (!std::filesystem::exists(srcFilePath)) {
-				Logger::outProgress(srcFilePath + std::string(". File not found..!"), false);
+			if (!std::filesystem::exists(cmdSrcFilePath)) {
+				Logger::outProgress(cmdSrcFilePath + std::string(". File not found..!"), false);
 				continue;
 			}
 
-			ClangTool clangTool(pCdb, { srcFilePath }, std::make_shared<PCHContainerOperations>());
+			ClangTool clangTool(pCdb, { cmdSrcFilePath }, std::make_shared<PCHContainerOperations>());
 
 			ClangTidyContext context(createOptionsProvider(), false, false);
 			context.setEnableProfiling(false);
@@ -69,12 +69,12 @@ namespace clmr
 				return E.DiagLevel == ClangTidyError::Error;
 			});
 
-			if (!foundErrors) {
-				ASTCodeManager::instance().emitRegistrationSource(srcFilePath, index);
+			auto& clangSrcFilePath = actionFactory->getTargetSrcFile();
+			if (!foundErrors && ASTCodeManager::instance().emitRegistrationSource(clangSrcFilePath, index)) {
 				anyRegistrationSrcEmitted = true;
 			}
 			else {
-				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
+				ASTCodeManager::instance().compilationFailedFor(clangSrcFilePath);
 			}
 		}
 		return anyRegistrationSrcEmitted;

@@ -49,7 +49,7 @@ namespace clmr {
     }
 
 
-    void ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
+    bool ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
     {
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) {
@@ -59,8 +59,9 @@ namespace clmr {
                  .append(".cpp");
 
             codeBuffer->setSrcFileIndex(pIndex);
-            dump(fname, &ASTCodeManager::toSrcDir, &ASTCodeGen::emitRegistrationInitsSource, codeBuffer);
+            return dump(fname, &ASTCodeManager::toSrcDir, &ASTCodeGen::emitRegistrationInitsSource, codeBuffer);
         }
+        return false;
     }
 
 
@@ -113,7 +114,7 @@ namespace clmr {
     }
 
 
-    void ASTCodeManager::dump(std::string_view pFile, GetDir pGetDir, Emitter pEmiter,
+    bool ASTCodeManager::dump(std::string_view pFile, GetDir pGetDir, Emitter pEmiter,
                               ASTCodeBuffer* pCb /*= nullptr*/)
     {
         std::filesystem::path fspath = pGetDir(m_outPath) / pFile;
@@ -123,7 +124,7 @@ namespace clmr {
         std::ofstream fout(temp);
         if (!fout) {
             Logger::outException("Error opening file: " + fspath.string());
-            return;
+            return false;
         }
 
         pEmiter(fout, pCb);
@@ -132,7 +133,7 @@ namespace clmr {
             fout.close();
             std::filesystem::remove(temp);
             Logger::outException("Error writing file: " + fspath.string());
-            return;
+            return false;
         }
         fout.close();
 
@@ -141,8 +142,9 @@ namespace clmr {
         std::filesystem::rename(temp, fspath, ec);
         if (ec) {
             Logger::outException("Error replacing file: " + fspath.string());
-            return;
+            return false;
         }
         Logger::outgen(fspath.string());
+        return true;
     }
 }

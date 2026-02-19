@@ -38,10 +38,15 @@ namespace {
 	{
 		std::string m_targetSrcFile;
 		clmr::ClangPPCallbacks* m_preProcessor = nullptr;
+		clmr::ClangActionFactory* m_actionFactory = nullptr;
 
 	public:
 
 		CLMirrorFrontEndAction() = default;
+
+		void setActionFactory(clmr::ClangActionFactory* pActionFactory) {
+			m_actionFactory = pActionFactory;
+		}
 
 		// This is always called after `BeginSourceFileAction`
 		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& Compiler, llvm::StringRef InFile) override
@@ -53,7 +58,8 @@ namespace {
 		bool BeginSourceFileAction(clang::CompilerInstance& CI) override 
 		{
 			const auto& inputs = CI.getInvocation().getFrontendOpts().Inputs;
-			m_targetSrcFile = inputs[0].getFile().str();
+			m_targetSrcFile = inputs.back().getFile().str();
+			m_actionFactory->setTargetSrcFile(m_targetSrcFile);
 
 			auto& PP = CI.getPreprocessor();
 			auto& SM = CI.getSourceManager();
@@ -70,8 +76,15 @@ namespace {
 
 namespace clmr {
 
-	std::unique_ptr<clang::FrontendAction> ClangActionFactory::create()
+	void ClangActionFactory::setTargetSrcFile(const std::string pTargetSrcFile)
 	{
-		return std::make_unique<CLMirrorFrontEndAction>();
+		m_targetSrcFile = pTargetSrcFile;
+	}
+
+	std::unique_ptr<clang::FrontendAction> ClangActionFactory::create()
+	{   
+		auto actionFactory = std::make_unique<CLMirrorFrontEndAction>();
+		actionFactory->setActionFactory(this);
+		return std::move(actionFactory);
 	}
 }
