@@ -40,7 +40,7 @@ jobs:
       # LINUX BUILD
       # ----------------------------
       - name: Linux - Install LLVM
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y wget gnupg
@@ -59,7 +59,7 @@ jobs:
           echo "LLVM_ROOT=/usr/lib/llvm-21" >> $GITHUB_ENV
 
       - name: Linux - Configure
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           rm -rf build
           cmake -S . -B build \
@@ -70,18 +70,18 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
 
       - name: Linux - Build
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: cmake --build build --parallel
 
       - name: Linux - Package
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           mkdir -p release
           cp bin/clang-mirror release/
           tar -czf clang-mirror-linux.tar.gz -C release .
 
       - name: Linux - Upload Artifact
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
@@ -140,7 +140,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
