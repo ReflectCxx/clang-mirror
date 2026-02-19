@@ -30,15 +30,14 @@ You can call it at runtime by `id` :
 // ...
 
 {
-    // Find the function using its AST-generated, compile-time-checked,
-    // constexpr std::string_view ID.
+    // Find the function using its AST-generated, compile-time-checked, constexpr ID.
     auto cToStr = cxx::mirror().getFunction(cxx::fn::complexToStr::id)
                                ->argsT<float, float>()
                                .returnT<std::string>();
 
     // `cToStr` is a functor that encapsulates the underlying function pointer.
     if (cToStr) {  // Functor valid?
-        std::string result = cToStr(61, 35);  // essentially just a function-pointer indirection.
+        std::string result = cToStr(61, 35);  // Works!
     }
 }
 ```
