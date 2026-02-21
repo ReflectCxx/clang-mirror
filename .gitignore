@@ -9,8 +9,5 @@ bin/
 *.VC.opendb
 
 # Project-specific generated folders
-TestSrcProject/build
-TestSrcProject/RTLRegistration
-
-# Tool configs (only if local)
-TestSrcProject/.clang-tidy
+MyReflectionApp/build
+MyReflectionApp/RTLRegistration
