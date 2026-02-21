@@ -61,7 +61,7 @@ namespace clmr
 			auto result = clangTool.run(actionFactory.get());
 
 			auto& clangSrcFilePath = actionFactory->getTargetSrcFile();
-			if (result != 0 && ASTCodeManager::instance().emitRegistrationSource(clangSrcFilePath, index)) {
+			if (result == 0 && ASTCodeManager::instance().emitRegistrationSource(clangSrcFilePath, index)) {
 				anyRegistrationSrcEmitted = true;
 			}
 			else {

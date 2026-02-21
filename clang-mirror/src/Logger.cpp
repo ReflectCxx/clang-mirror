@@ -34,17 +34,17 @@ namespace clmr {
 
     void Logger::out(const std::string& pMsg)
     {
-        std::cout << color::GREY << "\n[clang-mirror]\t" << color::RESET << pMsg;
+        std::cout << color::GREY << "[clang-mirror]\t" << color::RESET << pMsg << std::endl;
     }
 
     void Logger::outgen(const std::string& pMsg)
     {
-        std::cout << color::GREY << "\n[clang-mirror]\t" << color::TEAL << "generated: " << color::GREY << pMsg;
+        std::cout << color::GREY << "[clang-mirror]\t" << color::TEAL << "generated: " << color::GREY << pMsg << std::endl;
     }
 
     void Logger::outError(const std::string& pMsg)
     {
-        std::cout << color::DARK_RED << "\n[clang-mirror]\t" << pMsg;
+        std::cout << color::DARK_RED << "[clang-mirror]\t" << pMsg << std::endl;
     }
 
     void Logger::outProgress(const std::string& pMsg, bool pUpdate/* = true*/)

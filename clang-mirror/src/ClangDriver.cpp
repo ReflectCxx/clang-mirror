@@ -2,7 +2,6 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include "Logger.h"
 #include "ClangDriver.h"
@@ -88,9 +87,7 @@ namespace clmr
 
     bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
     {
-        std::cout << std::endl;
         const int fileCount = pSrcFiles.size();
-
         if (fileCount != 0) {
             Logger::resetDoneCounter(fileCount);
             ASTParser cxxParser(pSrcFiles);

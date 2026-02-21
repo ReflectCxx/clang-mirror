@@ -10,6 +10,7 @@ for %%I in ("%PROJECT_ROOT%\..") do set REPO_ROOT=%%~fI
 
 set MIRROR_EXE=%REPO_ROOT%\bin\Release\clang-mirror.exe
 set SOURCE_LIST=%PROJECT_ROOT%\registration_srcs.txt
+set INCLUDE_DIR=%PROJECT_ROOT%\inc
 set OUT_DIR=%PROJECT_ROOT%
 
 if not exist "%MIRROR_EXE%" (
@@ -34,12 +35,11 @@ for /f "usebackq delims=" %%F in ("%SOURCE_LIST%") do (
 call :add_file "%%F"
 )
 
-echo.
 echo Running:
-echo "%MIRROR_EXE%" %FILE_ARGS% -out-dir="%OUT_DIR%" -- -std=c++20 -fsyntax-only
+echo "%MIRROR_EXE%" %FILE_ARGS% -out-dir="%OUT_DIR%" -- -I"%INCLUDE_DIR%" -std=c++20
 echo.
 
-"%MIRROR_EXE%" %FILE_ARGS% -out-dir="%OUT_DIR%" -- -std=c++20 -fsyntax-only
+"%MIRROR_EXE%" %FILE_ARGS% -out-dir="%OUT_DIR%" -- -I"%INCLUDE_DIR%" -std=c++20
 
 if errorlevel 1 (
 echo clang-mirror failed.

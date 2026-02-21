@@ -15,6 +15,6 @@ int main(int argc, const char** argv)
     }
 
     auto end = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - begin).count();
-    clmr::Logger::out("Total time elapsed: " + std::to_string(end) + "\n");
+    clmr::Logger::out("Total time elapsed: " + std::to_string(end));
     return 0;
 }
