@@ -1,0 +1,14 @@
+# Reflection enabled sources
+
+src/Animal.cpp
+src/Book.cpp
+src/Complex.cpp
+src/Date.cpp
+src/Library.cpp
+src/Person.cpp
+src/StringConst.cpp
+src/StringConstOverload.cpp
+src/StringMute.cpp
+src/StringOps.cpp
+src/StringStatic.cpp
+src/StringWrap.cpp
