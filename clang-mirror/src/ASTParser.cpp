@@ -7,6 +7,7 @@
 
 #include "clang/Basic/Diagnostic.h"
 #include "clang-tidy/ClangTidy.h"
+#include "clang/Frontend/TextDiagnosticPrinter.h"
 
 using namespace llvm;
 using namespace clang;
@@ -42,35 +43,25 @@ namespace clmr
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
 			const auto& cmdSrcFilePath = m_srcFiles.at(index).c_str();
-
 			Logger::outProgress(std::string(cmdSrcFilePath));
-
-			if (!std::filesystem::exists(cmdSrcFilePath)) {
-				Logger::outProgress(cmdSrcFilePath + std::string(". File not found..!"), false);
-				continue;
-			}
+			
+            auto diagOpts = std::make_unique<clang::DiagnosticOptions>();
+			diagOpts->ShowColors = true;
+			diagOpts->ShowCarets = true;
+			diagOpts->ShowFixits = true;
+			diagOpts->ShowColumn = true;
+			diagOpts->ShowSourceRanges = true;
+			diagOpts->ShowOptionNames = true;
 
 			ClangTool clangTool(pCdb, { cmdSrcFilePath }, std::make_shared<PCHContainerOperations>());
-
-			ClangTidyContext context(createOptionsProvider(), false, false);
-			context.setEnableProfiling(false);
-
-			ClangTidyDiagnosticConsumer diagConsumer(context);
-			auto diagOpts = std::make_unique<DiagnosticOptions>();
-			DiagnosticsEngine diagEngine(new DiagnosticIDs(), *diagOpts, &diagConsumer, false);
-			
-			context.setDiagnosticsEngine(std::move(diagOpts), &diagEngine);
-			clangTool.setDiagnosticConsumer(&diagConsumer);
-
+			auto diagConsumer = std::make_unique<clang::TextDiagnosticPrinter>(llvm::errs(), *diagOpts);
 			auto actionFactory = std::make_unique<ClangActionFactory>();
-			clangTool.run(actionFactory.get());
-
-			bool foundErrors = llvm::any_of(diagConsumer.take(), [](const ClangTidyError& E) {
-				return E.DiagLevel == ClangTidyError::Error;
-			});
+			
+			clangTool.setDiagnosticConsumer(diagConsumer.get());
+			auto result = clangTool.run(actionFactory.get());
 
 			auto& clangSrcFilePath = actionFactory->getTargetSrcFile();
-			if (!foundErrors && ASTCodeManager::instance().emitRegistrationSource(clangSrcFilePath, index)) {
+			if (result == 0 && ASTCodeManager::instance().emitRegistrationSource(clangSrcFilePath, index)) {
 				anyRegistrationSrcEmitted = true;
 			}
 			else {
