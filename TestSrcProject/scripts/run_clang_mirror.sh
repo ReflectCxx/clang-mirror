@@ -31,12 +31,12 @@ while IFS= read -r LINE || [[ -n "$LINE" ]]; do
 done < "$SOURCE_LIST"
 
 echo "Running:"
-echo "$MIRROR_EXE ${FILE_ARGS[*]} -out-dir=$OUT_DIR -- -std=c++20 -fsyntax-only"
+echo "$MIRROR_EXE ${FILE_ARGS[*]} -out-dir=$OUT_DIR -- -I"$PROJECT_ROOT/inc" -std=c++20"
 
 "$MIRROR_EXE" \
     "${FILE_ARGS[@]}" \
     -out-dir="$OUT_DIR" \
-    -- -std=c++20 -fsyntax-only
+    -- -I"$PROJECT_ROOT/inc" -std=c++20
 
-echo "Registration code generation process finished."
+echo "Code generation process finished."
 echo

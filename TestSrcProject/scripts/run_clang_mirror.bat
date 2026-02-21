@@ -46,7 +46,7 @@ echo clang-mirror failed.
 exit /b 1
 )
 
-echo Registration code generation process finished.
+echo Code generation process finished.
 
 endlocal
 exit /b 0
