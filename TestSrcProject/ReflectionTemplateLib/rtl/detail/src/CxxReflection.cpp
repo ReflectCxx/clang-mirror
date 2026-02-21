@@ -190,7 +190,6 @@ namespace rtl {
                 }
                 return true;
             }
-            
             return (memberKind == member::UserCtor || memberKind == member::DefaultCtor);
         }
     }

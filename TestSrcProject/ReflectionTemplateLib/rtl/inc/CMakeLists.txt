@@ -18,5 +18,5 @@ set(LOCAL_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/view.hpp"
 )
 
-target_sources(rtl PRIVATE ${LOCAL_HEADERS})
+target_sources(ReflectionTemplateLib PRIVATE ${LOCAL_HEADERS})
 source_group("Header Files\\RTL" FILES ${LOCAL_HEADERS})

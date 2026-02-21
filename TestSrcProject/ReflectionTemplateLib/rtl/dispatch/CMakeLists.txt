@@ -26,5 +26,5 @@ set(LOCAL_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/aware_return_n_target_const.h"
 )
 
-target_sources(rtl PRIVATE ${LOCAL_HEADERS})
+target_sources(ReflectionTemplateLib PRIVATE ${LOCAL_HEADERS})
 source_group("Header Files\\Dispatch" FILES ${LOCAL_HEADERS})

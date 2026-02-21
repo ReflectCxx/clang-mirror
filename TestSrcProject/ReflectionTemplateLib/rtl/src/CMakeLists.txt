@@ -7,5 +7,5 @@ set(LOCAL_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/Function.cpp"
 )
 
-target_sources(rtl PRIVATE ${LOCAL_SOURCES})
+target_sources(ReflectionTemplateLib PRIVATE ${LOCAL_SOURCES})
 source_group("Source Files\\RTL" FILES ${LOCAL_SOURCES})

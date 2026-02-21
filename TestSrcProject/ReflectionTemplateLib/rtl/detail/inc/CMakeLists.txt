@@ -18,5 +18,5 @@ set(LOCAL_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/HopBuilderMethod.hpp"
 )
 
-target_sources(rtl PRIVATE ${LOCAL_HEADERS})
+target_sources(ReflectionTemplateLib PRIVATE ${LOCAL_HEADERS})
 source_group("Header Files\\Detail" FILES ${LOCAL_HEADERS})

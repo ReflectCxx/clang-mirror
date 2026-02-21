@@ -1,45 +1,49 @@
-cmake_minimum_required(VERSION 3.16)
-project(SrcSamples LANGUAGES CXX)
+# -----------------------------------------------
+# RTL with clang-mirror generated registration 
+# source files cmake based integration template.
+# -----------------------------------------------
+cmake_minimum_required(VERSION 3.20)
 
-# -----------------------------
-# User code target
-# -----------------------------
+project(MyReflectionApp LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ------------------------------------
+# Load RTL first (defines rtl_enable)
+# ------------------------------------
+add_subdirectory(ReflectionTemplateLib)
+
+# ------------------
+# User source files
+# ------------------
 file(GLOB USER_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
-add_library(srcsamples_core STATIC
+# ------------------
+# Executable target
+# ------------------
+add_executable(MyReflectionApp
+    main.cpp
     ${USER_SRCS}
 )
 
-target_include_directories(srcsamples_core PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc
+# -----------------------------------
+# Include directories (user headers)
+# -----------------------------------
+target_include_directories(MyReflectionApp PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_compile_features(srcsamples_core PUBLIC cxx_std_20)
+# ----------------------------------------------
+# Enable RTL (runtime + registration injection)
+# ----------------------------------------------
+rtl_enable(MyReflectionApp)
 
-# -----------------------------
-# User executable
-# -----------------------------
-
-add_executable(srcsamples_app
+# ---------------------------
+# Visual Studio organization
+# ---------------------------
+source_group("Source Files" FILES
     main.cpp
-)
-
-target_link_libraries(srcsamples_app
-    PRIVATE srcsamples_core
-)
-
-# -----------------------------
-# Reflection (generated)
-# -----------------------------
-
-add_subdirectory(rtl_reflection)
-
-# THIS LINE IS THE KEY FIX
-target_link_libraries(rtl_reflection PUBLIC srcsamples_core)
-
-target_link_libraries(srcsamples_app
-    PRIVATE rtl_reflection
+    ${USER_SRCS}
 )
