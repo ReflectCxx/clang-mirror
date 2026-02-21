@@ -11,7 +11,7 @@ int main(int argc, const char** argv)
     if (!clmr::ClangDriver::compileSourceFiles(argc, argv) ||
         !clmr::ASTCodeManager::instance().emitCxxMirror()) 
     {
-        clmr::Logger::outError("errors occurred while generating registration code.");
+        clmr::Logger::outError("errors occurred while generating registration code!");
     }
 
     auto end = std::chrono::duration_cast<clmr::Second> (clmr::Clock::now() - begin).count();

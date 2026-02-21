@@ -90,8 +90,15 @@ namespace clmr
     {
         std::cout << std::endl;
         const int fileCount = pSrcFiles.size();
-        Logger::resetDoneCounter(fileCount);
-        ASTParser cxxParser(pSrcFiles);
-        return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
+
+        if (fileCount != 0) {
+            Logger::resetDoneCounter(fileCount);
+            ASTParser cxxParser(pSrcFiles);
+            return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
+        }
+        else {
+            Logger::outError("no source files to process!");
+            return false;
+        }
     }
 }
