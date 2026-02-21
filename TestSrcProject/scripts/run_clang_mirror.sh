@@ -38,5 +38,5 @@ echo "$MIRROR_EXE ${FILE_ARGS[*]} -out-dir=$OUT_DIR -- -std=c++20 -fsyntax-only"
     -out-dir="$OUT_DIR" \
     -- -std=c++20 -fsyntax-only
 
-echo "Registration code generated in: $OUT_DIR/RTLRegistration/"
+echo "Registration code generation process finished."
 echo

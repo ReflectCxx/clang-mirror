@@ -45,7 +45,7 @@ namespace clmr
 
 		static ASTCodeManager& instance();
 
-		void emitCxxMirror();
+		bool emitCxxMirror();
 
 		void setOutDir(const std::string& pOutDir);
 

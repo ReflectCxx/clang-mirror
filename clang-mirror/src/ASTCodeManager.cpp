@@ -35,17 +35,29 @@ namespace clmr {
         }
     }
 
-    void ASTCodeManager::emitCxxMirror()
+    bool ASTCodeManager::emitCxxMirror()
     {
         using CGen = ASTCodeGen;
         using CMgr = ASTCodeManager;
 
-        dump(File::nameIDsHeader, &CMgr::toRootDir, &CGen::emitRegisteredIDsHeader);
-        dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader);
-        dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader);
-        dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource);
-
-        Logger::out("Registered entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
+        if( dump(File::nameIDsHeader, &CMgr::toRootDir, &CGen::emitRegisteredIDsHeader) &&
+            dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader) ){
+            Logger::out("Registered entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
+            
+            if( dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader) && 
+                dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource) ){
+                auto pathStr = toRootDir(m_outPath).string();
+                Logger::out("Registration code generated in: " + pathStr);
+                return true;
+            }
+            else {
+                Logger::out("Failed generating cxx_mirror interface.");
+            }
+        }
+        else {
+            Logger::out("Failed generating IDs & init() headers.");
+        }
+        return false;
     }
 
 
