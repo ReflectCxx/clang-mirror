@@ -42,9 +42,9 @@ namespace clmr {
         std::cout << color::GREY << "\n[clang-mirror]\t" << color::TEAL << "generated: " << color::GREY << pMsg;
     }
 
-    void Logger::outException(const std::string& pMsg)
+    void Logger::outError(const std::string& pMsg)
     {
-        std::cout << color::DARK_RED << "\n\t\t[exception] " << pMsg;
+        std::cout << color::DARK_RED << "\n[clang-mirror]\t" << pMsg;
     }
 
     void Logger::outProgress(const std::string& pMsg, bool pUpdate/* = true*/)
@@ -52,6 +52,6 @@ namespace clmr {
         if (pUpdate) {
             m_currentCount++;
         }
-        std::cout << color::GREEN << "\n[" << formatProgress() << "]\t" << color::TEAL << "compiling: " << color::RESET << pMsg;
+        std::cout << color::GREEN << "[" << formatProgress() << "]\t" << color::TEAL << "compiling: " << color::RESET << pMsg << std::endl;
     }
 }

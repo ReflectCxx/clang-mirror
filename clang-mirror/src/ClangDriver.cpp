@@ -2,6 +2,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "Logger.h"
 #include "ClangDriver.h"
@@ -56,9 +57,7 @@ namespace clmr
         p_argc = static_cast<int>(args.size());
         p_argv = args.data();
 
-        Expected<CommonOptionsParser> optionsParser = 
-            CommonOptionsParser::create(p_argc, p_argv, g_clangMirrorCategory, cl::ZeroOrMore);
-
+        auto optionsParser = CommonOptionsParser::create(p_argc, p_argv, g_clangMirrorCategory, cl::ZeroOrMore);
         if (!optionsParser) {
             llvm::WithColor::error() << llvm::toString(optionsParser.takeError());
             Logger::out("Failed to initialize CommonOptionsParser.");
@@ -89,6 +88,7 @@ namespace clmr
 
     bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
     {
+        std::cout << std::endl;
         const int fileCount = pSrcFiles.size();
         Logger::resetDoneCounter(fileCount);
         ASTParser cxxParser(pSrcFiles);
