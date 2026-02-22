@@ -33,11 +33,33 @@ namespace
         cl::value_desc("path"),
         cl::cat(g_clangMirrorCategory)
     );
+
+    static cl::opt<std::string> cdbDir(
+        "cdb-dir",
+        cl::desc("Directory containing the compile_commands.json"),
+        cl::value_desc("path"),
+        cl::cat(g_clangMirrorCategory)
+    );
 }
 
 
 namespace clmr
 {
+    bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
+    {
+        const int fileCount = pSrcFiles.size();
+        if (fileCount != 0) {
+            Logger::resetDoneCounter(fileCount);
+            ASTParser cxxParser(pSrcFiles);
+            return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
+        }
+        else {
+            Logger::outError("no source files to process!");
+            return false;
+        }
+    }
+
+    
     bool ClangDriver::compileSourceFiles(int p_argc, const char** p_argv)
     {
         InitLLVM X(p_argc, p_argv);
@@ -69,33 +91,34 @@ namespace clmr
         }
 
         ASTCodeManager::instance().setOutDir(outDir);
-
-        std::string cdbLoadErr;
-        StringRef cdbPathStr;
-        const auto& pathList = optionsParser->getSourcePathList();
-        if (!pathList.empty()) {
-            cdbPathStr = pathList.front();
-        }
-
         // For definite ordering, so the registration namespace creation on different platform remains same.
-        std::set<std::string> distinctSrcFiles(pathList.begin(), pathList.end());
-        Logger::out("Number of source files to process: " + std::to_string(distinctSrcFiles.size()));
-        const auto& finalSrcFiles = std::vector<std::string>(distinctSrcFiles.begin(), distinctSrcFiles.end());
+        std::set<std::string> distinctSrcs;
+        if(cdbDir.empty())
+        {
+            std::string cdbLoadErr;
+            StringRef cdbPathStr;
+            const auto& files = optionsParser->getSourcePathList();
+            if (!files.empty()) {
+                cdbPathStr = files.front();
+            }
+            distinctSrcs.insert(files.begin(), files.end());
+        }
+        else
+        {
+            std::string errStr;
+            auto cdb = CompilationDatabase::loadFromDirectory(cdbDir, errStr);
+            if(cdb) {
+                const auto& files = cdb->getAllFiles();
+                distinctSrcs.insert(files.begin(), files.end());
+            }
+            else {
+                Logger::outError(errStr);
+                return false;
+            }
+        }
+
+        Logger::out("Number of source files to process: " + std::to_string(distinctSrcs.size()));
+        const auto& finalSrcFiles = std::vector<std::string>(distinctSrcs.begin(), distinctSrcs.end());
         return runClangParser(finalSrcFiles, optionsParser->getCompilations());
-    }
-
-
-    bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
-    {
-        const int fileCount = pSrcFiles.size();
-        if (fileCount != 0) {
-            Logger::resetDoneCounter(fileCount);
-            ASTParser cxxParser(pSrcFiles);
-            return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
-        }
-        else {
-            Logger::outError("no source files to process!");
-            return false;
-        }
     }
 }
