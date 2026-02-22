@@ -96,4 +96,4 @@ Your project then becomes runtime-reflection ready. You can introspect registere
 
 * ✅ **Non-Intrusive** – No modifications to your source code required. 
 
-Together, `clang-mirror` and the [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) form a complete, portable runtime reflection solution for modern C++.
+Together, `clang-mirror` and the [RTL](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) form a complete, portable runtime reflection solution for modern C++.
