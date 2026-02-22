@@ -32,6 +32,7 @@ done < "$SOURCE_LIST"
 
 echo "Running:"
 echo "$MIRROR_EXE ${FILE_ARGS[*]} -out-dir=$OUT_DIR -- -I"$PROJECT_ROOT/inc" -std=c++20"
+echo
 
 "$MIRROR_EXE" \
     "${FILE_ARGS[@]}" \
