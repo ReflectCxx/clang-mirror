@@ -47,6 +47,7 @@ exit /b 1
 )
 
 echo Code generation process finished.
+echo.
 
 endlocal
 exit /b 0
