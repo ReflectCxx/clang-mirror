@@ -142,11 +142,15 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
 
+    # Strict serialization lock
+    concurrency:
+      group: rolling-release-lock
+      cancel-in-progress: false
+
     permissions:
       contents: write
 
     steps:
-      # FIX: checkout repository so git tag works
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -161,27 +165,35 @@ jobs:
           name: windows-artifact
           path: artifacts
 
+      # Move tag first (source of truth)
       - name: Update rolling tag
         run: |
           git tag -f release-latest
           git push origin release-latest --force
 
+      # Delete release if exists (idempotent)
       - name: Delete existing release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete release-latest -y || true
+          if gh release view release-latest > /dev/null 2>&1; then
+            gh release delete release-latest -y
+          fi
 
+      # Create release atomically
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create release-latest \
             --title "Rolling Release" \
-            --notes "Latest build from release branch - Updated $(date -u)"
+            --notes "Latest build from release branch - Updated $(date -u)" \
+            --verify-tag
 
-      - name: Upload Assets
+      # Upload assets in a single controlled step
+      - name: Upload assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           gh release upload release-latest artifacts/* --clobber
