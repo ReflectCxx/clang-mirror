@@ -45,9 +45,26 @@ namespace
 
 namespace clmr
 {
+    bool ClangDriver::runClangParser()
+    {
+        std::string errStr;
+        auto cdb = CompilationDatabase::loadFromDirectory(cdbDir, errStr);
+        if (cdb) {
+            const auto& srcs = cdb->getAllFiles();
+            return runClangParser({ srcs.begin(), srcs.end() }, *cdb);
+        }
+        else {
+            Logger::outError(errStr);
+            return false;
+        }
+    }
+
+
     bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
     {
         const int fileCount = pSrcFiles.size();
+        Logger::out("Number of source files to process: " + std::to_string(fileCount));
+
         if (fileCount != 0) {
             Logger::resetDoneCounter(fileCount);
             ASTParser cxxParser(pSrcFiles);
@@ -58,8 +75,8 @@ namespace clmr
             return false;
         }
     }
-
     
+
     bool ClangDriver::compileSourceFiles(int p_argc, const char** p_argv)
     {
         InitLLVM X(p_argc, p_argv);
@@ -91,9 +108,7 @@ namespace clmr
         }
 
         ASTCodeManager::instance().setOutDir(outDir);
-        // For definite ordering, so the registration namespace creation on different platform remains same.
-        std::set<std::string> distinctSrcs;
-        if(cdbDir.empty())
+        if (cdbDir.empty()) 
         {
             std::string cdbLoadErr;
             StringRef cdbPathStr;
@@ -101,24 +116,9 @@ namespace clmr
             if (!files.empty()) {
                 cdbPathStr = files.front();
             }
-            distinctSrcs.insert(files.begin(), files.end());
+            std::set<std::string> srcs(files.begin(), files.end());
+            return runClangParser({ srcs.begin(), srcs.end() }, optionsParser->getCompilations());
         }
-        else
-        {
-            std::string errStr;
-            auto cdb = CompilationDatabase::loadFromDirectory(cdbDir, errStr);
-            if(cdb) {
-                const auto& files = cdb->getAllFiles();
-                distinctSrcs.insert(files.begin(), files.end());
-            }
-            else {
-                Logger::outError(errStr);
-                return false;
-            }
-        }
-
-        Logger::out("Number of source files to process: " + std::to_string(distinctSrcs.size()));
-        const auto& finalSrcFiles = std::vector<std::string>(distinctSrcs.begin(), distinctSrcs.end());
-        return runClangParser(finalSrcFiles, optionsParser->getCompilations());
+        else return runClangParser();
     }
 }
