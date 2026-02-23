@@ -30,7 +30,7 @@ namespace {
                 }
             }
             else if (pStr[i] != '\n') {
-                fmtStr += pStr.size();
+                fmtStr += pStr[i];
             }
         }
         return fmtStr;
