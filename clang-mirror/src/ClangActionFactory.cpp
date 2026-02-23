@@ -28,6 +28,10 @@ namespace {
 
 		void HandleTranslationUnit(clang::ASTContext& Context) override
 		{
+			if (Context.getDiagnostics().hasErrorOccurred()) {
+				return;
+			}
+
 			clmr::ClangASTVisitor visitor(m_currentSrcFile, m_preProcessor);
 			visitor.TraverseDecl(Context.getTranslationUnitDecl());
 		}
@@ -51,13 +55,16 @@ namespace {
 		// This is always called after `BeginSourceFileAction`
 		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& Compiler, llvm::StringRef InFile) override
 		{
-			Compiler.getDiagnosticOpts().ShowCarets = false;
 			return std::make_unique<ClangASTConsumer>(m_targetSrcFile, *m_preProcessor);
 		}
 
 		bool BeginSourceFileAction(clang::CompilerInstance& CI) override 
 		{
 			const auto& inputs = CI.getInvocation().getFrontendOpts().Inputs;
+			if (inputs.empty()) {
+				return false;
+			}
+
 			m_targetSrcFile = inputs.back().getFile().str();
 			m_actionFactory->setTargetSrcFile(m_targetSrcFile);
 

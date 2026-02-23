@@ -45,17 +45,27 @@ namespace
 
 namespace clmr
 {
-    bool ClangDriver::runClangParser()
+    void ClangDriver::collectSrcFiles(std::set<std::string>& pSrcSet, const std::vector<std::string>& pSrcFiles)
     {
-        std::string errStr;
-        auto cdb = CompilationDatabase::loadFromDirectory(g_cdbDir, errStr);
-        if (cdb) {
-            const auto& srcs = cdb->getAllFiles();
-            return runClangParser({ srcs.begin(), srcs.end() }, *cdb);
-        }
-        else {
-            Logger::outError(errStr);
-            return false;
+        std::vector<std::string> excluded = {
+            "_deps",
+            "build",
+            "generated",
+            "third_party"
+        };
+
+        for (const auto& file : pSrcFiles)
+        {
+            bool skip = false;
+            for (const auto& excStr : excluded) {
+                if (file.find(excStr) != std::string::npos) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip) {
+                pSrcSet.insert(file);
+            }
         }
     }
 
@@ -107,18 +117,27 @@ namespace clmr
             return false;
         }
 
-        ASTCodeManager::instance().setOutDir(g_outDir);
-        if (g_cdbDir.empty()) 
-        {
-            std::string cdbLoadErr;
-            StringRef cdbPathStr;
-            const auto& files = optionsParser->getSourcePathList();
-            if (!files.empty()) {
-                cdbPathStr = files.front();
+        std::unique_ptr<CompilationDatabase> cdb;
+        if (!g_cdbDir.empty()) {
+            std::string errStr;
+            cdb = std::move(CompilationDatabase::loadFromDirectory(g_cdbDir, errStr));
+            if (!cdb) {
+                Logger::outError(errStr);
             }
-            std::set<std::string> srcs(files.begin(), files.end());
-            return runClangParser({ srcs.begin(), srcs.end() }, optionsParser->getCompilations());
         }
-        else return runClangParser();
+
+        std::set<std::string> srcs;
+        const auto& files = optionsParser->getSourcePathList();
+        if (!files.empty()) {
+            collectSrcFiles(srcs, files);
+        }
+        else if (cdb) {
+            const auto& cdbSrcs = cdb->getAllFiles();
+            collectSrcFiles(srcs, cdbSrcs);
+        }
+
+        ASTCodeManager::instance().setOutDir(g_outDir);
+        return runClangParser({ srcs.begin(), srcs.end() },
+                              (cdb ? *cdb : optionsParser->getCompilations()));
     }
 }
