@@ -35,6 +35,23 @@ namespace clmr {
         }
     }
 
+    void ASTCodeManager::collectGlobalFunctions(CxxFunctionsMap& pGlobalFns)
+    {
+        for (auto& itr : m_codeBuffs) 
+        {
+            if (itr.second->isCompilationFailed()) {
+                continue;
+            }
+            for (const auto& [fname, fnMeta] : itr.second->getFreeFunctionsMap()) {
+
+                auto [it, inserted] = pGlobalFns.emplace(fname, fnMeta);
+                if (!inserted) {
+                    it->second.signatures.push_back(fnMeta.signatures.back());
+                }
+            }
+        }
+    }
+
     bool ASTCodeManager::emitCxxMirror()
     {
         using CGen = ASTCodeGen;

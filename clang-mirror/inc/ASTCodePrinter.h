@@ -6,7 +6,7 @@
 #include "ASTCodeBuffer.h"
 
 namespace clmr {
-	struct ASTCodeMeta;
+	struct ASTFnMeta;
 }
 
 namespace clmr
@@ -25,13 +25,13 @@ namespace clmr
 
 	private:
 
-		static std::string getFnIDsWithNameSpaces(const ASTCodeMeta& pMeta);
-		static std::string getMethodIDDecleration(const std::string& pTypeID, const ASTCodeMeta& pMeta);
+		static std::string getFnIDsWithNameSpaces(const ASTFnMeta& pMeta);
+		static std::string getMethodIDDecleration(const std::string& pTypeID, const ASTFnMeta& pMeta);
 		
-		static std::string getFnIDDeclaration(const ASTCodeMeta& pMeta);
-		static std::string freeFunctionInitDefs(const ASTCodeMeta& pMeta);
+		static std::string getFnIDDeclaration(const ASTFnMeta& pMeta);
+		static std::string freeFunctionInitDefs(const ASTFnMeta& pMeta);
 		
-		static std::string getTypeIDWithNamespaces(const std::string& pTypeID, const ASTCodeMeta& pMeta);
+		static std::string getTypeIDWithNamespaces(const std::string& pTypeID, const ASTFnMeta& pMeta);
 		static std::string recordTypeInitDefs(const ASTRecordMeta& pMeta);
 
 		static void closeNS(std::string& pCodeStr, std::size_t pCount);
@@ -39,6 +39,6 @@ namespace clmr
 
 		static std::string geSignaturesArrList(const std::vector<ASTFnSign>& pSigns);
 		static std::string getMethodRegistrationExpr(const std::string& pRecordStr, const std::string& pFnID, 
-			                                         const ASTCodeMeta& pCode);
+			                                         const ASTFnMeta& pCode);
 	};
 }

@@ -53,12 +53,11 @@ namespace clmr
                 "\n#include <string_view>\n"
                 "\nnamespace " + std::string(NS_CXX) + " {\n";
 
+        CxxFunctionsMap globalFns;
+        ASTCodeManager::instance().collectGlobalFunctions(globalFns);
+        ASTCodePrint::outRegisteredFunctionIDs(globalFns, pOut);
+
         const auto& cbuffs = ASTCodeManager::instance().getCodeBufferMap();
-        for (const auto& itr : cbuffs) {
-            if (!itr.second->isCompilationFailed()) {
-                ASTCodePrint::outRegisteredFunctionIDs(itr.second->getFreeFunctionsMap(), pOut);
-            }
-        }
         for (const auto& itr : cbuffs) {
             if (!itr.second->isCompilationFailed()) {
                 ASTCodePrint::outRegisteredTypeRecordIDs(itr.second->getRecordsMap(), pOut);

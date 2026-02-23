@@ -69,10 +69,10 @@ namespace clmr
 	};
 
 	struct ASTRecordMeta;
-	struct ASTCodeMeta;
+	struct ASTFnMeta;
 
 	using CxxRecordsMap = std::unordered_map<std::string, ASTRecordMeta>;
-	using CxxFunctionsMap = std::unordered_map<std::string, ASTCodeMeta>;
+	using CxxFunctionsMap = std::unordered_map<std::string, ASTFnMeta>;
 
 	using Clock = std::chrono::high_resolution_clock;
 	using Second = std::chrono::duration<double, std::ratio<1> >;

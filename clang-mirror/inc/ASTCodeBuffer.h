@@ -26,7 +26,7 @@ namespace clmr
 
 		static ASTRecordMeta& getRecordCodeMeta(CxxRecordsMap& pFnMetaMap, const std::string& pTypeStr);
 
-		static ASTCodeMeta& addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta);
+		static ASTFnMeta& addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTFnMeta& pFnMeta);
 
 		GETTER_REF(CxxRecordsMap, RecordsMapRef, m_recordsMap)
 

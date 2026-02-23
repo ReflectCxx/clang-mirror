@@ -51,6 +51,8 @@ namespace clmr
 
 		void compilationFailedFor(const std::string& pSrcFile);
 
+		void collectGlobalFunctions(CxxFunctionsMap& pGlobalFns);
+
 		bool emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex);
 	};
 }

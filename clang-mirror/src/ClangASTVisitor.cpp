@@ -100,6 +100,10 @@ namespace clmr
         }
         else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
         {
+            if (method->isOverloadedOperator() || llvm::isa<clang::CXXConversionDecl>(method)) {
+                return;
+            }
+
             if (method->isStatic()) {
                 metaKind = MetaKind::MemberFnStatic;
             }
@@ -119,11 +123,14 @@ namespace clmr
         }
 
         if (metaKind != MetaKind::None) {
-            auto codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
             const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
+            if (recordStr.find('<') != std::string::npos) {
+                return;
+            }
 
-            codeBuffer->addFunction(metaKind, {
+            ASTCodeManager::instance().getCodeBuffer(m_srcFile, true)
+                                      ->addFunction(metaKind, {
                     .header = pHeader,
                     .function = functionName
             }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
