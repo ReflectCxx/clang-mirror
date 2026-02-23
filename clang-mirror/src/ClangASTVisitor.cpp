@@ -72,7 +72,8 @@ namespace clmr
             }
         }
 
-        if (!headerStr.empty()) {
+        //if (!headerStr.empty()) 
+        {
             addReflectableEntity(pFnDecl, headerStr);
         }
         return true;
@@ -100,6 +101,10 @@ namespace clmr
         }
         else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
         {
+            if (method->getParent()->getDescribedClassTemplate() || method->isOverloadedOperator()) {
+                return;
+            }
+
             if (method->isStatic()) {
                 metaKind = MetaKind::MemberFnStatic;
             }

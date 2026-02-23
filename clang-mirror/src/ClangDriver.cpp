@@ -27,14 +27,14 @@ namespace
 {
     static cl::OptionCategory g_clangMirrorCategory("clang-mirror options");
 
-    static cl::opt<std::string> outDir(
+    static cl::opt<std::string> g_outDir(
         "out-dir",
         cl::desc("Directory where generated RTL registration code will be written"),
         cl::value_desc("path"),
         cl::cat(g_clangMirrorCategory)
     );
 
-    static cl::opt<std::string> cdbDir(
+    static cl::opt<std::string> g_cdbDir(
         "cdb-dir",
         cl::desc("Directory containing the compile_commands.json"),
         cl::value_desc("path"),
@@ -48,7 +48,7 @@ namespace clmr
     bool ClangDriver::runClangParser()
     {
         std::string errStr;
-        auto cdb = CompilationDatabase::loadFromDirectory(cdbDir, errStr);
+        auto cdb = CompilationDatabase::loadFromDirectory(g_cdbDir, errStr);
         if (cdb) {
             const auto& srcs = cdb->getAllFiles();
             return runClangParser({ srcs.begin(), srcs.end() }, *cdb);
@@ -102,13 +102,13 @@ namespace clmr
             return false;
         }
 
-        if (outDir.empty()) {
+        if (g_outDir.empty()) {
             llvm::WithColor::error() << "error: --out-dir is required\n";
             return false;
         }
 
-        ASTCodeManager::instance().setOutDir(outDir);
-        if (cdbDir.empty()) 
+        ASTCodeManager::instance().setOutDir(g_outDir);
+        if (g_cdbDir.empty()) 
         {
             std::string cdbLoadErr;
             StringRef cdbPathStr;
