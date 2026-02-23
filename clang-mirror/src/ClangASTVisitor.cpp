@@ -72,8 +72,7 @@ namespace clmr
             }
         }
 
-        //if (!headerStr.empty()) 
-        {
+        if (!headerStr.empty()) {
             addReflectableEntity(pFnDecl, headerStr);
         }
         return true;
@@ -126,7 +125,7 @@ namespace clmr
         if (metaKind != MetaKind::None) {
             const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-            if (recordStr.find('<') != std::string::npos || recordStr.find('>') != std::string::npos) {
+            if (recordStr.find('<') != std::string::npos) {
                 return;
             }
 
