@@ -29,7 +29,7 @@ namespace clmr
     }
 
 
-    ASTCodeMeta& ASTCodeBuffer::addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTCodeMeta& pFnMeta)
+    ASTFnMeta& ASTCodeBuffer::addFunctionCodeMeta(CxxFunctionsMap& pFnMetaMap, const ASTFnMeta& pFnMeta)
     {
         auto [itr, _] = pFnMetaMap.try_emplace(pFnMeta.ast.function, pFnMeta);
         return itr->second;
@@ -39,16 +39,16 @@ namespace clmr
     void ASTCodeBuffer::addFunction(MetaKind pMK, const ASTObj& pAst, const std::string& pRecord,
 			                        const std::string& pReturn, const std::string& pParams)
     {
-        ASTCodeMeta* codeMeta = nullptr;
+        ASTFnMeta* codeMeta = nullptr;
         if (pMK == MetaKind::NonMemberFn) {
-            codeMeta = &addFunctionCodeMeta(m_freeFnsMap, ASTCodeMeta{ 
+            codeMeta = &addFunctionCodeMeta(m_freeFnsMap, ASTFnMeta{ 
                 .isCtor = false,
                 .ast = pAst 
             });
         }
         else if (pMK != MetaKind::None) {
             auto& typeMeta = getRecordCodeMeta(m_recordsMap, pRecord);
-            codeMeta = &addFunctionCodeMeta(typeMeta.methods, ASTCodeMeta{ 
+            codeMeta = &addFunctionCodeMeta(typeMeta.methods, ASTFnMeta{ 
                 .isCtor = (pMK == MetaKind::Ctor),
                 .ast = pAst
             });

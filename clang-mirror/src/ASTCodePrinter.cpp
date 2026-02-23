@@ -41,7 +41,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pTypeID, const std::string& pFnID, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getMethodRegistrationExpr(const std::string& pTypeID, const std::string& pFnID, const ASTFnMeta& pMeta)
     {
         assert(!pMeta.signatures.empty());
         auto suffix = [](const ASTFnSign& sign, bool useTemplates)->std::string
@@ -210,7 +210,7 @@ namespace clmr
 
 namespace clmr
 {
-    std::string ASTCodePrint::getFnIDDeclaration(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getFnIDDeclaration(const ASTFnMeta& pMeta)
     {
         return std::string("\n    inline constexpr std::string_view id = \"")
                .append(pMeta.ast.function)
@@ -223,7 +223,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::getMethodIDDecleration(const std::string& pTypeID, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getMethodIDDecleration(const std::string& pTypeID, const ASTFnMeta& pMeta)
     {
         std::string codeStr;
         int nscount = openNS(codeStr, pTypeID);
@@ -238,7 +238,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::getTypeIDWithNamespaces(const std::string& pTypeID, const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getTypeIDWithNamespaces(const std::string& pTypeID, const ASTFnMeta& pMeta)
     {
         std::string codeStr;
         int nscount = openNS(codeStr, pTypeID);
@@ -252,7 +252,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::getFnIDsWithNameSpaces(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::getFnIDsWithNameSpaces(const ASTFnMeta& pMeta)
     {
         std::vector<std::string> typnames = StringUtils::splitQualifiedName(pMeta.ast.function);
         std::string fnName = typnames.back();
@@ -272,7 +272,7 @@ namespace clmr
     }
 
 
-    std::string ASTCodePrint::freeFunctionInitDefs(const ASTCodeMeta& pMeta)
+    std::string ASTCodePrint::freeFunctionInitDefs(const ASTFnMeta& pMeta)
     {
         std::string idStr;
         idStr.append(NS_CXX)
@@ -313,7 +313,7 @@ namespace clmr
 
         for (auto& it : pMeta.methods) {
 
-            const ASTCodeMeta& codeMeta = it.second;
+            const ASTFnMeta& codeMeta = it.second;
             auto fnIdStr = std::string(NS_CXX);
             fnIdStr.append("::").append(NS_TYPE)
                    .append("::").append(pMeta.recordStr)

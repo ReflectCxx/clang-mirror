@@ -23,7 +23,7 @@ namespace clmr
         std::string paramsStr;
     };
 
-    struct ASTCodeMeta
+    struct ASTFnMeta
     {
         const bool isCtor;
         const ASTObj ast;
