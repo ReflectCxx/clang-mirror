@@ -10,7 +10,7 @@ namespace clmr
 	namespace color 
 	{
 		inline constexpr std::string_view RESET = "\033[0m";
-		inline constexpr std::string_view DARK_RED = "\033[31m";
+		inline constexpr std::string_view RED_DARK = "\033[31m";
 		inline constexpr std::string_view RED = "\033[38;2;231;72;86m";
 		inline constexpr std::string_view GREEN = "\033[32m";
 		inline constexpr std::string_view YELLOW = "\033[33m";
@@ -20,6 +20,7 @@ namespace clmr
 		inline constexpr std::string_view WHITE = "\033[37m";
 		inline constexpr std::string_view TEAL = "\033[38;2;0;128;128m";
 		inline constexpr std::string_view GREY = "\033[38;2;118;118;118m";
+		inline constexpr std::string_view GREY_LITE = "\033[38;2;170;170;170m";
 	}
 
 	inline constexpr std::size_t index_none = std::size_t(-1);

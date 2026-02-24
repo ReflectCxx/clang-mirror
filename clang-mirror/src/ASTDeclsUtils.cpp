@@ -1,10 +1,73 @@
 
 #include "Constants.h"
+#include "Logger.h"
 #include "StringUtils.h"
 #include "ASTDeclsUtils.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 
 using namespace clang;
+
+namespace clmr
+{
+    std::optional<std::string> resolveHeaderFromDecl(const NamedDecl* pDecl,
+                                                     const SourceManager& pSrcMgr,
+                                                     const ClangPPCallbacks& pPP)
+    {
+        if (!pDecl) {
+            return std::nullopt;
+        }
+
+        const auto& includeMap = pPP.getIncludeStrMap();
+        for (auto* decl : pDecl->redecls())
+        {
+            SourceLocation loc = pSrcMgr.getSpellingLoc(decl->getLocation());
+            if (!loc.isValid() || pSrcMgr.isInMainFile(loc)) continue;
+
+            FileID fid = pSrcMgr.getFileID(loc);
+            const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
+            if (!fentry) continue;
+
+            auto itr = includeMap.find(fentry);
+            if (itr != includeMap.end()) {
+                return itr->second;
+            }
+        }
+        return std::nullopt;
+    }
+
+    static std::optional<std::string> resolveHeaderFromType(QualType pQT,
+                                                            ASTContext& pContext,
+                                                            const ClangPPCallbacks& pPP)
+    {
+        if (pQT.isNull()) {
+            return std::nullopt;
+        }
+
+        const SourceManager& SM = pContext.getSourceManager();
+        auto QT = pQT.getNonReferenceType();
+
+        if (QT->getAs<TemplateSpecializationType>()) {
+            Logger::outDbg("[skip] (TemplateSpecializationType) " + QT.getAsString());
+            return std::nullopt;
+        }
+
+        if (const TypedefType* TT = QT->getAs<TypedefType>()) {
+            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
+        }
+
+        if (const TagType* TT = QT->getAs<TagType>()) {
+            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
+        }
+
+        if (QT->isBuiltinType()) {
+            Logger::outDbg("[skip] (BuiltinType) " + QT.getAsString());
+            return std::nullopt;
+        }
+        Logger::outDbg("[skip] (unknown) " + QT.getAsString());
+        return std::nullopt;
+    }
+}
+
 
 namespace clmr 
 {
@@ -60,8 +123,7 @@ namespace clmr
     std::string ASTDeclsUtils::extractParentTypeName(clang::FunctionDecl* pFnDecl)
     {
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
-        if (!method)
-            return {};
+        if (!method) return {};
 
         const clang::CXXRecordDecl* record = method->getParent();
         clang::QualType qt = record->getTypeForDecl()->getCanonicalTypeInternal();
@@ -119,6 +181,8 @@ namespace clmr
     {
         std::string headerStr;
         auto& srcMgr = pDecl->getASTContext().getSourceManager();
+
+        return resolveHeaderFromDecl(pDecl, srcMgr, pPPCb);
 
         for (auto* decl : pDecl->redecls())
         {

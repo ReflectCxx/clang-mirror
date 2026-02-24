@@ -66,17 +66,23 @@ namespace clmr {
 
     void Logger::out(const std::string& pMsg)
     {
-        std::cout << color::GREY << clang_mirror <<"\t" << color::RESET << pMsg << std::endl;
+        std::cout << color::GREY << clang_mirror << "\t" << color::RESET << pMsg << std::endl;
     }
 
     void Logger::outgen(const std::string& pMsg)
     {
-        std::cout << color::GREY << clang_mirror <<"\t" << color::TEAL << "generated: " << color::GREY << pMsg << std::endl;
+        std::cout << color::GREY << clang_mirror << "\t" << color::TEAL << "generated: " << color::GREY << pMsg << std::endl;
     }
 
     void Logger::outError(const std::string& pMsg)
     {
-        std::cout << color::DARK_RED << clang_mirror <<"\t" << fmtNewlines(pMsg) << color::RESET << std::endl;
+        std::cout << color::RED_DARK << clang_mirror << "\t" << fmtNewlines(pMsg) << color::RESET << std::endl;
+    }
+    
+    void Logger::outDbg(const std::string &pMsg)
+    {
+        auto spaces = std::string(clang_mirror.length(), ' ');
+        std::cout << color::GREY_LITE << spaces << "\t" << pMsg << color::RESET << std::endl;
     }
 
     void Logger::outProgress(const std::string& pMsg, bool pUpdate/* = true*/)

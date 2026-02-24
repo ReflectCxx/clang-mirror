@@ -15,6 +15,7 @@ namespace clmr {
     public:
 
         static void out(const std::string& pMsg);
+        static void outDbg(const std::string& pMsg);
         static void outgen(const std::string& pMsg);
         static void outError(const std::string& pMsg);
         static void resetDoneCounter(const int pTotalCount);
