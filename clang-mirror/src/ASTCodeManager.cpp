@@ -21,6 +21,11 @@ namespace clmr {
         m_outPath = pOutDir;
     }
 
+    void ASTCodeManager::setExcludeNamespaces(const std::vector<std::string>& pExcludeNs)
+    {
+        m_excludeNamespaces = pExcludeNs;
+    }
+
     ASTCodeManager& ASTCodeManager::instance()
     {
         static ASTCodeManager instance;

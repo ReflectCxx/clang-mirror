@@ -16,6 +16,22 @@
 
 using namespace clang;
 
+namespace {
+
+    bool shouldBeExcluded(const std::string& pStr)
+    {
+        const auto& exclusions = clmr::ASTCodeManager::instance().getExcludeNamespaces();
+        for (const auto& excStr : exclusions) {
+            if (pStr.find(excStr + "::") != std::string::npos ||
+                // exclude templates as well. (not supporting yet)
+                pStr.find('<') != std::string::npos) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 namespace clmr
 {
     ClangASTVisitor::ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP)
@@ -47,6 +63,14 @@ namespace clmr
 
         if (!ASTDeclsUtils::isDeclFrmCurrentSource(m_srcFile, pFnDecl)) {
             return true;
+        }
+
+        const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
+        if (method) {
+            const clang::CXXRecordDecl* record = method->getParent();
+            if (record->isAbstract() || record->getAccess() != AS_public) {
+                return true;
+            }
         }
 
         std::string headerStr;
@@ -85,7 +109,11 @@ namespace clmr
         const auto& params = pFnDecl->parameters();
         const auto& fnQName = pFnDecl->getQualifiedNameAsString();
         for (unsigned index = 0; index < params.size(); index++) {
-            parmTypes.push_back(ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType()));
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType());
+            if (shouldBeExcluded(argStr)) {
+                return;
+            }
+            parmTypes.push_back(argStr);
         }
 
         std::string functionName;
@@ -125,7 +153,10 @@ namespace clmr
         if (metaKind != MetaKind::None) {
             const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-            if (recordStr.find('<') != std::string::npos) {
+
+            if (shouldBeExcluded(functionName) || 
+                shouldBeExcluded(returnStr) || 
+                shouldBeExcluded(recordStr)) {
                 return;
             }
 

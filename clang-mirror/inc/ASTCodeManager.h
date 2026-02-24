@@ -19,6 +19,8 @@ namespace clmr
 		using CodeBuffMap = std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>>;
 
 		std::string m_outPath;
+		std::vector<std::string> m_excludeNamespaces;
+
 		CodeBuffMap m_codeBuffs;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
@@ -40,6 +42,7 @@ namespace clmr
 		ASTCodeManager& operator=(const ASTCodeManager&) = delete;
 		
 		GETTER_CREF(CodeBuffMap, CodeBufferMap, m_codeBuffs)
+		GETTER_CREF(std::vector<std::string>, ExcludeNamespaces, m_excludeNamespaces)
 
 		ASTCodeBuffer* getCodeBuffer(const std::string& pSrcFile, bool pCreate = false);
 
@@ -48,6 +51,8 @@ namespace clmr
 		bool emitCxxMirror();
 
 		void setOutDir(const std::string& pOutDir);
+
+		void setExcludeNamespaces(const std::vector<std::string>& pExcludeNs);
 
 		void compilationFailedFor(const std::string& pSrcFile);
 

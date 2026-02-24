@@ -40,6 +40,22 @@ namespace
         cl::value_desc("path"),
         cl::cat(g_clangMirrorCategory)
     );
+
+    static cl::list<std::string> g_excludeDirs(
+        "exclude-dirs",
+        cl::desc("Directories to exclude (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::list<std::string> g_excludeNamespaces(
+        "exclude-namespaces",
+        cl::desc("Namespaces to exclude (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
 }
 
 
@@ -47,17 +63,10 @@ namespace clmr
 {
     void ClangDriver::collectSrcFiles(std::set<std::string>& pSrcSet, const std::vector<std::string>& pSrcFiles)
     {
-        std::vector<std::string> excluded = {
-            "_deps",
-            "build",
-            "generated",
-            "third_party"
-        };
-
         for (const auto& file : pSrcFiles)
         {
             bool skip = false;
-            for (const auto& excStr : excluded) {
+            for (const auto& excStr : g_excludeDirs) {
                 if (file.find(excStr) != std::string::npos) {
                     skip = true;
                     break;
@@ -137,6 +146,8 @@ namespace clmr
         }
 
         ASTCodeManager::instance().setOutDir(g_outDir);
+        ASTCodeManager::instance().setExcludeNamespaces({ g_excludeNamespaces.begin(), g_excludeNamespaces.end() });
+
         return runClangParser({ srcs.begin(), srcs.end() },
                               (cdb ? *cdb : optionsParser->getCompilations()));
     }
