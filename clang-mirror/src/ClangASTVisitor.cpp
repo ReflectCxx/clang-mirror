@@ -73,31 +73,9 @@ namespace clmr
             }
         }
 
-        std::string headerStr;
-        auto& SM = pFnDecl->getASTContext().getSourceManager();
-
-        for (auto* D : pFnDecl->redecls())
-        {
-            SourceLocation loc = SM.getSpellingLoc(D->getLocation());
-            if (!loc.isValid()) continue;
-            if (SM.isInMainFile(loc)) continue;
-            if (SM.isInSystemHeader(loc)) continue;
-
-            FileID fid = SM.getFileID(loc);
-            const FileEntry* FE = SM.getFileEntryForID(fid);
-            if (!FE) continue;
-
-            auto& map = m_preProcessor.getIncludeStrMap();
-            auto it = map.find(FE);
-
-            if (it != map.end()) {
-                headerStr = it->second;
-                break;
-            }
-        }
-
-        if (!headerStr.empty()) {
-            addReflectableEntity(pFnDecl, headerStr);
+        auto headerStr = ASTDeclsUtils::getHeaderFileForType(pFnDecl, m_preProcessor);
+        if (headerStr) {
+            addReflectableEntity(pFnDecl, *headerStr);
         }
         return true;
     }

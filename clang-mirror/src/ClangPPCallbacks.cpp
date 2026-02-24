@@ -17,9 +17,7 @@ namespace clmr {
                                               const clang::Module* SuggestedModule,
                                               bool ModuleImported,
                                               clang::SrcMgr::CharacteristicKind FileType) {
-        if (!File ||
-             FileType == clang::SrcMgr::C_System ||
-             FileType == clang::SrcMgr::C_ExternCSystem) {
+        if (!File) {
             return;
         }
 

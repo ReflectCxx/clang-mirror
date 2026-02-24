@@ -115,8 +115,61 @@ namespace clmr
     }
 
 
-    const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType,
-                                                                           std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
+    std::optional<std::string> ASTDeclsUtils::getHeaderFileForType(clang::FunctionDecl* pDecl, const ClangPPCallbacks& pPPCb)
+    {
+        std::string headerStr;
+        auto& srcMgr = pDecl->getASTContext().getSourceManager();
+
+        for (auto* decl : pDecl->redecls())
+        {
+            SourceLocation loc = srcMgr.getSpellingLoc(decl->getLocation());
+            if (!loc.isValid() || srcMgr.isInMainFile(loc)) continue;
+
+            FileID fid = srcMgr.getFileID(loc);
+            const FileEntry* fentry = srcMgr.getFileEntryForID(fid);
+            if (!fentry) continue;
+
+            auto& map = pPPCb.getIncludeStrMap();
+            auto it = map.find(fentry);
+
+            if (it != map.end()) {
+                return it->second;
+            }
+        }
+        return std::nullopt;
+    }
+
+
+    std::optional<std::string> ASTDeclsUtils::getHeaderFileForType(clang::VarDecl* pDecl, const ClangPPCallbacks& pPPCb)
+    {
+        const CXXRecordDecl* recordDecl = pDecl->getType().getCanonicalType()->getAsCXXRecordDecl();
+        if (recordDecl)
+        {
+            const SourceManager& srcMgr = pDecl->getASTContext().getSourceManager();
+            SourceLocation loc = srcMgr.getSpellingLoc(recordDecl->getLocation());
+            if (!loc.isValid() || srcMgr.isInMainFile(loc)) {
+                return std::nullopt;
+            }
+
+            FileID fid = srcMgr.getFileID(loc);
+            const FileEntry* fentry = srcMgr.getFileEntryForID(fid);
+            if (!fentry) {
+                return std::nullopt;
+            }
+
+            auto& map = pPPCb.getIncludeStrMap();
+            auto it = map.find(fentry);
+
+            if (it != map.end()) {
+                return it->second;
+            }   
+        }
+        return std::nullopt;
+    }
+
+
+    std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType,
+                                                                     std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
     {
         const Type* type = pQType.getTypePtrOrNull();
         if (!type) {
