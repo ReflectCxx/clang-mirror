@@ -17,7 +17,7 @@ namespace clmr {
         static void polishTypeStr(std::string& pTypeStr);
         static bool isInUserCode(clang::NamedDecl* pNameDecl);
 
-        static std::string extractParentTypeName(clang::FunctionDecl* pFuncDecl);
+        static std::string extractParentTypeName(const clang::FunctionDecl* pFuncDecl);
         static std::string extractQualifiedTypeName(const clang::QualType& pQType);
 
         static const clang::FileEntry* resolveHeaderFromType(const clang::QualType& pQT,
@@ -28,7 +28,7 @@ namespace clmr {
                                                              const clang::SourceManager& pSrcMgr,
                                                              const ClangPPCallbacks& pPP);
 
-        static std::pair<clmr::MetaKind, std::string> getNameAndMetaKind(clang::FunctionDecl* pFnDecl);
+        static std::pair<clmr::MetaKind, std::string> getNameAndMetaKind(const clang::FunctionDecl* pFnDecl);
 
         using optstr = std::optional<std::string>;
         static optstr getTypeDefAliasForType(const clang::QualType& pQType,

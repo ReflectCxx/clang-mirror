@@ -1,5 +1,8 @@
 #pragma once
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "Constants.h"
 #include "clang/Lex/PPCallbacks.h"
 #include "clang/Frontend/CompilerInstance.h"
@@ -8,23 +11,23 @@ namespace clmr {
 
     class ClangPPCallbacks : public clang::PPCallbacks
     {
-        using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
-
         clang::SourceManager& m_srcMgr;
         clang::CompilerInstance& m_compiler;
 
-        IncludeStrMap m_includeStrMap;
-        std::set<std::string> m_includeStrSet;
+        using IncludeFESet = std::unordered_set<const clang::FileEntry*>;
+        using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
+        
+        IncludeStrMap m_includeStrMap;        
+        std::unordered_map<const clang::FileEntry*, IncludeFESet> m_inclusionGraph;
 
     public:
 
         ClangPPCallbacks(clang::SourceManager& SM, clang::CompilerInstance& CI);
 
         GETTER_CREF(IncludeStrMap, IncludeStrMap, m_includeStrMap)
-        GETTER_CREF(std::set<std::string>, IncludeStrSet, m_includeStrSet)
 
-        bool isFileReachableFromHeader(const std::string& pHeader,
-                                       const clang::FileEntry* pFE);
+        bool isFileReachableFromHeader(const clang::FileEntry *pHeaderFE,
+                                       const clang::FileEntry* pFile);
 
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,

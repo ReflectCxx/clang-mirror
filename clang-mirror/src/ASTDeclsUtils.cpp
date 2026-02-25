@@ -40,7 +40,7 @@ namespace clmr
     }
 
 
-    std::string ASTDeclsUtils::extractParentTypeName(clang::FunctionDecl* pFnDecl)
+    std::string ASTDeclsUtils::extractParentTypeName(const clang::FunctionDecl* pFnDecl)
     {
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
         if (!method) return {};
@@ -114,7 +114,7 @@ namespace clmr
     }
 	
 
-    std::pair<MetaKind, std::string> ASTDeclsUtils::getNameAndMetaKind(FunctionDecl* pFnDecl)
+    std::pair<MetaKind, std::string> ASTDeclsUtils::getNameAndMetaKind(const FunctionDecl* pFnDecl)
     {
         std::string functionName;
         MetaKind metaKind = MetaKind::None;

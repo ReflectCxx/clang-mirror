@@ -43,21 +43,22 @@ namespace {
         return false;
     }
 
-    std::optional<std::string> getDeclHeader(FunctionDecl *pFnDecl)
+    std::pair<std::string, const FileEntry*> getDeclHeader(FunctionDecl *pFnDecl)
     {
         auto& SM = pFnDecl->getASTContext().getSourceManager();
         for (auto* decl : pFnDecl->redecls()) 
         {
             SourceLocation loc = SM.getSpellingLoc(decl->getLocation());
-            if (loc.isInvalid() || SM.isInSystemHeader(loc)) {
+            if (loc.isInvalid() || SM.isInMainFile(loc)) {
                 continue;
             }
             const auto& fileStr = SM.getFilename(loc).str();
             if (isHeaderFile(fileStr)) {
-               return fileStr;
+                FileID fid = SM.getFileID(loc);
+                return { fileStr, SM.getFileEntryForID(fid) };
             }
         }
-        return std::nullopt;
+        return { "", nullptr };
     }
 }
 
@@ -73,7 +74,7 @@ namespace clmr
     bool ClangASTVisitor::isHeaderReachableForType(const clang::QualType& pQT,
                                                    const clang::FunctionDecl *pFnDecl,
                                                    const std::string& pTypeStr,
-                                                   const std::string& pSrcHeader)
+                                                   const clang::FileEntry* pSrcHeader)
     {
         if (auto incf = ASTDeclsUtils::resolveHeaderFromType(pQT, pFnDecl->getASTContext(), m_preProcessor)) {
             if (!m_preProcessor.isFileReachableFromHeader(pSrcHeader, incf)) {
@@ -119,15 +120,17 @@ namespace clmr
             }
         }
 
-        auto declHeader = getDeclHeader(pFnDecl);
-        if (declHeader) {
-            addReflectableEntity(pFnDecl, *declHeader);
+        auto [headerStr, headerFile] = getDeclHeader(pFnDecl);
+        if (headerFile) {
+            addReflectableEntity(pFnDecl, headerFile, headerStr);
         }
         return true;
     }
 
 
-    void ClangASTVisitor::addReflectableEntity(FunctionDecl *pFnDecl, const std::string &pHeader)
+    void ClangASTVisitor::addReflectableEntity(const clang::FunctionDecl* pFnDecl,
+                                               const clang::FileEntry* pHeaderFile,
+                                               const std::string& pHeader)
     {
         std::vector<std::string> parmTypes;
         const auto& params = pFnDecl->parameters();
@@ -139,7 +142,7 @@ namespace clmr
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
             if (!qT->isBuiltinType() &&
                ( shouldBeExcluded(argStr) ||
-                !isHeaderReachableForType(qT, pFnDecl, argStr, pHeader))) {
+                !isHeaderReachableForType(qT, pFnDecl, argStr, pHeaderFile))) {
                 return;
             }
             parmTypes.push_back(argStr);
@@ -148,7 +151,7 @@ namespace clmr
         const auto& qT = pFnDecl->getReturnType();
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
         if (!qT->isBuiltinType() &&
-            !isHeaderReachableForType(qT, pFnDecl, returnStr, pHeader)){
+            !isHeaderReachableForType(qT, pFnDecl, returnStr, pHeaderFile)){
             return;
         }
 

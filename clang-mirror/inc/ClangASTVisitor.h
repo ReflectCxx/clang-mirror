@@ -15,12 +15,14 @@ namespace clmr {
         const std::string m_srcFile;
         ClangPPCallbacks& m_preProcessor;
 
-        void addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader);
+        void addReflectableEntity(const clang::FunctionDecl* pFnDecl,
+                                  const clang::FileEntry* pHeaderFile,
+                                  const std::string& pHeader);
 
         bool isHeaderReachableForType(const clang::QualType& pQT,
                                       const clang::FunctionDecl* pFnDecl,
                                       const std::string& pTypeStr,
-                                      const std::string& pSrcHeader);
+                                      const clang::FileEntry* pSrcHeader);
     public:
 
         ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);
