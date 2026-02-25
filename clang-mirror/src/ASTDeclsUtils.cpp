@@ -38,7 +38,7 @@ namespace clmr
         return true;
     }
 
-    
+
     std::string ASTDeclsUtils::extractParentTypeName(clang::FunctionDecl* pFnDecl)
     {
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
@@ -59,12 +59,12 @@ namespace clmr
     }
 
 
-    std::optional<std::string> ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
-                                                                    const SourceManager& pSrcMgr,
-                                                                    const ClangPPCallbacks& pPP)
+    const FileEntry* ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
+                                                          const SourceManager& pSrcMgr,
+                                                          const ClangPPCallbacks& pPP)
     {
         if (!pDecl) {
-            return std::nullopt;
+            return nullptr;
         }
 
         const auto& includeMap = pPP.getIncludeStrMap();
@@ -76,22 +76,18 @@ namespace clmr
             FileID fid = pSrcMgr.getFileID(loc);
             const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
             if (!fentry) continue;
-
-            auto itr = includeMap.find(fentry);
-            if (itr != includeMap.end()) {
-                return itr->second;
-            }
+            return fentry;
         }
-        return std::nullopt;
+        return nullptr;
     }
 
 
-    std::optional<std::string> ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
-                                                                    const ASTContext& pContext,
-                                                                    const ClangPPCallbacks& pPP)
+    const FileEntry* ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
+                                                          const ASTContext& pContext,
+                                                          const ClangPPCallbacks& pPP)
     {
         if (pQT.isNull()) {
-            return std::nullopt;
+            return nullptr;
         }
 
         const SourceManager& SM = pContext.getSourceManager();
@@ -102,23 +98,22 @@ namespace clmr
                 return resolveHeaderFromDecl(TD, SM, pPP);
             }
             Logger::outDbg("[skip] (TemplateSpecializationType) " + QT.getAsString());
-            return std::nullopt;
+            return nullptr;   
         }
 
         if (const TypedefType* TT = QT->getAs<TypedefType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
-
         if (const TagType* TT = QT->getAs<TagType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
 
         if (QT->isBuiltinType()) {
             Logger::outDbg("[skip] (BuiltinType) " + QT.getAsString());
-            return std::nullopt;
+        } else {
+            Logger::outDbg("[skip] (unknown) " + QT.getAsString());
         }
-        Logger::outDbg("[skip] (unknown) " + QT.getAsString());
-        return std::nullopt;
+        return nullptr;
     }
 	
 

@@ -20,16 +20,15 @@ namespace clmr {
         static std::string extractParentTypeName(clang::FunctionDecl* pFuncDecl);
         static std::string extractQualifiedTypeName(const clang::QualType& pQType);
 
+        static const clang::FileEntry* resolveHeaderFromType(const clang::QualType& pQT,
+                                                             const clang::ASTContext& pContext,
+                                                             const ClangPPCallbacks& pPP);
+
+        static const clang::FileEntry* resolveHeaderFromDecl(const clang::NamedDecl* pDecl,
+                                                             const clang::SourceManager& pSrcMgr,
+                                                             const ClangPPCallbacks& pPP);
+
         using optstr = std::optional<std::string>;
-
-        static optstr resolveHeaderFromType(const clang::QualType& pQT,
-                                            const clang::ASTContext& pContext,
-                                            const ClangPPCallbacks& pPP);
-
-        static optstr resolveHeaderFromDecl(const clang::NamedDecl* pDecl,
-                                            const clang::SourceManager& pSrcMgr,
-                                            const ClangPPCallbacks& pPP);
-            
         static optstr getTypeDefAliasForType(const clang::QualType& pQType,
                                              std::unordered_map<std::string, std::string>& pTemplateTypeDefs);
     };
