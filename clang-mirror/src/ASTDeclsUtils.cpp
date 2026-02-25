@@ -109,11 +109,7 @@ namespace clmr
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
 
-        if (QT->isBuiltinType()) {
-            Logger::outDbg("[skip] (BuiltinType) " + QT.getAsString());
-        } else {
-            Logger::outDbg("[skip] (unknown) " + QT.getAsString());
-        }
+        Logger::outDbg("[skip] (unknown) " + QT.getAsString());
         return nullptr;
     }
 	

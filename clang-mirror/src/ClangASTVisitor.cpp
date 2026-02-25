@@ -70,7 +70,7 @@ namespace clmr
 	{ }
 
 
-    bool ClangASTVisitor::isHeaderReachableForType(const clang::QualType &pQT,
+    bool ClangASTVisitor::isHeaderReachableForType(const clang::QualType& pQT,
                                                    const clang::FunctionDecl *pFnDecl,
                                                    const std::string& pTypeStr,
                                                    const std::string& pSrcHeader)
@@ -137,8 +137,9 @@ namespace clmr
         {
             const auto& qT = params[index]->getOriginalType();
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
-            if ( shouldBeExcluded(argStr) ||
-                !isHeaderReachableForType(qT, pFnDecl, argStr, pHeader)) {
+            if (!qT->isBuiltinType() &&
+               ( shouldBeExcluded(argStr) ||
+                !isHeaderReachableForType(qT, pFnDecl, argStr, pHeader))) {
                 return;
             }
             parmTypes.push_back(argStr);
@@ -146,7 +147,8 @@ namespace clmr
 
         const auto& qT = pFnDecl->getReturnType();
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        if (isHeaderReachableForType(qT, pFnDecl, returnStr, pHeader)){
+        if (!qT->isBuiltinType() &&
+            !isHeaderReachableForType(qT, pFnDecl, returnStr, pHeader)){
             return;
         }
 
