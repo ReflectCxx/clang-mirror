@@ -15,9 +15,7 @@ namespace clmr {
     struct ASTDeclsUtils
     {
         static void polishTypeStr(std::string& pTypeStr);
-
         static bool isInUserCode(clang::NamedDecl* pNameDecl);
-        static bool isDeclFrmCurrentSource(const std::string& pCurSrcFile, clang::Decl* pDecl);
 
         static std::string extractParentTypeName(clang::FunctionDecl* pFuncDecl);
         static std::string extractQualifiedTypeName(const clang::QualType& pQType);

@@ -38,26 +38,7 @@ namespace clmr
         return true;
     }
 
-
-	bool ASTDeclsUtils::isDeclFrmCurrentSource(const std::string& pCurSrcFile, clang::Decl* pDecl)
-    {
-        std::string currentSrcFile = pCurSrcFile;
-        std::transform(currentSrcFile.begin(), currentSrcFile.end(), currentSrcFile.begin(),
-        [](unsigned char c)->char {
-            return (c == '\\') ? '/' : std::tolower(c);
-        });
-
-        const auto& srcManager = pDecl->getASTContext().getSourceManager();
-        auto fileLoc = srcManager.getFileLoc(pDecl->getBeginLoc());
-        auto declSrcFile = srcManager.getFilename(fileLoc).str();
-        std::transform(declSrcFile.begin(), declSrcFile.end(), declSrcFile.begin(),
-        [](unsigned char c)->char {
-            return (c == '\\') ? '/' : std::tolower(c);
-        });
-        return (currentSrcFile == declSrcFile);
-    }
-
-
+    
     std::string ASTDeclsUtils::extractParentTypeName(clang::FunctionDecl* pFnDecl)
     {
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);

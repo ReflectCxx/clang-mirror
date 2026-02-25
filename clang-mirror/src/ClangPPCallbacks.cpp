@@ -8,29 +8,27 @@ namespace clmr {
         , m_compiler(CI)
     { }
 
-    void ClangPPCallbacks::InclusionDirective(clang::SourceLocation HashLoc,
-                                              const clang::Token& IncludeTok, llvm::StringRef FileName,
-                                              bool IsAngled, clang::CharSourceRange FilenameRange,
-                                              clang::OptionalFileEntryRef File,
-                                              llvm::StringRef SearchPath, llvm::StringRef RelativePath,
-                                              const clang::Module* SuggestedModule,
-                                              bool ModuleImported,
-                                              clang::SrcMgr::CharacteristicKind FileType)
+    void ClangPPCallbacks::InclusionDirective(clang::SourceLocation pHashLoc,
+                                              const clang::Token& pIncludeTok, llvm::StringRef pFileName,
+                                              bool pIsAngled, clang::CharSourceRange pFilenameRange,
+                                              clang::OptionalFileEntryRef pFile,
+                                              llvm::StringRef pSearchPath, llvm::StringRef pRelativePath,
+                                              const clang::Module* pSuggestedModule,
+                                              bool pModuleImported,
+                                              clang::SrcMgr::CharacteristicKind pFileType)
     {
-        if (!File) {
+        if (!pFile) {
             return;
         }
-
-        const std::string FE = File->getName().str();
 
         auto& SM = m_compiler.getSourceManager();
-        if (!SM.isInMainFile(HashLoc)) {
+        if (!SM.isInMainFile(pHashLoc)) {
             return;
         }
 
-        std::string headerIncStr = IsAngled ? "<" + FileName.str() + ">"
-                                            : "\"" + FileName.str() + "\"";
-        m_includeStrMap[*File] = headerIncStr;
+        std::string headerIncStr = pIsAngled ? "<" + pFileName.str() + ">"
+                                             : "\"" + pFileName.str() + "\"";
+        m_includeStrMap[*pFile] = headerIncStr;
         m_includeStrSet.insert(headerIncStr);
 	}
 }

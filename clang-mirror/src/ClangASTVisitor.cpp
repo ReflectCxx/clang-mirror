@@ -19,6 +19,17 @@ using namespace clang;
 
 namespace {
 
+    bool isHeaderFile(const std::string& pFileStr)
+    {
+        const auto& ext = llvm::sys::path::extension(pFileStr);
+        return  ext.equals_insensitive(".h") ||
+                ext.equals_insensitive(".hpp") ||
+                ext.equals_insensitive(".hh")  ||
+                ext.equals_insensitive(".hxx") ||
+                ext.equals_insensitive(".inl") ||
+                ext.equals_insensitive(".inc");
+    }
+
     bool shouldBeExcluded(const std::string& pStr)
     {
         const auto& exclusions = clmr::ASTCodeManager::instance().getExcludeNamespaces();
@@ -31,7 +42,25 @@ namespace {
         }
         return false;
     }
+
+    std::optional<std::string> getDeclHeader(FunctionDecl *pFnDecl)
+    {
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
+        for (auto* decl : pFnDecl->redecls()) 
+        {
+            SourceLocation loc = SM.getSpellingLoc(decl->getLocation());
+            if (loc.isInvalid() || SM.isInSystemHeader(loc)) {
+                continue;
+            }
+            const auto& fileStr = SM.getFilename(loc).str();
+            if (isHeaderFile(fileStr)) {
+               return fileStr;
+            }
+        }
+        return std::nullopt;
+    }
 }
+
 
 namespace clmr
 {
@@ -43,14 +72,14 @@ namespace clmr
     bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
     {
         if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
-            pFnDecl->isDeleted() ||
-            pFnDecl->isInAnonymousNamespace() ||
+             pFnDecl->isDeleted() ||
+             pFnDecl->isInAnonymousNamespace() ||
             (pFnDecl->isGlobal() && pFnDecl->isStatic()) ||
-            pFnDecl->isOverloadedOperator() ||
-            pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
-            pFnDecl->getAccess() == AS_private ||
-            pFnDecl->getAccess() == AS_protected ||
-            pFnDecl->getLinkageInternal() != Linkage::External) {
+             pFnDecl->isOverloadedOperator() ||
+             pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
+             pFnDecl->getAccess() == AS_private ||
+             pFnDecl->getAccess() == AS_protected ||
+             pFnDecl->getLinkageInternal() != Linkage::External) {
             return true;
         }
 
@@ -62,36 +91,23 @@ namespace clmr
             return true;
         }
 
-        auto& SM = pFnDecl->getASTContext().getSourceManager();
-        for (auto* decl : pFnDecl->redecls()) {
-            SourceLocation loc = SM.getSpellingLoc(decl->getLocation());
-            if (SM.isInSystemHeader(loc)) {
-                return true;
-            }
-        }
-
-        if (!ASTDeclsUtils::isDeclFrmCurrentSource(m_srcFile, pFnDecl)) {
-            return true;
-        }
-
-        const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
+        const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl);
         if (method) {
-            const clang::CXXRecordDecl* record = method->getParent();
+            const CXXRecordDecl* record = method->getParent();
             if (record->getAccess() != AS_public) {
                 return true;
             }
         }
 
-        //auto& srcMgr = pFnDecl->getASTContext().getSourceManager();
-        //auto headerStr = ASTDeclsUtils::resolveHeaderFromDecl(pFnDecl, srcMgr, m_preProcessor);
-        //if (headerStr) {
-            addReflectableEntity(pFnDecl, "");
-        //}
+        auto declHeader = getDeclHeader(pFnDecl);
+        if (declHeader) {
+            addReflectableEntity(pFnDecl, *declHeader);
+        }
         return true;
     }
 
 
-    void ClangASTVisitor::addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader)
+    void ClangASTVisitor::addReflectableEntity(FunctionDecl *pFnDecl, const std::string& pHeader)
     {
         std::vector<std::string> parmTypes;
         std::vector<std::string> headers = { m_preProcessor.getIncludeStrSet().begin(),
@@ -127,16 +143,16 @@ namespace clmr
         std::string functionName;
         MetaKind metaKind = MetaKind::None;
 
-        if (const auto* ctor = llvm::dyn_cast<clang::CXXConstructorDecl>(pFnDecl))
+        if (const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl))
         {
             if (ctor->isUserProvided() && !ctor->isDefaultConstructor() &&
                 !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
                 metaKind = MetaKind::Ctor;
             }
         }
-        else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
+        else if (const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl))
         {
-            if (method->isOverloadedOperator() || llvm::isa<clang::CXXConversionDecl>(method)) {
+            if (method->isOverloadedOperator() || llvm::isa<CXXConversionDecl>(method)) {
                 return;
             }
 
