@@ -19,6 +19,7 @@ namespace clmr
         //StringUtils::replaceSubString(pTypeStr, " *", "*");
     }
 
+
     bool ASTDeclsUtils::isInUserCode(NamedDecl* pDecl)
     {
         if (!pDecl) {
@@ -116,6 +117,44 @@ namespace clmr
         return nullptr;
     }
 	
+
+    std::pair<MetaKind, std::string> ASTDeclsUtils::getNameAndMetaKind(FunctionDecl* pFnDecl)
+    {
+        std::string functionName;
+        MetaKind metaKind = MetaKind::None;
+
+        if (const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl)) {
+            if (ctor->isUserProvided() && !ctor->isDefaultConstructor() &&
+                !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
+                metaKind = MetaKind::Ctor;
+            }
+        }
+        else if (const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl)) {
+            if (method->isOverloadedOperator() || llvm::isa<CXXConversionDecl>(method)) {
+                return { MetaKind::None, "" };
+            }
+
+            if (method->isStatic()) {
+                metaKind = MetaKind::MemberFnStatic;
+            }
+            else {
+                if (method->isConst()) {
+                    metaKind = MetaKind::MemberFnConst;
+                }
+                else {
+                    metaKind = MetaKind::MemberFnNonConst;
+                }
+            }
+            functionName = pFnDecl->getDeclName().getAsString();
+        }
+        else {
+            metaKind = MetaKind::NonMemberFn;
+            functionName = pFnDecl->getQualifiedNameAsString();
+        }
+
+        return { metaKind, functionName };
+    }
+
 
     std::string ASTDeclsUtils::extractQualifiedTypeName(const clang::QualType& pQType)
     {

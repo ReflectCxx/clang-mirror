@@ -140,55 +140,20 @@ namespace clmr
         //    Logger::outDbg("header not found for type (return): " + returnStr);
         //}
 
-        std::string functionName;
-        MetaKind metaKind = MetaKind::None;
+        auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
+        if (metaKind == MetaKind::None) return;
 
-        if (const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl))
-        {
-            if (ctor->isUserProvided() && !ctor->isDefaultConstructor() &&
-                !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
-                metaKind = MetaKind::Ctor;
-            }
-        }
-        else if (const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl))
-        {
-            if (method->isOverloadedOperator() || llvm::isa<CXXConversionDecl>(method)) {
-                return;
-            }
-
-            if (method->isStatic()) {
-                metaKind = MetaKind::MemberFnStatic;
-            }
-            else {
-                if (method->isConst()) {
-                    metaKind = MetaKind::MemberFnConst;
-                }
-                else {
-                    metaKind = MetaKind::MemberFnNonConst;
-                }
-            }
-            functionName = pFnDecl->getDeclName().getAsString();
-        }
-        else {
-            metaKind = MetaKind::NonMemberFn;
-            functionName = pFnDecl->getQualifiedNameAsString();
+        const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
+        if (shouldBeExcluded(fname) || 
+            shouldBeExcluded(returnStr) || 
+            shouldBeExcluded(recordStr)) {
+            return;
         }
 
-        if (metaKind != MetaKind::None) {
-            
-            const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-
-            if (shouldBeExcluded(functionName) || 
-                shouldBeExcluded(returnStr) || 
-                shouldBeExcluded(recordStr)) {
-                return;
-            }
-
-            ASTCodeManager::instance().getCodeBuffer(m_srcFile, true)
-                                      ->addFunction(metaKind, {
-                    .headers = headers,
-                    .function = functionName
-            }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
-        }
+        auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
+        codeBuffer->addFunction(metaKind, {
+                .headers = headers,
+                .function = fname
+        }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
     }
 }

@@ -28,6 +28,8 @@ namespace clmr {
                                                              const clang::SourceManager& pSrcMgr,
                                                              const ClangPPCallbacks& pPP);
 
+        static std::pair<clmr::MetaKind, std::string> getNameAndMetaKind(clang::FunctionDecl* pFnDecl);
+
         using optstr = std::optional<std::string>;
         static optstr getTypeDefAliasForType(const clang::QualType& pQType,
                                              std::unordered_map<std::string, std::string>& pTemplateTypeDefs);
