@@ -8,12 +8,17 @@ namespace clmr {
         , m_compiler(CI)
     { }
 
+    bool ClangPPCallbacks::isFileReachableFromHeader(const std::string &pHeader,
+                                                     const clang::FileEntry *pFE) {
+        return false;
+    }
+
     void ClangPPCallbacks::InclusionDirective(clang::SourceLocation pHashLoc,
-                                              const clang::Token& pIncludeTok, llvm::StringRef pFileName,
+                                              const clang::Token &pIncludeTok, llvm::StringRef pFileName,
                                               bool pIsAngled, clang::CharSourceRange pFilenameRange,
                                               clang::OptionalFileEntryRef pFile,
                                               llvm::StringRef pSearchPath, llvm::StringRef pRelativePath,
-                                              const clang::Module* pSuggestedModule,
+                                              const clang::Module *pSuggestedModule,
                                               bool pModuleImported,
                                               clang::SrcMgr::CharacteristicKind pFileType)
     {

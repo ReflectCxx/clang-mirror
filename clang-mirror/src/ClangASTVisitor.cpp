@@ -22,12 +22,12 @@ namespace {
     bool isHeaderFile(const std::string& pFileStr)
     {
         const auto& ext = llvm::sys::path::extension(pFileStr);
-        return  ext.equals_insensitive(".h") ||
-                ext.equals_insensitive(".hpp") ||
-                ext.equals_insensitive(".hh")  ||
-                ext.equals_insensitive(".hxx") ||
-                ext.equals_insensitive(".inl") ||
-                ext.equals_insensitive(".inc");
+        return ext.equals_insensitive(".h") ||
+               ext.equals_insensitive(".hpp") ||
+               ext.equals_insensitive(".hh")  ||
+               ext.equals_insensitive(".hxx") ||
+               ext.equals_insensitive(".inl") ||
+               ext.equals_insensitive(".inc");
     }
 
     bool shouldBeExcluded(const std::string& pStr)
@@ -69,6 +69,26 @@ namespace clmr
         , m_preProcessor(pPP)
 	{ }
 
+
+    bool ClangASTVisitor::isHeaderReachableForType(const clang::QualType &pQT,
+                                                   const clang::FunctionDecl *pFnDecl,
+                                                   const std::string& pTypeStr,
+                                                   const std::string& pSrcHeader)
+    {
+        if (auto incf = ASTDeclsUtils::resolveHeaderFromType(pQT, pFnDecl->getASTContext(), m_preProcessor)) {
+            if (!m_preProcessor.isFileReachableFromHeader(pSrcHeader, incf)) {
+                Logger::outDbg("header not reachable for type: " + pTypeStr);
+                return false;
+            }
+        }
+        else {
+            Logger::outDbg("header not found for type: " + pTypeStr);
+            return false;
+        }
+        return true;
+    }
+
+
     bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
     {
         if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
@@ -107,38 +127,28 @@ namespace clmr
     }
 
 
-    void ClangASTVisitor::addReflectableEntity(FunctionDecl *pFnDecl, const std::string& pHeader)
+    void ClangASTVisitor::addReflectableEntity(FunctionDecl *pFnDecl, const std::string &pHeader)
     {
         std::vector<std::string> parmTypes;
-        std::vector<std::string> headers = { m_preProcessor.getIncludeStrSet().begin(),
-                                             m_preProcessor.getIncludeStrSet().end() };
-
         const auto& params = pFnDecl->parameters();
         const auto& fnQName = pFnDecl->getQualifiedNameAsString();
 
-        for (unsigned index = 0; index < params.size(); index++) {
+        for (unsigned index = 0; index < params.size(); index++)
+        {
             const auto& qT = params[index]->getOriginalType();
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
-            if (shouldBeExcluded(argStr)) {
+            if ( shouldBeExcluded(argStr) ||
+                !isHeaderReachableForType(qT, pFnDecl, argStr, pHeader)) {
                 return;
             }
             parmTypes.push_back(argStr);
-            //if (auto incf = ASTDeclsUtils::resolveHeaderFromType(qT, pFnDecl->getASTContext(), m_preProcessor)) {
-            //    headers.push_back(*incf);
-            //}
-            //else {
-            //    Logger::outDbg("header not found for type (arg): " + parmTypes.back());
-            //}
         }
 
         const auto& qT = pFnDecl->getReturnType();
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        //if (auto incf = ASTDeclsUtils::resolveHeaderFromType(qT, pFnDecl->getASTContext(), m_preProcessor)) {
-        //    headers.push_back(*incf);
-        //}
-        //else {
-        //    Logger::outDbg("header not found for type (return): " + returnStr);
-        //}
+        if (isHeaderReachableForType(qT, pFnDecl, returnStr, pHeader)){
+            return;
+        }
 
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) return;
@@ -152,7 +162,7 @@ namespace clmr
 
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
-                .headers = headers,
+                .headers = { pHeader },
                 .function = fname
         }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
     }

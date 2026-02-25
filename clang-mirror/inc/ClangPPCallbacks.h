@@ -20,6 +20,12 @@ namespace clmr {
 
         ClangPPCallbacks(clang::SourceManager& SM, clang::CompilerInstance& CI);
 
+        GETTER_CREF(IncludeStrMap, IncludeStrMap, m_includeStrMap)
+        GETTER_CREF(std::set<std::string>, IncludeStrSet, m_includeStrSet)
+
+        bool isFileReachableFromHeader(const std::string& pHeader,
+                                       const clang::FileEntry* pFE);
+
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,
                                 bool IsAngled, clang::CharSourceRange FilenameRange,
@@ -28,8 +34,5 @@ namespace clmr {
                                 const clang::Module* SuggestedModule,
                                 bool ModuleImported,
                                 clang::SrcMgr::CharacteristicKind FileType) override;
-
-        GETTER_CREF(IncludeStrMap, IncludeStrMap, m_includeStrMap)
-        GETTER_CREF(std::set<std::string>, IncludeStrSet, m_includeStrSet)
     };
 }
