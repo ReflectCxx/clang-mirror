@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 #include "clang/Lex/PPCallbacks.h"
+#include "clang/Frontend/CompilerInstance.h"
 
 namespace clmr {
 
@@ -10,11 +11,14 @@ namespace clmr {
         using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
 
         clang::SourceManager& m_srcMgr;
+        clang::CompilerInstance& m_compiler;
+
         IncludeStrMap m_includeStrMap;
+        std::set<std::string> m_includeStrSet;
 
     public:
 
-        ClangPPCallbacks(clang::SourceManager& SM);
+        ClangPPCallbacks(clang::SourceManager& SM, clang::CompilerInstance& CI);
 
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,
@@ -26,5 +30,6 @@ namespace clmr {
                                 clang::SrcMgr::CharacteristicKind FileType) override;
 
         GETTER_CREF(IncludeStrMap, IncludeStrMap, m_includeStrMap)
+        GETTER_CREF(std::set<std::string>, IncludeStrSet, m_includeStrSet)
     };
 }

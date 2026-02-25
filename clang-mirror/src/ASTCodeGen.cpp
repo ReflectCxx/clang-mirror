@@ -72,16 +72,16 @@ namespace clmr
         std::string headerIds = std::string("../").append(File::nameIDsHeader);
         std::string headerInits = std::string("../").append(File::nameRegHeader);
 
-        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT 
-             << "\n"
-                "\n#include \"" << headerIds << "\""
-                "\n#include \"" << headerInits << "\"";
+        pOut << CLANG_MIRROR_GENERATED_HEADER_TEXT << "\n";
 
         const auto& includesSet = pCb->getIncludesSet();
         for (auto& incStr : includesSet) {
             pOut << "\n#include " << incStr;
         }
-        pOut << "\n\n";
+        
+        pOut << "\n"
+                "\n#include \"" << headerIds << "\""
+                "\n#include \"" << headerInits << "\"\n\n";
 
         ASTCodePrint::outFunctionInitsDefs(*pCb, pOut);
         ASTCodePrint::outTypeRecordInitsDefs(*pCb, pOut);

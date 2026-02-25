@@ -12,7 +12,7 @@ namespace clmr
 {
     struct ASTObj {
 
-        std::string header;
+        std::vector<std::string> headers;
         std::string function;
     };
 

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
+#include "Logger.h"
 #include "Constants.h"
 #include "StringUtils.h"
 #include "ASTCodeManager.h"
@@ -61,6 +62,14 @@ namespace clmr
             return true;
         }
 
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
+        for (auto* decl : pFnDecl->redecls()) {
+            SourceLocation loc = SM.getSpellingLoc(decl->getLocation());
+            if (SM.isInSystemHeader(loc)) {
+                return true;
+            }
+        }
+
         if (!ASTDeclsUtils::isDeclFrmCurrentSource(m_srcFile, pFnDecl)) {
             return true;
         }
@@ -68,15 +77,16 @@ namespace clmr
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
         if (method) {
             const clang::CXXRecordDecl* record = method->getParent();
-            if (record->isAbstract() || record->getAccess() != AS_public) {
+            if (record->getAccess() != AS_public) {
                 return true;
             }
         }
 
-        auto headerStr = ASTDeclsUtils::getHeaderFileForType(pFnDecl, m_preProcessor);
-        if (headerStr) {
-            addReflectableEntity(pFnDecl, *headerStr);
-        }
+        //auto& srcMgr = pFnDecl->getASTContext().getSourceManager();
+        //auto headerStr = ASTDeclsUtils::resolveHeaderFromDecl(pFnDecl, srcMgr, m_preProcessor);
+        //if (headerStr) {
+            addReflectableEntity(pFnDecl, "");
+        //}
         return true;
     }
 
@@ -84,15 +94,35 @@ namespace clmr
     void ClangASTVisitor::addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader)
     {
         std::vector<std::string> parmTypes;
+        std::vector<std::string> headers = { m_preProcessor.getIncludeStrSet().begin(),
+                                             m_preProcessor.getIncludeStrSet().end() };
+
         const auto& params = pFnDecl->parameters();
         const auto& fnQName = pFnDecl->getQualifiedNameAsString();
+
         for (unsigned index = 0; index < params.size(); index++) {
-            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType());
+            const auto& qT = params[index]->getOriginalType();
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
             if (shouldBeExcluded(argStr)) {
                 return;
             }
             parmTypes.push_back(argStr);
+            //if (auto incf = ASTDeclsUtils::resolveHeaderFromType(qT, pFnDecl->getASTContext(), m_preProcessor)) {
+            //    headers.push_back(*incf);
+            //}
+            //else {
+            //    Logger::outDbg("header not found for type (arg): " + parmTypes.back());
+            //}
         }
+
+        const auto& qT = pFnDecl->getReturnType();
+        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        //if (auto incf = ASTDeclsUtils::resolveHeaderFromType(qT, pFnDecl->getASTContext(), m_preProcessor)) {
+        //    headers.push_back(*incf);
+        //}
+        //else {
+        //    Logger::outDbg("header not found for type (return): " + returnStr);
+        //}
 
         std::string functionName;
         MetaKind metaKind = MetaKind::None;
@@ -129,7 +159,7 @@ namespace clmr
         }
 
         if (metaKind != MetaKind::None) {
-            const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+            
             const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
 
             if (shouldBeExcluded(functionName) || 
@@ -140,7 +170,7 @@ namespace clmr
 
             ASTCodeManager::instance().getCodeBuffer(m_srcFile, true)
                                       ->addFunction(metaKind, {
-                    .header = pHeader,
+                    .headers = headers,
                     .function = functionName
             }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
         }

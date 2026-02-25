@@ -7,68 +7,6 @@
 
 using namespace clang;
 
-namespace clmr
-{
-    std::optional<std::string> resolveHeaderFromDecl(const NamedDecl* pDecl,
-                                                     const SourceManager& pSrcMgr,
-                                                     const ClangPPCallbacks& pPP)
-    {
-        if (!pDecl) {
-            return std::nullopt;
-        }
-
-        const auto& includeMap = pPP.getIncludeStrMap();
-        for (auto* decl : pDecl->redecls())
-        {
-            SourceLocation loc = pSrcMgr.getSpellingLoc(decl->getLocation());
-            if (!loc.isValid() || pSrcMgr.isInMainFile(loc)) continue;
-
-            FileID fid = pSrcMgr.getFileID(loc);
-            const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
-            if (!fentry) continue;
-
-            auto itr = includeMap.find(fentry);
-            if (itr != includeMap.end()) {
-                return itr->second;
-            }
-        }
-        return std::nullopt;
-    }
-
-    static std::optional<std::string> resolveHeaderFromType(QualType pQT,
-                                                            ASTContext& pContext,
-                                                            const ClangPPCallbacks& pPP)
-    {
-        if (pQT.isNull()) {
-            return std::nullopt;
-        }
-
-        const SourceManager& SM = pContext.getSourceManager();
-        auto QT = pQT.getNonReferenceType();
-
-        if (QT->getAs<TemplateSpecializationType>()) {
-            Logger::outDbg("[skip] (TemplateSpecializationType) " + QT.getAsString());
-            return std::nullopt;
-        }
-
-        if (const TypedefType* TT = QT->getAs<TypedefType>()) {
-            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
-        }
-
-        if (const TagType* TT = QT->getAs<TagType>()) {
-            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
-        }
-
-        if (QT->isBuiltinType()) {
-            Logger::outDbg("[skip] (BuiltinType) " + QT.getAsString());
-            return std::nullopt;
-        }
-        Logger::outDbg("[skip] (unknown) " + QT.getAsString());
-        return std::nullopt;
-    }
-}
-
-
 namespace clmr 
 {
     void ASTDeclsUtils::polishTypeStr(std::string& pTypeStr)
@@ -105,17 +43,17 @@ namespace clmr
     {
         std::string currentSrcFile = pCurSrcFile;
         std::transform(currentSrcFile.begin(), currentSrcFile.end(), currentSrcFile.begin(),
-            [](unsigned char c)->char {
-                return (c == '\\') ? '/' : std::tolower(c);
-            });
+        [](unsigned char c)->char {
+            return (c == '\\') ? '/' : std::tolower(c);
+        });
 
         const auto& srcManager = pDecl->getASTContext().getSourceManager();
         auto fileLoc = srcManager.getFileLoc(pDecl->getBeginLoc());
         auto declSrcFile = srcManager.getFilename(fileLoc).str();
         std::transform(declSrcFile.begin(), declSrcFile.end(), declSrcFile.begin(),
-            [](unsigned char c)->char {
-                return (c == '\\') ? '/' : std::tolower(c);
-            });
+        [](unsigned char c)->char {
+            return (c == '\\') ? '/' : std::tolower(c);
+        });
         return (currentSrcFile == declSrcFile);
     }
 
@@ -128,15 +66,78 @@ namespace clmr
         const clang::CXXRecordDecl* record = method->getParent();
         clang::QualType qt = record->getTypeForDecl()->getCanonicalTypeInternal();
         clang::PrintingPolicy policy(pFnDecl->getASTContext().getLangOpts());
-        
+
         policy.SuppressScope = false;
         policy.SuppressTagKeyword = true;
         policy.FullyQualifiedName = true;
-		
+
         std::string result;
         llvm::raw_string_ostream os(result);
         qt.print(os, policy);
         return os.str();
+    }
+
+
+    std::optional<std::string> ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
+                                                                    const SourceManager& pSrcMgr,
+                                                                    const ClangPPCallbacks& pPP)
+    {
+        if (!pDecl) {
+            return std::nullopt;
+        }
+
+        const auto& includeMap = pPP.getIncludeStrMap();
+        for (auto* decl : pDecl->redecls())
+        {
+            SourceLocation loc = pSrcMgr.getSpellingLoc(decl->getLocation());
+            if (!loc.isValid() || pSrcMgr.isInMainFile(loc)) continue;
+
+            FileID fid = pSrcMgr.getFileID(loc);
+            const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
+            if (!fentry) continue;
+
+            auto itr = includeMap.find(fentry);
+            if (itr != includeMap.end()) {
+                return itr->second;
+            }
+        }
+        return std::nullopt;
+    }
+
+
+    std::optional<std::string> ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
+                                                                    const ASTContext& pContext,
+                                                                    const ClangPPCallbacks& pPP)
+    {
+        if (pQT.isNull()) {
+            return std::nullopt;
+        }
+
+        const SourceManager& SM = pContext.getSourceManager();
+        auto QT = pQT.getNonReferenceType();
+
+        if (const auto* TST = QT->getAs<TemplateSpecializationType>()) {
+            if (const TemplateDecl* TD = TST->getTemplateName().getAsTemplateDecl()){
+                return resolveHeaderFromDecl(TD, SM, pPP);
+            }
+            Logger::outDbg("[skip] (TemplateSpecializationType) " + QT.getAsString());
+            return std::nullopt;
+        }
+
+        if (const TypedefType* TT = QT->getAs<TypedefType>()) {
+            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
+        }
+
+        if (const TagType* TT = QT->getAs<TagType>()) {
+            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
+        }
+
+        if (QT->isBuiltinType()) {
+            Logger::outDbg("[skip] (BuiltinType) " + QT.getAsString());
+            return std::nullopt;
+        }
+        Logger::outDbg("[skip] (unknown) " + QT.getAsString());
+        return std::nullopt;
     }
 	
 
@@ -174,61 +175,6 @@ namespace clmr
         }
         polishTypeStr(typeStr);
         return typeStr;
-    }
-
-
-    std::optional<std::string> ASTDeclsUtils::getHeaderFileForType(clang::FunctionDecl* pDecl, const ClangPPCallbacks& pPPCb)
-    {
-        std::string headerStr;
-        auto& srcMgr = pDecl->getASTContext().getSourceManager();
-
-        return resolveHeaderFromDecl(pDecl, srcMgr, pPPCb);
-
-        for (auto* decl : pDecl->redecls())
-        {
-            SourceLocation loc = srcMgr.getSpellingLoc(decl->getLocation());
-            if (!loc.isValid() || srcMgr.isInMainFile(loc)) continue;
-
-            FileID fid = srcMgr.getFileID(loc);
-            const FileEntry* fentry = srcMgr.getFileEntryForID(fid);
-            if (!fentry) continue;
-
-            auto& map = pPPCb.getIncludeStrMap();
-            auto it = map.find(fentry);
-
-            if (it != map.end()) {
-                return it->second;
-            }
-        }
-        return std::nullopt;
-    }
-
-
-    std::optional<std::string> ASTDeclsUtils::getHeaderFileForType(clang::VarDecl* pDecl, const ClangPPCallbacks& pPPCb)
-    {
-        const CXXRecordDecl* recordDecl = pDecl->getType().getCanonicalType()->getAsCXXRecordDecl();
-        if (recordDecl)
-        {
-            const SourceManager& srcMgr = pDecl->getASTContext().getSourceManager();
-            SourceLocation loc = srcMgr.getSpellingLoc(recordDecl->getLocation());
-            if (!loc.isValid() || srcMgr.isInMainFile(loc)) {
-                return std::nullopt;
-            }
-
-            FileID fid = srcMgr.getFileID(loc);
-            const FileEntry* fentry = srcMgr.getFileEntryForID(fid);
-            if (!fentry) {
-                return std::nullopt;
-            }
-
-            auto& map = pPPCb.getIncludeStrMap();
-            auto it = map.find(fentry);
-
-            if (it != map.end()) {
-                return it->second;
-            }   
-        }
-        return std::nullopt;
     }
 
 

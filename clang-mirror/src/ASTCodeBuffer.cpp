@@ -60,7 +60,7 @@ namespace clmr
                 .returnStr = pReturn,
                 .paramsStr = (pParams.empty() ? "void" : pParams)
             });
-            m_incFiles.insert(pAst.header);
+            m_incFiles.insert(pAst.headers.begin(), pAst.headers.end());
         }
     }
 }
