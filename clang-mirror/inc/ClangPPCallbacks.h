@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -24,7 +25,7 @@ namespace clmr {
 
         ClangPPCallbacks(clang::CompilerInstance& CI);
 
-        std::optional<std::string> getIncludeStrAsWritten(const clang::FileEntry* pIncFile);
+        std::optional<std::string> getIncludeStrAsWritten(const clang::FileEntry* pIncFile, std::string_view pTypeStr);
 
         bool isFileReachableFromHeader(const clang::FileEntry *pHeaderFE,
                                        const clang::FileEntry* pFile);

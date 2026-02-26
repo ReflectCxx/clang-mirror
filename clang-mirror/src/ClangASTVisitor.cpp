@@ -68,14 +68,14 @@ namespace clmr
 	{ }
 
 
-    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(clang::Decl* pTypeDecl)
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(clang::Decl* pTypeDecl, std::string_view pTypeStr)
     {
         if (pTypeDecl)
         {
             auto& SM = pTypeDecl->getASTContext().getSourceManager();
             SourceLocation loc = SM.getExpansionLoc(pTypeDecl->getLocation());
             const FileEntry* file = SM.getFileEntryForID(SM.getFileID(loc));
-            return m_preProcessor.getIncludeStrAsWritten(file);
+            return m_preProcessor.getIncludeStrAsWritten(file, pTypeStr);
         }
         return std::optional<std::string>();
     }
@@ -180,7 +180,7 @@ namespace clmr
             {
                 const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
                 if (RD) {
-                    auto incStr = getHashIncludeStr(RD->getDefinition());
+                    auto incStr = getHashIncludeStr(RD->getDefinition(), argStr);
                     if (incStr) {
                         headers.push_back(*incStr);
                     }
@@ -205,7 +205,7 @@ namespace clmr
             if (!isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
                 return;
             }
-            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition());
+            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), returnStr);
             if (incStr) {
                 headers.push_back(*incStr);
             }
@@ -221,7 +221,7 @@ namespace clmr
             return;
         }
 
-        auto hashIncludeStr = m_preProcessor.getIncludeStrAsWritten(pDeclFile);
+        auto hashIncludeStr = m_preProcessor.getIncludeStrAsWritten(pDeclFile, fname + "()");
         if (!hashIncludeStr) {
             return;
         }

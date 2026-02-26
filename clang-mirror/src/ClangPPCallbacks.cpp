@@ -14,17 +14,19 @@ namespace clmr {
         m_mainSrcFile = SM.getFileEntryForID(SM.getMainFileID());
     }
 
-    std::optional<std::string> ClangPPCallbacks::getIncludeStrAsWritten(const clang::FileEntry *pIncFile)
+
+    std::optional<std::string> ClangPPCallbacks::getIncludeStrAsWritten(const FileEntry *pIncFile, std::string_view pStr)
     {
         const auto& itr = m_includeStrMap.find(pIncFile);
         if (itr == m_includeStrMap.end()) {
-            Logger::outDbg("`#include` str not found for header : " + pIncFile->tryGetRealPathName().str());
+            Logger::outDbg("`#include` not found for type " + std::string(pStr) + ", from : " + pIncFile->tryGetRealPathName().str());
             return std::nullopt;
         }
         return std::make_optional(itr->second);
     }
 
-    bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry *pHeaderFE,
+
+    bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry* pHeaderFE,
                                                      const FileEntry* pFile) 
     {
         if (!pHeaderFE || !pFile) {
