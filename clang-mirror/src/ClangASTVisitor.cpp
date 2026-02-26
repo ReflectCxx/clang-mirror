@@ -114,6 +114,9 @@ namespace clmr
 
         const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl);
         if (method) {
+            if(method->isOverloadedOperator() || llvm::isa<clang::CXXConversionDecl>(method)) {
+                return true;
+            }
             const CXXRecordDecl* record = method->getParent();
             if (record->getAccess() != AS_public) {
                 return true;
