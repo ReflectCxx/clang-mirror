@@ -67,8 +67,6 @@ namespace clmr
         if (!pDecl) {
             return nullptr;
         }
-
-        const auto& includeMap = pPP.getIncludeStrMap();
         for (auto* decl : pDecl->redecls())
         {
             SourceLocation loc = pSrcMgr.getSpellingLoc(decl->getLocation());

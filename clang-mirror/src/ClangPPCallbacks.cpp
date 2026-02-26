@@ -7,11 +7,18 @@ using namespace clang;
 
 namespace clmr {
 
-    ClangPPCallbacks::ClangPPCallbacks(SourceManager& SM, CompilerInstance& CI)
-        : m_srcMgr(SM)
-        , m_compiler(CI)
-    { }
+    ClangPPCallbacks::ClangPPCallbacks(CompilerInstance& CI)
+        : m_compiler(CI)
+    {
+        const auto& SM = CI.getSourceManager();
+        m_mainSrcFile = SM.getFileEntryForID(SM.getMainFileID());
+    }
 
+    std::optional<std::string> ClangPPCallbacks::getIncludeStrAsWritten(const clang::FileEntry *pIncFile)
+    {
+        const auto& itr = m_includeStrMap.find(pIncFile);
+        return (itr != m_includeStrMap.end() ? std::make_optional(itr->second) : std::nullopt);
+    }
 
     bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry *pHeaderFE,
                                                      const FileEntry* pFile) 
@@ -34,7 +41,7 @@ namespace clmr {
             }
 
             auto itr = m_inclusionGraph.find(nextFile);
-            if(itr == m_inclusionGraph.end()){
+            if(itr == m_inclusionGraph.end()) {
                 continue;
             }
 
@@ -68,11 +75,10 @@ namespace clmr {
         m_includeStrMap[*pFile] = headerIncStr;
 
         auto& SM = m_compiler.getSourceManager();
-        auto includingFileID = SM.getFileID(pHashLoc);
-        auto* includingFile = SM.getFileEntryForID(includingFileID);
-        if (!includingFile) {
+        auto* hashIncludeLocFile = SM.getFileEntryForID(SM.getFileID(pHashLoc));
+        if (!hashIncludeLocFile) {
             return;
         }
-        m_inclusionGraph[includingFile].insert(&pFile->getFileEntry());
+        m_inclusionGraph[hashIncludeLocFile].insert(&pFile->getFileEntry());
 	}
 }

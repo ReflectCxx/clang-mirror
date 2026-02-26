@@ -16,8 +16,7 @@ namespace clmr {
         ClangPPCallbacks& m_preProcessor;
 
         void addReflectableEntity(const clang::FunctionDecl* pFnDecl,
-                                  const clang::FileEntry* pHeaderFile,
-                                  const std::string& pHeader);
+                                  const clang::FileEntry* pDeclFile);
 
         bool isHeaderReachableForType(const clang::QualType& pQT,
                                       const clang::FunctionDecl* pFnDecl,

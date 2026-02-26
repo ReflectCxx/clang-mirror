@@ -43,7 +43,7 @@ namespace {
         return false;
     }
 
-    std::pair<std::string, const FileEntry*> getDeclHeader(FunctionDecl *pFnDecl)
+    const FileEntry* getDeclaringFile(FunctionDecl *pFnDecl)
     {
         auto& SM = pFnDecl->getASTContext().getSourceManager();
         for (auto* decl : pFnDecl->redecls()) 
@@ -55,10 +55,10 @@ namespace {
             const auto& fileStr = SM.getFilename(loc).str();
             if (isHeaderFile(fileStr)) {
                 FileID fid = SM.getFileID(loc);
-                return { fileStr, SM.getFileEntryForID(fid) };
+                return SM.getFileEntryForID(fid);
             }
         }
-        return { "", nullptr };
+        return nullptr;
     }
 }
 
@@ -120,17 +120,15 @@ namespace clmr
             }
         }
 
-        auto [headerStr, headerFile] = getDeclHeader(pFnDecl);
-        if (headerFile) {
-            addReflectableEntity(pFnDecl, headerFile, headerStr);
+        auto* declFile = getDeclaringFile(pFnDecl);
+        if (declFile) {
+            addReflectableEntity(pFnDecl, declFile);
         }
         return true;
     }
 
 
-    void ClangASTVisitor::addReflectableEntity(const clang::FunctionDecl* pFnDecl,
-                                               const clang::FileEntry* pHeaderFile,
-                                               const std::string& pHeader)
+    void ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pDeclFile)
     {
         std::vector<std::string> parmTypes;
         const auto& params = pFnDecl->parameters();
@@ -142,7 +140,7 @@ namespace clmr
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
             if (!qT->isBuiltinType() &&
                ( shouldBeExcluded(argStr) ||
-                !isHeaderReachableForType(qT, pFnDecl, argStr, pHeaderFile))) {
+                !isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile))) {
                 return;
             }
             parmTypes.push_back(argStr);
@@ -151,7 +149,7 @@ namespace clmr
         const auto& qT = pFnDecl->getReturnType();
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
         if (!qT->isBuiltinType() &&
-            !isHeaderReachableForType(qT, pFnDecl, returnStr, pHeaderFile)){
+            !isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)){
             return;
         }
 
@@ -165,9 +163,14 @@ namespace clmr
             return;
         }
 
+        auto hashIncludeStr = m_preProcessor.getIncludeStrAsWritten(pDeclFile);
+        if (!hashIncludeStr) {
+            Logger::outError("hash include string not found for header including entity: " + fname);
+        }
+
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
-                .headers = { pHeader },
+                .headers = { *hashIncludeStr },
                 .function = fname
         }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
     }

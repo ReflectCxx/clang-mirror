@@ -11,8 +11,8 @@ namespace clmr {
 
     class ClangPPCallbacks : public clang::PPCallbacks
     {
-        clang::SourceManager& m_srcMgr;
         clang::CompilerInstance& m_compiler;
+        const clang::FileEntry* m_mainSrcFile;
 
         using IncludeFESet = std::unordered_set<const clang::FileEntry*>;
         using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
@@ -22,9 +22,9 @@ namespace clmr {
 
     public:
 
-        ClangPPCallbacks(clang::SourceManager& SM, clang::CompilerInstance& CI);
+        ClangPPCallbacks(clang::CompilerInstance& CI);
 
-        GETTER_CREF(IncludeStrMap, IncludeStrMap, m_includeStrMap)
+        std::optional<std::string> getIncludeStrAsWritten(const clang::FileEntry* pIncFile);
 
         bool isFileReachableFromHeader(const clang::FileEntry *pHeaderFE,
                                        const clang::FileEntry* pFile);

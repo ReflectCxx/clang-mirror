@@ -49,8 +49,7 @@ namespace {
 
 		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, llvm::StringRef InFile) override
 		{
-			auto& SM = CI.getSourceManager();
-			auto PPCb = std::make_unique<clmr::ClangPPCallbacks>(SM, CI);
+			auto PPCb = std::make_unique<clmr::ClangPPCallbacks>(CI);
 			auto* ptr = PPCb.get();
 
 			m_actionFactory->setTargetSrcFile(InFile.str());
