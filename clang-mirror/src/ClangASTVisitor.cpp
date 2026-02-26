@@ -30,7 +30,7 @@ namespace {
                ext.equals_insensitive(".inc");
     }
 
-    bool shouldBeExcluded(const std::string& pStr)
+    bool taggedForExclusion(const std::string& pStr)
     {
         const auto& exclusions = clmr::ASTCodeManager::instance().getExcludeNamespaces();
         for (const auto& excStr : exclusions) {
@@ -49,9 +49,6 @@ namespace {
         for (auto* decl : pFnDecl->redecls()) 
         {
             SourceLocation loc = SM.getSpellingLoc(decl->getLocation());
-            if (loc.isInvalid() || SM.isInMainFile(loc)) {
-                continue;
-            }
             const auto& fileStr = SM.getFilename(loc).str();
             if (isHeaderFile(fileStr)) {
                 FileID fid = SM.getFileID(loc);
@@ -71,16 +68,39 @@ namespace clmr
 	{ }
 
 
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(clang::Decl* pTypeDecl)
+    {
+        if (pTypeDecl)
+        {
+            auto& SM = pTypeDecl->getASTContext().getSourceManager();
+            SourceLocation loc = SM.getExpansionLoc(pTypeDecl->getLocation());
+            const FileEntry* file = SM.getFileEntryForID(SM.getFileID(loc));
+            return m_preProcessor.getIncludeStrAsWritten(file);
+        }
+        return std::optional<std::string>();
+    }
+
+
     bool ClangASTVisitor::isHeaderReachableForType(const clang::QualType& pQT,
                                                    const clang::FunctionDecl *pFnDecl,
                                                    const std::string& pTypeStr,
                                                    const clang::FileEntry* pSrcHeader)
     {
-        if (auto incf = ASTDeclsUtils::resolveHeaderFromType(pQT, pFnDecl->getASTContext(), m_preProcessor)) {
-            if (!m_preProcessor.isFileReachableFromHeader(pSrcHeader, incf)) {
-                Logger::outDbg("header not reachable for type: " + pTypeStr);
-                return false;
-            }
+        QualType QT = pQT.getNonReferenceType();
+        if (QT->isPointerType()) {
+            QT = QT->getPointeeType();
+        }
+
+        if (QT->isIncompleteType()) {
+            Logger::outDbg("[skip] (incomplete type) " + pTypeStr);
+            return false;
+        }
+
+        if (auto incf = ASTDeclsUtils::resolveHeaderFromType(QT, pFnDecl->getASTContext(), m_preProcessor)) {
+            //if (!m_preProcessor.isFileReachableFromHeader(pSrcHeader, incf)) {
+            //    Logger::outDbg("header not reachable for type: " + pTypeStr);
+            //    return false;
+            //}
         }
         else {
             Logger::outDbg("header not found for type: " + pTypeStr);
@@ -92,12 +112,14 @@ namespace clmr
 
     bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
     {
-        if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
+        if ( pFnDecl->isImplicit() ||
              pFnDecl->isDeleted() ||
              pFnDecl->isInAnonymousNamespace() ||
+             pFnDecl->isFunctionTemplateSpecialization() ||
             (pFnDecl->isGlobal() && pFnDecl->isStatic()) ||
              pFnDecl->isOverloadedOperator() ||
              pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
+             pFnDecl->getKind() == Decl::Kind::CXXConversion ||
              pFnDecl->getAccess() == AS_private ||
              pFnDecl->getAccess() == AS_protected ||
              pFnDecl->getLinkageInternal() != Linkage::External) {
@@ -108,7 +130,9 @@ namespace clmr
             return true;
         }
 
-        if (pFnDecl->getFirstDecl() == nullptr) {
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
+        SourceLocation loc = SM.getExpansionLoc(pFnDecl->getLocation());
+        if (loc.isInvalid() || !SM.isInMainFile(loc)) {
             return true;
         }
 
@@ -133,47 +157,67 @@ namespace clmr
 
     void ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pDeclFile)
     {
+        std::vector<std::string> headers;
         std::vector<std::string> parmTypes;
         const auto& params = pFnDecl->parameters();
         const auto& fnQName = pFnDecl->getQualifiedNameAsString();
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
 
         for (unsigned index = 0; index < params.size(); index++)
         {
             const auto& qT = params[index]->getOriginalType();
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
             if (!qT->isBuiltinType() &&
-               ( shouldBeExcluded(argStr) ||
+               ( taggedForExclusion(argStr) ||
                 !isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile))) {
                 return;
             }
             parmTypes.push_back(argStr);
+            auto incStr = getHashIncludeStr(params[index]);
+            if (incStr) {
+                headers.push_back(*incStr);
+            }
         }
 
-        const auto& qT = pFnDecl->getReturnType();
+        auto qT = pFnDecl->getReturnType().getNonReferenceType();
+        if (qT->isPointerType()) {
+            qT = qT->getPointeeType();
+        }
+
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        if (!qT->isBuiltinType() &&
-            !isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)){
-            return;
+        if (!qT->isBuiltinType()) 
+        {
+            if ( taggedForExclusion(returnStr) ||
+                !isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
+                return;
+            }
+
+            auto incStr = getHashIncludeStr(qT->getAsTagDecl());
+            if (incStr) {
+                headers.push_back(*incStr);
+            }
         }
 
+        
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) return;
 
         const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-        if (shouldBeExcluded(fname) || 
-            shouldBeExcluded(returnStr) || 
-            shouldBeExcluded(recordStr)) {
+        if (taggedForExclusion(fname) || 
+            taggedForExclusion(returnStr) || 
+            taggedForExclusion(recordStr)) {
             return;
         }
 
         auto hashIncludeStr = m_preProcessor.getIncludeStrAsWritten(pDeclFile);
         if (!hashIncludeStr) {
-            Logger::outError("hash include string not found for header including entity: " + fname);
+            return;
         }
 
+        headers.push_back(*hashIncludeStr);
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
-                .headers = { *hashIncludeStr },
+                .headers = headers,
                 .function = fname
         }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
     }

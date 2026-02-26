@@ -1,6 +1,6 @@
 
 #include <queue>
-
+#include "Logger.h"
 #include "ClangPPCallbacks.h"
 
 using namespace clang;
@@ -17,7 +17,11 @@ namespace clmr {
     std::optional<std::string> ClangPPCallbacks::getIncludeStrAsWritten(const clang::FileEntry *pIncFile)
     {
         const auto& itr = m_includeStrMap.find(pIncFile);
-        return (itr != m_includeStrMap.end() ? std::make_optional(itr->second) : std::nullopt);
+        if (itr == m_includeStrMap.end()) {
+            Logger::outDbg("`#include` str not found for header : " + pIncFile->tryGetRealPathName().str());
+            return std::nullopt;
+        }
+        return std::make_optional(itr->second);
     }
 
     bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry *pHeaderFE,
