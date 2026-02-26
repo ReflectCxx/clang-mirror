@@ -35,7 +35,7 @@ namespace {
         const auto& exclusions = clmr::ASTCodeManager::instance().getExcludeNamespaces();
         for (const auto& excStr : exclusions) {
             if (pStr.find(excStr + "::") != std::string::npos ||
-                // exclude templates as well. (not supporting yet)
+                // exclude templates as well. (not supported yet)
                 pStr.find('<') != std::string::npos) {
                 return true;
             }
@@ -175,6 +175,7 @@ namespace clmr
                 return;
             }
             parmTypes.push_back(argStr);
+
             auto* T = params[index]->getOriginalType().getTypePtrOrNull();
             if (const RecordType* RT = T->getAs<RecordType>()) 
             {

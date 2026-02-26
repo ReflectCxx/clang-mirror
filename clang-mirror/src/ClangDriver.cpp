@@ -49,6 +49,14 @@ namespace
         cl::cat(g_clangMirrorCategory)
     );
 
+    static cl::list<std::string> g_includePaths(
+        "include-paths",
+        cl::desc("Publicly accessible include dirs (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
+
     static cl::list<std::string> g_excludeNamespaces(
         "exclude-namespaces",
         cl::desc("Namespaces to exclude (comma separated or repeated flag)"),
@@ -146,7 +154,12 @@ namespace clmr
         }
 
         ASTCodeManager::instance().setOutDir(g_outDir);
-        ASTCodeManager::instance().setExcludeNamespaces({ g_excludeNamespaces.begin(), g_excludeNamespaces.end() });
+
+        ASTCodeManager::instance().setExcludeNamespaces({ g_excludeNamespaces.begin(),
+                                                          g_excludeNamespaces.end() });
+
+        ASTCodeManager::instance().setPublicIncludePaths({ g_includePaths.begin(),
+                                                           g_includePaths.end() });
 
         return runClangParser({ srcs.begin(), srcs.end() },
                               (cdb ? *cdb : optionsParser->getCompilations()));

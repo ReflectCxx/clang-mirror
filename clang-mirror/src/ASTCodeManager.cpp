@@ -26,6 +26,11 @@ namespace clmr {
         m_excludeNamespaces = pExcludeNs;
     }
 
+    void ASTCodeManager::setPublicIncludePaths(const std::vector<std::string>& pIncludePaths)
+    {
+        m_includePaths = pIncludePaths;
+    }
+
     ASTCodeManager& ASTCodeManager::instance()
     {
         static ASTCodeManager instance;
