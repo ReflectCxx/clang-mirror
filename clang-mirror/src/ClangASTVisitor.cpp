@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <filesystem>
 
 #include "Logger.h"
 #include "Constants.h"
@@ -35,8 +36,7 @@ namespace {
         const auto& exclusions = clmr::ASTCodeManager::instance().getExcludeNamespaces();
         for (const auto& excStr : exclusions) {
             if (pStr.find(excStr + "::") != std::string::npos ||
-                // exclude templates as well. (not supported yet)
-                pStr.find('<') != std::string::npos) {
+                pStr.find('<') != std::string::npos) {  // exclude templates as well. (not supported yet)
                 return true;
             }
         }
@@ -57,6 +57,36 @@ namespace {
         }
         return nullptr;
     }
+
+    bool isPathRelativeToBase(const std::string& pBasePath, const std::string& pOther)
+    {
+        namespace fs = std::filesystem;
+        fs::path basePath = fs::weakly_canonical(fs::path(pBasePath));
+        fs::path otherPath = fs::weakly_canonical(fs::path(pOther));
+        basePath = basePath.lexically_normal();
+        otherPath = otherPath.lexically_normal();
+
+        auto bItr = basePath.begin();
+        auto oItr = otherPath.begin();
+        for (; bItr != basePath.end() && oItr != otherPath.end(); ++bItr, ++oItr) {
+            if (*bItr != *oItr){
+                return false;
+            }
+        }
+        return bItr == basePath.end();
+    }
+
+    bool isPublicHeader(const FileEntry* file)
+    {
+        const auto& publicIncPaths = clmr::ASTCodeManager::instance().getPublicIncludePaths();
+        for (auto& incPath : publicIncPaths) {
+            auto realPath = file->tryGetRealPathName().str();
+            if(isPathRelativeToBase(incPath, realPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 
@@ -68,14 +98,22 @@ namespace clmr
 	{ }
 
 
-    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(clang::Decl* pTypeDecl, std::string_view pTypeStr)
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(clang::Decl* pTypeDecl, std::string_view pTypeStr,
+                                                                  bool pShouldBePublic)
     {
         if (pTypeDecl)
         {
             auto& SM = pTypeDecl->getASTContext().getSourceManager();
             SourceLocation loc = SM.getExpansionLoc(pTypeDecl->getLocation());
             const FileEntry* file = SM.getFileEntryForID(SM.getFileID(loc));
-            return m_preProcessor.getIncludeStrAsWritten(file, pTypeStr);
+
+            bool skipFile = pShouldBePublic;
+            if(pShouldBePublic) {
+                skipFile = isPublicHeader(file);
+            }
+            if (!skipFile) {
+                return m_preProcessor.getIncludeStrAsWritten(file, pTypeStr);
+            }
         }
         return std::optional<std::string>();
     }
@@ -148,7 +186,7 @@ namespace clmr
         }
 
         auto* declFile = getDeclaringFile(pFnDecl);
-        if (declFile) {
+        if (declFile && isPublicHeader(declFile)) {
             addReflectableEntity(pFnDecl, declFile);
         }
         return true;
@@ -181,7 +219,7 @@ namespace clmr
             {
                 const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
                 if (RD) {
-                    auto incStr = getHashIncludeStr(RD->getDefinition(), argStr);
+                    auto incStr = getHashIncludeStr(RD->getDefinition(), argStr, false);
                     if (incStr) {
                         headers.push_back(*incStr);
                     }
@@ -206,7 +244,7 @@ namespace clmr
             if (!isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
                 return;
             }
-            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), returnStr);
+            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), returnStr, false);
             if (incStr) {
                 headers.push_back(*incStr);
             }
