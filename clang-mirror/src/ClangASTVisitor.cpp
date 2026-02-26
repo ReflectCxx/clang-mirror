@@ -86,7 +86,7 @@ namespace clmr
                                                    const std::string& pTypeStr,
                                                    const clang::FileEntry* pSrcHeader)
     {
-        QualType QT = pQT.getNonReferenceType();
+        QualType QT = pQT.getNonReferenceType().getUnqualifiedType();
         if (QT->isPointerType()) {
             QT = QT->getPointeeType();
         }
@@ -167,16 +167,33 @@ namespace clmr
         {
             const auto& qT = params[index]->getOriginalType();
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
-            if (!qT->isBuiltinType() &&
-               ( taggedForExclusion(argStr) ||
-                !isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile))) {
+            if (qT->isBuiltinType() || taggedForExclusion(argStr)) {
+                return;
+            }
+
+            if (!isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
                 return;
             }
             parmTypes.push_back(argStr);
-            auto incStr = getHashIncludeStr(params[index]);
-            if (incStr) {
-                headers.push_back(*incStr);
+            auto* T = params[index]->getOriginalType().getTypePtrOrNull();
+            if (const RecordType* RT = T->getAs<RecordType>()) 
+            {
+                const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
+                if (RD) {
+                    auto incStr = getHashIncludeStr(RD->getDefinition());
+                    if (incStr) {
+                        headers.push_back(*incStr);
+                    }
+                }
             }
+            else {
+                Logger::outDbg("[skip] arg-type header lookup for : " + argStr);
+            }
+        }
+
+        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        if (taggedForExclusion(returnStr)) {
+            return;
         }
 
         auto qT = pFnDecl->getReturnType().getNonReferenceType();
@@ -184,20 +201,15 @@ namespace clmr
             qT = qT->getPointeeType();
         }
 
-        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        if (!qT->isBuiltinType()) 
-        {
-            if ( taggedForExclusion(returnStr) ||
-                !isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
+        if (!qT->isBuiltinType()) {
+            if (!isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
                 return;
             }
-
-            auto incStr = getHashIncludeStr(qT->getAsTagDecl());
+            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition());
             if (incStr) {
                 headers.push_back(*incStr);
             }
         }
-
         
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) return;
