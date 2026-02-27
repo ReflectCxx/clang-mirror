@@ -118,7 +118,7 @@ namespace clmr
         MetaKind metaKind = MetaKind::None;
 
         if (const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl)) {
-            if (ctor->isUserProvided() && !ctor->isDefaultConstructor() &&
+            if ( ctor->getNumParams() != 0 &&
                 !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
                 metaKind = MetaKind::Ctor;
             }

@@ -23,10 +23,10 @@ namespace clmr
     ClangASTVisitor::ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP)
         : m_srcFile(pSrcFile)
         , m_preProcessor(pPP)
-	{ }
+    { }
 
 
-    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(Decl* pTypeDecl, std::string_view pTypeStr,
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(const TagDecl* pTypeDecl, std::string_view pTypeStr,
                                                                   bool pShouldBePublic)
     {
         if (pTypeDecl)
@@ -36,7 +36,7 @@ namespace clmr
             const FileEntry* file = SM.getFileEntryForID(SM.getFileID(loc));
 
             bool skipFile = pShouldBePublic;
-            if(pShouldBePublic) {
+            if (pShouldBePublic) {
                 skipFile = isPublicHeader(file);
             }
             if (!skipFile) {
@@ -48,7 +48,7 @@ namespace clmr
 
 
     bool ClangASTVisitor::isHeaderReachableForType(const QualType& pQT,
-                                                   const FunctionDecl *pFnDecl,
+                                                   const FunctionDecl* pFnDecl,
                                                    const std::string& pTypeStr,
                                                    const FileEntry* pSrcHeader)
     {
@@ -76,7 +76,7 @@ namespace clmr
     }
 
 
-    bool ClangASTVisitor::extractArgsAndItsHeaders(const FunctionDecl *pFnDecl,
+    bool ClangASTVisitor::extractArgsAndItsHeaders(const FunctionDecl* pFnDecl,
                                                    const FileEntry* pDeclFile,
                                                    std::vector<std::string>& pArgsStrs,
                                                    std::vector<std::string>& pHeaders)
@@ -88,25 +88,25 @@ namespace clmr
         for (unsigned index = 0; index < params.size(); index++)
         {
             auto qT = params[index]->getOriginalType();
-            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);                
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
             pArgsStrs.push_back(argStr);
-            if (qT->isBuiltinType()) {
-                continue;
-            }
-
-            if ( taggedForExclusion(argStr) || 
-                !isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
-                return false;
-            }
 
             qT = qT.getNonReferenceType().getUnqualifiedType();
             if (qT->isPointerType()) {
                 qT = qT->getPointeeType();
             }
 
+            if (qT->isBuiltinType()) {
+                continue;
+            }
+
+            if ( taggedForExclusion(argStr) ||
+                !isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
+                return false;
+            }
+
             auto* T = qT.getTypePtrOrNull();
-            if (const RecordType* RT = T->getAs<RecordType>()) 
-            {
+            if (const RecordType* RT = T->getAs<RecordType>()) {
                 const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
                 if (RD) {
                     auto incStr = getHashIncludeStr(RD->getDefinition(), argStr, false);
@@ -114,6 +114,19 @@ namespace clmr
                         pHeaders.push_back(*incStr);
                     }
                 }
+            }
+            else if (const EnumType* ET = T->getAs<EnumType>()) {
+                const EnumDecl* ED = ET->getDecl();
+                if (ED) {
+                    if (const EnumDecl* Def = ED->getDefinition()) {
+                        auto incStr = getHashIncludeStr(Def, argStr, false);
+                        if (incStr) {
+                            pHeaders.push_back(*incStr);
+                        }
+                    }
+                    else Logger::outDbg("(ast-err) unresolved arg-type: " + argStr);
+                }
+                else Logger::outDbg("(ast-err) unresolved arg-type: " + argStr);
             }
             else {
                 Logger::outDbg("(err) unresolved arg-type: " + argStr);
@@ -167,6 +180,13 @@ namespace clmr
         SourceLocation loc = SM.getExpansionLoc(pFnDecl->getLocation());
         if (loc.isInvalid() || !SM.isInMainFile(loc)) {
             return true;
+        }
+
+        const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl);
+        if (ctor) {
+            if (ctor->getNumParams() == 0) {
+                return true;
+            }
         }
 
         const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl);

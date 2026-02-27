@@ -15,7 +15,7 @@ namespace clmr {
         const std::string m_srcFile;
         ClangPPCallbacks& m_preProcessor;
 
-        std::optional<std::string> getHashIncludeStr(clang::Decl* pTypeDecl, std::string_view pTypeStr,
+        std::optional<std::string> getHashIncludeStr(const clang::TagDecl* pTypeDecl, std::string_view pTypeStr,
                                                      bool pShouldBePublic);
 
         void addReflectableEntity(const clang::FunctionDecl* pFnDecl,
