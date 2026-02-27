@@ -26,6 +26,7 @@ namespace {
         for (const auto& excStr : exclusions) {
             if (pStr.find(excStr + "::") != std::string::npos ||
                 pStr.find('<') != std::string::npos) {  // exclude templates as well. (not supported yet)
+                clmr::Logger::outDbg("excluded by policy.");
                 return true;
             }
         }
@@ -47,11 +48,11 @@ namespace {
         return nullptr;
     }
 
-    static bool isPathRelativeToBase(const std::string& pBasePath, const std::string& pOther)
+    static bool isSubDirectoryOf(const std::string& pBaseDir, const std::string& pSubDir)
     {
         namespace fs = std::filesystem;
-        fs::path basePath = fs::weakly_canonical(fs::path(pBasePath));
-        fs::path otherPath = fs::weakly_canonical(fs::path(pOther));
+        fs::path basePath = fs::weakly_canonical(fs::path(pBaseDir));
+        fs::path otherPath = fs::weakly_canonical(fs::path(pSubDir));
         basePath = basePath.lexically_normal();
         otherPath = otherPath.lexically_normal();
 
@@ -68,16 +69,20 @@ namespace {
     static bool isPublicHeader(const clang::FileEntry* file)
     {
         const auto& publicIncPaths = clmr::ASTCodeManager::instance().getPublicIncludePaths();
+        if (publicIncPaths.empty()) {
+            return true;
+        }
         for (auto& incPath : publicIncPaths) {
             auto realPath = file->tryGetRealPathName().str();
-            if(realPath.empty()) {
+            if (realPath.empty()) {
                 clmr::Logger::outError("clang::FileEntry::tryGetRealPathName() -> failed.");
                 continue;
             }
-            if(isPathRelativeToBase(incPath, realPath)) {
+            if (isSubDirectoryOf(incPath, realPath)) {
                 return true;
             }
         }
+        clmr::Logger::outDbg("header not public.");
         return false;
     }
 }

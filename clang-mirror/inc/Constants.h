@@ -20,7 +20,6 @@ namespace clmr
 		inline constexpr std::string_view WHITE = "\033[37m";
 		inline constexpr std::string_view TEAL = "\033[38;2;0;128;128m";
 		inline constexpr std::string_view GREY = "\033[38;2;118;118;118m";
-		inline constexpr std::string_view GREY_LITE = "\033[38;2;144;144;144m";
 	}
 
 	inline constexpr std::size_t index_none = std::size_t(-1);
@@ -29,7 +28,6 @@ namespace clmr
 	inline constexpr std::string_view ENUM = "enum";
 	inline constexpr std::string_view CLASS = "class";
 	inline constexpr std::string_view STRUCT = "struct";
-	
 
 	inline constexpr std::string_view VAR_ID = "id";
 	inline constexpr std::string_view NS_CXX = "cxx";

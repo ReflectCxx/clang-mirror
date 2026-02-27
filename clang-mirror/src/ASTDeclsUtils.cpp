@@ -96,7 +96,7 @@ namespace clmr
             if (const TemplateDecl* TD = TST->getTemplateName().getAsTemplateDecl()){
                 return resolveHeaderFromDecl(TD, SM, pPP);
             }
-            Logger::outDbg("[skip] (TemplateSpecializationType) " + QT.getAsString());
+            Logger::outDbg("(unsupported) TemplateSpecializationType: " + QT.getAsString());
             return nullptr;   
         }
 
@@ -107,7 +107,7 @@ namespace clmr
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
 
-        Logger::outDbg("[skip] (unknown) " + QT.getAsString());
+        Logger::outDbg("(err) unresolved type:" + QT.getAsString());
         return nullptr;
     }
 	

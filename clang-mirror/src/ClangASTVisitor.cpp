@@ -1,9 +1,7 @@
 
 #include <iostream>
 #include <algorithm>
-#include <filesystem>
 
-#include "Logger.h"
 #include "Constants.h"
 #include "StringUtils.h"
 #include "ASTCodeManager.h"
@@ -60,7 +58,7 @@ namespace clmr
         }
 
         if (QT->isIncompleteType()) {
-            Logger::outDbg("[skip] (incomplete type) " + pTypeStr);
+            Logger::outDbg("incomplete type: " + pTypeStr);
             return false;
         }
 
@@ -71,7 +69,7 @@ namespace clmr
             //}
         }
         else {
-            Logger::outDbg("header not found for type: " + pTypeStr);
+            Logger::outDbg("(err) header not found for type: " + pTypeStr);
             return false;
         }
         return true;
@@ -89,18 +87,24 @@ namespace clmr
 
         for (unsigned index = 0; index < params.size(); index++)
         {
-            const auto& qT = params[index]->getOriginalType();
-            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
-            if (qT->isBuiltinType() || taggedForExclusion(argStr)) {
-                return false;
-            }
-
-            if (!isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
-                return false;
-            }
+            auto qT = params[index]->getOriginalType();
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);                
             pArgsStrs.push_back(argStr);
+            if (qT->isBuiltinType()) {
+                continue;
+            }
 
-            auto* T = params[index]->getOriginalType().getTypePtrOrNull();
+            if ( taggedForExclusion(argStr) || 
+                !isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
+                return false;
+            }
+
+            qT = qT.getNonReferenceType().getUnqualifiedType();
+            if (qT->isPointerType()) {
+                qT = qT->getPointeeType();
+            }
+
+            auto* T = qT.getTypePtrOrNull();
             if (const RecordType* RT = T->getAs<RecordType>()) 
             {
                 const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
@@ -112,7 +116,8 @@ namespace clmr
                 }
             }
             else {
-                Logger::outDbg("[skip] arg-type header lookup for : " + argStr);
+                Logger::outDbg("(err) unresolved arg-type: " + argStr);
+                return false;
             }
         }
         return true;
@@ -147,21 +152,14 @@ namespace clmr
 
     bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
     {
-        if ( pFnDecl->isImplicit() ||
+        if ( pFnDecl->getDefinition() != pFnDecl ||
              pFnDecl->isDeleted() ||
-             pFnDecl->isInAnonymousNamespace() ||
-             pFnDecl->isFunctionTemplateSpecialization() ||
-            (pFnDecl->isGlobal() && pFnDecl->isStatic()) ||
+             pFnDecl->isImplicit() ||
              pFnDecl->isOverloadedOperator() ||
-             pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
-             pFnDecl->getKind() == Decl::Kind::CXXConversion ||
-             pFnDecl->getAccess() == AS_private ||
-             pFnDecl->getAccess() == AS_protected ||
-             pFnDecl->getLinkageInternal() != Linkage::External) {
-            return true;
-        }
-
-        if (!pFnDecl->isThisDeclarationADefinition()) {
+             pFnDecl->isFunctionTemplateSpecialization() ||
+             pFnDecl->getLinkageInternal() != Linkage::External ||
+             isa<CXXConversionDecl>(pFnDecl) || isa<CXXDestructorDecl>(pFnDecl) ||
+            (isa<CXXMethodDecl>(pFnDecl) && cast<CXXMethodDecl>(pFnDecl)->getAccess() != AS_public)) {
             return true;
         }
 
@@ -182,9 +180,14 @@ namespace clmr
             }
         }
 
+        Logger::outDbg(pFnDecl->getNameAsString() + "()", "^^");
+
         auto* declFile = getDeclaringFile(pFnDecl);
         if (declFile && isPublicHeader(declFile)) {
             addReflectableEntity(pFnDecl, declFile);
+        }
+        else {
+            Logger::outDbg("(skip)");
         }
         return true;
     }
@@ -192,30 +195,34 @@ namespace clmr
 
     void ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pDeclFile)
     {
-        std::vector<std::string> headers;
-        std::vector<std::string> parmTypes;
-
-        if(!extractArgsAndItsHeaders(pFnDecl, pDeclFile, parmTypes, headers)) {
-            return;
-        }
-        
-        auto returnStr = getReturnStrAndItsHeaders(pFnDecl, pDeclFile, headers);
-        if (!returnStr) {
-            return;
-        }
-
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None || taggedForExclusion(fname)) {
+            Logger::outDbg("(skip)");
             return;
         }
 
         const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
         if (taggedForExclusion(recordStr)) {
+            Logger::outDbg("(skip)");
+            return;
+        }
+
+        std::vector<std::string> headers;
+        std::vector<std::string> argsTypeStr;
+        if(!extractArgsAndItsHeaders(pFnDecl, pDeclFile, argsTypeStr, headers)) {
+            Logger::outDbg("(skip)");
+            return;
+        }
+        
+        auto returnStr = getReturnStrAndItsHeaders(pFnDecl, pDeclFile, headers);
+        if (!returnStr) {
+            Logger::outDbg("(skip)");
             return;
         }
 
         auto hashIncludeStr = m_preProcessor.getIncludeStrAsWritten(pDeclFile, fname + "()");
         if (!hashIncludeStr) {
+            Logger::outDbg("(skip)");
             return;
         }
         headers.push_back(*hashIncludeStr);
@@ -224,6 +231,6 @@ namespace clmr
         codeBuffer->addFunction(metaKind, {
                 .headers = headers,
                 .function = fname
-        }, recordStr, *returnStr, StringUtils::getParamTypesStr(parmTypes));
+        }, recordStr, *returnStr, StringUtils::getParamTypesStr(argsTypeStr));
     }
 }
