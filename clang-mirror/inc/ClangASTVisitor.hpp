@@ -2,8 +2,9 @@
 
 #include <string>
 #include <filesystem>
-#include "ASTCodeManager.h"
 
+#include "Logger.h"
+#include "ASTCodeManager.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 
 namespace {
@@ -69,6 +70,10 @@ namespace {
         const auto& publicIncPaths = clmr::ASTCodeManager::instance().getPublicIncludePaths();
         for (auto& incPath : publicIncPaths) {
             auto realPath = file->tryGetRealPathName().str();
+            if(realPath.empty()) {
+                clmr::Logger::outError("clang::FileEntry::tryGetRealPathName() -> failed.");
+                continue;
+            }
             if(isPathRelativeToBase(incPath, realPath)) {
                 return true;
             }

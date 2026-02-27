@@ -28,7 +28,7 @@ namespace clmr
 	{ }
 
 
-    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(clang::Decl* pTypeDecl, std::string_view pTypeStr,
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(Decl* pTypeDecl, std::string_view pTypeStr,
                                                                   bool pShouldBePublic)
     {
         if (pTypeDecl)
@@ -49,10 +49,10 @@ namespace clmr
     }
 
 
-    bool ClangASTVisitor::isHeaderReachableForType(const clang::QualType& pQT,
-                                                   const clang::FunctionDecl *pFnDecl,
+    bool ClangASTVisitor::isHeaderReachableForType(const QualType& pQT,
+                                                   const FunctionDecl *pFnDecl,
                                                    const std::string& pTypeStr,
-                                                   const clang::FileEntry* pSrcHeader)
+                                                   const FileEntry* pSrcHeader)
     {
         QualType QT = pQT.getNonReferenceType().getUnqualifiedType();
         if (QT->isPointerType()) {
@@ -75,6 +75,73 @@ namespace clmr
             return false;
         }
         return true;
+    }
+
+
+    bool ClangASTVisitor::extractArgsAndItsHeaders(const FunctionDecl *pFnDecl,
+                                                   const FileEntry* pDeclFile,
+                                                   std::vector<std::string>& pArgsStrs,
+                                                   std::vector<std::string>& pHeaders)
+    {
+        const auto& params = pFnDecl->parameters();
+        const auto& fnQName = pFnDecl->getQualifiedNameAsString();
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
+
+        for (unsigned index = 0; index < params.size(); index++)
+        {
+            const auto& qT = params[index]->getOriginalType();
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
+            if (qT->isBuiltinType() || taggedForExclusion(argStr)) {
+                return false;
+            }
+
+            if (!isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
+                return false;
+            }
+            pArgsStrs.push_back(argStr);
+
+            auto* T = params[index]->getOriginalType().getTypePtrOrNull();
+            if (const RecordType* RT = T->getAs<RecordType>()) 
+            {
+                const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
+                if (RD) {
+                    auto incStr = getHashIncludeStr(RD->getDefinition(), argStr, false);
+                    if (incStr) {
+                        pHeaders.push_back(*incStr);
+                    }
+                }
+            }
+            else {
+                Logger::outDbg("[skip] arg-type header lookup for : " + argStr);
+            }
+        }
+        return true;
+    }
+
+
+    std::optional<std::string> ClangASTVisitor::getReturnStrAndItsHeaders(const FunctionDecl* pFnDecl,
+                                                                          const FileEntry* pDeclFile,
+                                                                          std::vector<std::string>& pHeaders)
+    {
+        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        if (taggedForExclusion(returnStr)) {
+            return std::nullopt;
+        }
+        auto qT = pFnDecl->getReturnType().getNonReferenceType();
+        if (qT->isPointerType()) {
+            qT = qT->getPointeeType();
+        }
+
+        if (!qT->isBuiltinType()) {
+            if (!isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
+                return std::nullopt;
+            }
+            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), returnStr, false);
+            if (incStr) {
+                pHeaders.push_back(*incStr);
+            }
+        }
+        return returnStr;
     }
 
 
@@ -106,7 +173,7 @@ namespace clmr
 
         const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl);
         if (method) {
-            if(method->isOverloadedOperator() || llvm::isa<clang::CXXConversionDecl>(method)) {
+            if(method->isOverloadedOperator() || llvm::isa<CXXConversionDecl>(method)) {
                 return true;
             }
             const CXXRecordDecl* record = method->getParent();
@@ -127,66 +194,23 @@ namespace clmr
     {
         std::vector<std::string> headers;
         std::vector<std::string> parmTypes;
-        const auto& params = pFnDecl->parameters();
-        const auto& fnQName = pFnDecl->getQualifiedNameAsString();
-        auto& SM = pFnDecl->getASTContext().getSourceManager();
 
-        for (unsigned index = 0; index < params.size(); index++)
-        {
-            const auto& qT = params[index]->getOriginalType();
-            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
-            if (qT->isBuiltinType() || taggedForExclusion(argStr)) {
-                return;
-            }
-
-            if (!isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile)) {
-                return;
-            }
-            parmTypes.push_back(argStr);
-
-            auto* T = params[index]->getOriginalType().getTypePtrOrNull();
-            if (const RecordType* RT = T->getAs<RecordType>()) 
-            {
-                const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
-                if (RD) {
-                    auto incStr = getHashIncludeStr(RD->getDefinition(), argStr, false);
-                    if (incStr) {
-                        headers.push_back(*incStr);
-                    }
-                }
-            }
-            else {
-                Logger::outDbg("[skip] arg-type header lookup for : " + argStr);
-            }
+        if(!extractArgsAndItsHeaders(pFnDecl, pDeclFile, parmTypes, headers)) {
+            return;
         }
-
-        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        if (taggedForExclusion(returnStr)) {
+        
+        auto returnStr = getReturnStrAndItsHeaders(pFnDecl, pDeclFile, headers);
+        if (!returnStr) {
             return;
         }
 
-        auto qT = pFnDecl->getReturnType().getNonReferenceType();
-        if (qT->isPointerType()) {
-            qT = qT->getPointeeType();
-        }
-
-        if (!qT->isBuiltinType()) {
-            if (!isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile)) {
-                return;
-            }
-            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), returnStr, false);
-            if (incStr) {
-                headers.push_back(*incStr);
-            }
-        }
-        
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
-        if (metaKind == MetaKind::None) return;
+        if (metaKind == MetaKind::None || taggedForExclusion(fname)) {
+            return;
+        }
 
         const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-        if (taggedForExclusion(fname) || 
-            taggedForExclusion(returnStr) || 
-            taggedForExclusion(recordStr)) {
+        if (taggedForExclusion(recordStr)) {
             return;
         }
 
@@ -194,12 +218,12 @@ namespace clmr
         if (!hashIncludeStr) {
             return;
         }
-
         headers.push_back(*hashIncludeStr);
+        
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
                 .headers = headers,
                 .function = fname
-        }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
+        }, recordStr, *returnStr, StringUtils::getParamTypesStr(parmTypes));
     }
 }

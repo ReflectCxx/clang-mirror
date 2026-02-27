@@ -25,6 +25,16 @@ namespace clmr {
                                       const clang::FunctionDecl* pFnDecl,
                                       const std::string& pTypeStr,
                                       const clang::FileEntry* pSrcHeader);
+
+        bool extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
+                                      const clang::FileEntry* pDeclFile,
+                                      std::vector<std::string>& pArgsStrs,
+                                      std::vector<std::string>& pHeaders);
+
+        using optstr = std::optional<std::string>;
+        optstr getReturnStrAndItsHeaders(const clang::FunctionDecl *pFnDecl,
+                                         const clang::FileEntry* pDeclFile,
+                                         std::vector<std::string>& pHeaders);
     public:
 
         ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);
