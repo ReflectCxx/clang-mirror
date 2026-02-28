@@ -83,14 +83,14 @@ namespace clmr
 
 
     errfile ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
-                                                 const ASTContext& pContext,
+                                                 const ASTContext& pCtx,
                                                  const ClangPPCallbacks& pPP)
     {
         if (pQT.isNull()) {
             return { RegErr::AstParsing, nullptr };
         }
 
-        const SourceManager& SM = pContext.getSourceManager();
+        const SourceManager& SM = pCtx.getSourceManager();
         auto QT = pQT.getNonReferenceType();
 
         if (const auto* TST = QT->getAs<TemplateSpecializationType>()) {
@@ -100,17 +100,18 @@ namespace clmr
             return { RegErr::TemplateType, nullptr };
         }
 
+        if (QT->isFunctionPointerType()) {
+            return { RegErr::FunctionPtrType, nullptr };
+        }
+
         if (const TypedefType* TT = QT->getAs<TypedefType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
+        
         if (const TagType* TT = QT->getAs<TagType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
-        if (const PointerType* PT = QT.getCanonicalType()->getAs<PointerType>()) {
-            if (PT->getPointeeType()->isFunctionType()) {
-                return { RegErr::FunctionPtrType, nullptr };
-            }
-        }
+
         return { RegErr::UnresolvedType, nullptr };
     }
 	

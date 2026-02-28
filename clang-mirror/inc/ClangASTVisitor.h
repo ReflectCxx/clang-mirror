@@ -10,21 +10,18 @@ namespace clmr {
 
 namespace clmr {
 
-    using ErrStr = std::pair<RegErr, std::string>;
-
     class ClangASTVisitor : public clang::RecursiveASTVisitor<ClangASTVisitor>
     {
         const std::string m_srcFile;
         ClangPPCallbacks& m_preProcessor;
 
-        std::optional<std::string> getHashIncludeStr(const clang::TagDecl* pTypeDecl, bool pShouldBePublic);
+        std::optional<std::string> getHashIncludeStr(const clang::TagDecl* pTypeDecl);
 
         RegErr addReflectableEntity(const clang::FunctionDecl* pFnDecl,
                                     const clang::FileEntry* pDeclFile);
 
         RegErr isHeaderReachableForType(const clang::QualType& pQT,
-                                        const clang::FunctionDecl* pFnDecl,
-                                        const std::string& pTypeStr,
+                                        const clang::ASTContext& pCtx,
                                         const clang::FileEntry* pSrcHeader);
 
         RegErr extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
@@ -32,9 +29,10 @@ namespace clmr {
                                         std::vector<std::string>& pArgsStrs,
                                         std::vector<std::string>& pHeaders);
 
-        ErrStr getReturnStrAndItsHeaders(const clang::FunctionDecl *pFnDecl,
-                                         const clang::FileEntry* pDeclFile,
-                                         std::vector<std::string>& pHeaders);
+        RegErr getTypeStrAndDefiningHeader(const clang::QualType& pQT,
+                                           const clang::ASTContext& pCtx,
+                                           const clang::FileEntry* pDeclFile,
+                                           std::vector<std::string>& pHeaders);
     public:
 
         ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);

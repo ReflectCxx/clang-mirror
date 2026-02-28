@@ -26,29 +26,21 @@ namespace clmr
     { }
 
 
-    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(const TagDecl* pTypeDecl, bool pShouldBePublic)
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(const TagDecl* pTypeDecl)
     {
         if (pTypeDecl)
         {
             auto& SM = pTypeDecl->getASTContext().getSourceManager();
             SourceLocation loc = SM.getExpansionLoc(pTypeDecl->getLocation());
-            const FileEntry* file = SM.getFileEntryForID(SM.getFileID(loc));
-
-            bool skipFile = pShouldBePublic;
-            if (pShouldBePublic) {
-                skipFile = isPublicHeader(file);
-            }
-            if (!skipFile) {
-                return m_preProcessor.getHashIncludeAsWritten(file);
-            }
+            const FileEntry* file = SM.getFileEntryForID(SM.getFileID(loc)); 
+            return m_preProcessor.getHashIncludeAsWritten(file);
         }
         return std::optional<std::string>();
     }
 
 
     RegErr ClangASTVisitor::isHeaderReachableForType(const QualType& pQT,
-                                                     const FunctionDecl* pFnDecl,
-                                                     const std::string& pTypeStr,
+                                                     const ASTContext& pCtx,
                                                      const FileEntry* pSrcHeader)
     {
         QualType QT = pQT.getNonReferenceType().getUnqualifiedType();
@@ -59,7 +51,7 @@ namespace clmr
             return RegErr::IncompleteType;
         }
 
-        auto [err, incf] = ASTDeclsUtils::resolveHeaderFromType(QT, pFnDecl->getASTContext(), m_preProcessor);
+        auto [err, incf] = ASTDeclsUtils::resolveHeaderFromType(pQT, pCtx, m_preProcessor);
         if (!incf) {
             return err;
         }
@@ -82,79 +74,60 @@ namespace clmr
         for (auto* argDecl : pFnDecl->parameters())
         {
             const auto& qT = argDecl->getType();
+            auto err = getTypeStrAndDefiningHeader(qT, pFnDecl->getASTContext(), pDeclFile, pHeaders);
+            if (err != RegErr::None) {
+                return err;
+            }
+
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
+            err = taggedForExclusion(argStr);
+            if (err != RegErr::None) {
+                return err;
+            }
             pArgsStrs.push_back(argStr);
-            if(isBuiltInType(qT)) {
-                continue;
-            }
-
-            auto err = taggedForExclusion(argStr);
-            if (err != RegErr::None) {
-                return err;
-            }
-
-            err = isHeaderReachableForType(qT, pFnDecl, argStr, pDeclFile);
-            if (err != RegErr::None) {
-                return err;
-            }
-
-            auto* T = qT.getTypePtrOrNull();
-            if (const RecordType* RT = T->getAs<RecordType>()) {
-                const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
-                if (RD) {
-                    auto incStr = getHashIncludeStr(RD->getDefinition(), false);
-                    if (incStr) {
-                        pHeaders.push_back(*incStr);
-                    }
-                }
-                else return RegErr::AstParsing;
-            }
-            else if (const EnumType* ET = T->getAs<EnumType>()) {
-                const EnumDecl* ED = ET->getDecl();
-                if (ED) {
-                    if (const EnumDecl* Def = ED->getDefinition()) {
-                        auto incStr = getHashIncludeStr(Def, false);
-                        if (incStr) {
-                            pHeaders.push_back(*incStr);
-                        }
-                    }
-                    else return RegErr::AstParsing;
-                }
-                else return RegErr::AstParsing;
-            }
-            else return RegErr::AstParsing;
         }
         return RegErr::None;
     }
 
 
-    ErrStr ClangASTVisitor::getReturnStrAndItsHeaders(const FunctionDecl* pFnDecl,
-                                                      const FileEntry* pDeclFile,
-                                                      std::vector<std::string>& pHeaders)
+    RegErr ClangASTVisitor::getTypeStrAndDefiningHeader(const clang::QualType& pQT,
+                                                        const clang::ASTContext& pCtx,
+                                                        const FileEntry* pDeclFile,
+                                                        std::vector<std::string>& pHeaders)
     {
-        const auto& qT = pFnDecl->getReturnType();
-        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        if (isBuiltInType(qT)) {
-            return { RegErr::None,  returnStr };
-        }
-
-        auto err = taggedForExclusion(returnStr);
-        if (err != RegErr::None) {
-            return { err, "" };
+        if (isBuiltInType(pQT, pCtx)) {
+            return RegErr::None;
         }
         
-        err = isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile);
+        auto err = isHeaderReachableForType(pQT, pCtx, pDeclFile);
         if (err != RegErr::None) {
-            return { err, "" };
+            return err;
         }
-        auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), false);
-        if (incStr) {
-            pHeaders.push_back(*incStr);
+
+        auto* T = pQT.getTypePtrOrNull();
+        if (const RecordType* RT = T->getAs<RecordType>()) {
+            const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
+            if (RD) {
+                auto incStr = getHashIncludeStr(RD->getDefinition());
+                if (incStr) {
+                    pHeaders.push_back(*incStr);
+                    return RegErr::None;
+                }
+            }
         }
-        else {
-            return { RegErr::AstParsing,  "" };
+        else if (const EnumType* ET = T->getAs<EnumType>()) {
+            const EnumDecl* ED = ET->getDecl();
+            if (ED) {
+                if (const EnumDecl* Def = ED->getDefinition()) {
+                    auto incStr = getHashIncludeStr(Def);
+                    if (incStr) {
+                        pHeaders.push_back(*incStr);
+                        return RegErr::None;
+                    }
+                }
+            }
         }
-        return { RegErr::None,  returnStr };
+        return RegErr::AstParsing;
     }
 
 
@@ -183,17 +156,23 @@ namespace clmr
             return err;
         }
 
+        err = getTypeStrAndDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), pDeclFile, headers);
+        if (err != RegErr::None) {
+            return err;
+        }
+
+        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        err = taggedForExclusion(returnStr);
+        if (err != RegErr::None) {
+            return err;
+        }
+        
         std::vector<std::string> argsTypeStr;
         err = extractArgsAndItsHeaders(pFnDecl, pDeclFile, argsTypeStr, headers);
         if (err != RegErr::None) {
             return err;
         }
 
-        auto [err0, returnStr] = getReturnStrAndItsHeaders(pFnDecl, pDeclFile, headers);
-        if (err0 != RegErr::None) {
-            return err0;
-        }
-        
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
             .headers = headers,

@@ -9,11 +9,15 @@
 
 namespace {
 
-    static bool isBuiltInType(const clang::QualType& pQT)
+    static bool isBuiltInType(const clang::QualType& pQT,
+                              const clang::ASTContext& pCtx)
     {
         auto qT = pQT.getNonReferenceType().getUnqualifiedType();
-        if (qT->isPointerType()) {
+        qT = qT.getDesugaredType(pCtx);
+
+        while (qT->isPointerType()) {
             qT = qT->getPointeeType();
+            qT = qT.getDesugaredType(pCtx);
         }
         return qT->isBuiltinType();
     }
