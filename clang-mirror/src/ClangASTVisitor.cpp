@@ -26,8 +26,7 @@ namespace clmr
     { }
 
 
-    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(const TagDecl* pTypeDecl, std::string_view pTypeStr,
-                                                                  bool pShouldBePublic)
+    std::optional<std::string> ClangASTVisitor::getHashIncludeStr(const TagDecl* pTypeDecl, bool pShouldBePublic)
     {
         if (pTypeDecl)
         {
@@ -40,7 +39,7 @@ namespace clmr
                 skipFile = isPublicHeader(file);
             }
             if (!skipFile) {
-                return m_preProcessor.getHashIncludeAsWritten(file, pTypeStr);
+                return m_preProcessor.getHashIncludeAsWritten(file);
             }
         }
         return std::optional<std::string>();
@@ -103,7 +102,7 @@ namespace clmr
             if (const RecordType* RT = T->getAs<RecordType>()) {
                 const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
                 if (RD) {
-                    auto incStr = getHashIncludeStr(RD->getDefinition(), argStr, false);
+                    auto incStr = getHashIncludeStr(RD->getDefinition(), false);
                     if (incStr) {
                         pHeaders.push_back(*incStr);
                     }
@@ -114,7 +113,7 @@ namespace clmr
                 const EnumDecl* ED = ET->getDecl();
                 if (ED) {
                     if (const EnumDecl* Def = ED->getDefinition()) {
-                        auto incStr = getHashIncludeStr(Def, argStr, false);
+                        auto incStr = getHashIncludeStr(Def, false);
                         if (incStr) {
                             pHeaders.push_back(*incStr);
                         }
@@ -133,85 +132,41 @@ namespace clmr
                                                       const FileEntry* pDeclFile,
                                                       std::vector<std::string>& pHeaders)
     {
+        const auto& qT = pFnDecl->getReturnType();
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        if (isBuiltInType(qT)) {
+            return { RegErr::None,  returnStr };
+        }
+
         auto err = taggedForExclusion(returnStr);
         if (err != RegErr::None) {
             return { err, "" };
         }
-        auto qT = pFnDecl->getReturnType().getNonReferenceType();
-        if (qT->isPointerType()) {
-            qT = qT->getPointeeType();
+        
+        err = isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile);
+        if (err != RegErr::None) {
+            return { err, "" };
         }
-
-        if (!qT->isBuiltinType()) {
-            err = isHeaderReachableForType(pFnDecl->getReturnType(), pFnDecl, returnStr, pDeclFile);
-            if (err != RegErr::None) {
-                return { err, "" };
-            }
-            auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), returnStr, false);
-            if (incStr) {
-                pHeaders.push_back(*incStr);
-            }
+        auto incStr = getHashIncludeStr(qT->getAsTagDecl()->getDefinition(), false);
+        if (incStr) {
+            pHeaders.push_back(*incStr);
+        }
+        else {
+            return { RegErr::AstParsing,  "" };
         }
         return { RegErr::None,  returnStr };
     }
 
 
-    bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
-    {
-        if ( pFnDecl->getDefinition() != pFnDecl ||
-             pFnDecl->isDeleted() ||
-             pFnDecl->isImplicit() ||
-             pFnDecl->isOverloadedOperator() ||
-             pFnDecl->isFunctionTemplateSpecialization() ||
-             pFnDecl->getLinkageInternal() != Linkage::External ||
-             isa<CXXConversionDecl>(pFnDecl) || isa<CXXDestructorDecl>(pFnDecl) ||
-            (isa<CXXMethodDecl>(pFnDecl) && cast<CXXMethodDecl>(pFnDecl)->getAccess() != AS_public)) {
-            return true;
-        }
-
-        auto& SM = pFnDecl->getASTContext().getSourceManager();
-        SourceLocation loc = SM.getExpansionLoc(pFnDecl->getLocation());
-        if (loc.isInvalid() || !SM.isInMainFile(loc)) {
-            return true;
-        }
-
-        auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl);
-        if (ctor && (ctor->getNumParams() == 0 ||
-            ctor->isCopyConstructor() || ctor->isMoveConstructor())) {
-            return true;
-        }
-
-        auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl);
-        if (method) {
-            if(method->isOverloadedOperator()) {
-                return true;
-            }
-            auto* record = method->getParent();
-            if (record->getAccess() == AS_private || record->getAccess() == AS_protected) {
-                return true;
-            }
-        }
-
-        auto* headerFile = getDeclaringFile(pFnDecl);
-        if (headerFile) {
-            auto err = RegErr::HeaderNotPublic;
-            if (isPublicHeader(headerFile)) {
-                err = addReflectableEntity(pFnDecl, headerFile);
-            }
-            if (err != RegErr::None && err != RegErr::ExclusionByPolicy && err != RegErr::HeaderNotPublic) {
-                Logger::outDbg(pFnDecl->getNameAsString() + "()", err, "^^");
-            }
-        }
-        else {
-            Logger::outDbg(pFnDecl->getNameAsString() + "()", RegErr::AstParsing, "^^");
-        }
-        return true;
-    }
-
-
     RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pDeclFile)
     {
+        std::vector<std::string> headers;
+        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pDeclFile);
+        if (!hashIncludeStr) {
+            return RegErr::AstParsing;
+        }
+        headers.push_back(*hashIncludeStr);
+
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) {
             return RegErr::AstParsing;
@@ -228,7 +183,6 @@ namespace clmr
             return err;
         }
 
-        std::vector<std::string> headers;
         std::vector<std::string> argsTypeStr;
         err = extractArgsAndItsHeaders(pFnDecl, pDeclFile, argsTypeStr, headers);
         if (err != RegErr::None) {
@@ -239,12 +193,6 @@ namespace clmr
         if (err0 != RegErr::None) {
             return err0;
         }
-
-        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pDeclFile, fname + "()");
-        if (!hashIncludeStr) {
-            return RegErr::AstParsing;
-        }
-        headers.push_back(*hashIncludeStr);
         
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
@@ -252,5 +200,28 @@ namespace clmr
             .function = fname
         }, recordStr, returnStr, StringUtils::getParamTypesStr(argsTypeStr));
         return RegErr::None;
+    }
+
+
+    bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
+    {
+        if (!isReflectableEntity(pFnDecl)) {
+            return true;
+        }
+
+        auto* headerFile = getDeclaringFile(pFnDecl);
+        if (headerFile) {
+            auto err = RegErr::HeaderNotPublic;
+            if (isPublicHeader(headerFile)) {
+                err = addReflectableEntity(pFnDecl, headerFile);
+            }
+            if (err != RegErr::None && err != RegErr::ExclusionByPolicy && err != RegErr::HeaderNotPublic) {
+                Logger::outDbg(pFnDecl->getNameAsString() + "()", err, "^^");
+            }
+        }
+        else {
+            Logger::outDbg(pFnDecl->getNameAsString() + "()", RegErr::AstParsing, "^^");
+        }
+        return true;
     }
 }

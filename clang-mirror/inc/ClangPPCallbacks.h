@@ -25,7 +25,7 @@ namespace clmr {
 
         ClangPPCallbacks(clang::CompilerInstance& CI);
 
-        std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pIncFile, std::string_view pTypeStr);
+        std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pIncFile);
 
         bool isFileReachableFromHeader(const clang::FileEntry *pHeaderFE,
                                        const clang::FileEntry* pFile);

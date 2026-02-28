@@ -94,4 +94,42 @@ namespace {
         }
         return true;
     }
+
+    bool isReflectableEntity(clang::FunctionDecl* pFnDecl)
+    {
+        if ( pFnDecl->getDefinition() != pFnDecl ||
+             pFnDecl->isDeleted() ||
+             pFnDecl->isImplicit() ||
+             pFnDecl->isOverloadedOperator() ||
+             pFnDecl->isFunctionTemplateSpecialization() ||
+             pFnDecl->getLinkageInternal() != clang::Linkage::External ||
+             isa<clang::CXXConversionDecl>(pFnDecl) || isa<clang::CXXDestructorDecl>(pFnDecl) ||
+            (isa<clang::CXXMethodDecl>(pFnDecl) && cast<clang::CXXMethodDecl>(pFnDecl)->getAccess() != clang::AS_public)) {
+            return false;
+        }
+
+        auto& SM = pFnDecl->getASTContext().getSourceManager();
+        clang::SourceLocation loc = SM.getExpansionLoc(pFnDecl->getLocation());
+        if (loc.isInvalid() || !SM.isInMainFile(loc)) {
+            return false;
+        }
+
+        auto* ctor = llvm::dyn_cast<clang::CXXConstructorDecl>(pFnDecl);
+        if (ctor && (ctor->getNumParams() == 0 ||
+            ctor->isCopyConstructor() || ctor->isMoveConstructor())) {
+            return false;
+        }
+
+        auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
+        if (method) {
+            if(method->isOverloadedOperator()) {
+                return false;
+            }
+            auto* record = method->getParent();
+            if (record->getAccess() == clang::AS_private || record->getAccess() == clang::AS_protected) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

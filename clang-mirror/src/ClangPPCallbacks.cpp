@@ -15,11 +15,10 @@ namespace clmr {
     }
 
 
-    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile, std::string_view pStr)
+    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile)
     {
         const auto& itr = m_includeStrMap.find(pIncFile);
         if (itr == m_includeStrMap.end()) {
-            Logger::outDbg("`#include` not found for type " + std::string(pStr) + ", from : " + pIncFile->tryGetRealPathName().str());
             return std::nullopt;
         }
         return std::make_optional(itr->second);
