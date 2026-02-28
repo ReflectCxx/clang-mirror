@@ -10,6 +10,8 @@ namespace clmr {
 
 namespace clmr {
 
+    using ErrStr = std::pair<RegErr, std::string>;
+
     class ClangASTVisitor : public clang::RecursiveASTVisitor<ClangASTVisitor>
     {
         const std::string m_srcFile;
@@ -18,21 +20,20 @@ namespace clmr {
         std::optional<std::string> getHashIncludeStr(const clang::TagDecl* pTypeDecl, std::string_view pTypeStr,
                                                      bool pShouldBePublic);
 
-        void addReflectableEntity(const clang::FunctionDecl* pFnDecl,
-                                  const clang::FileEntry* pDeclFile);
+        RegErr addReflectableEntity(const clang::FunctionDecl* pFnDecl,
+                                    const clang::FileEntry* pDeclFile);
 
-        bool isHeaderReachableForType(const clang::QualType& pQT,
-                                      const clang::FunctionDecl* pFnDecl,
-                                      const std::string& pTypeStr,
-                                      const clang::FileEntry* pSrcHeader);
+        RegErr isHeaderReachableForType(const clang::QualType& pQT,
+                                        const clang::FunctionDecl* pFnDecl,
+                                        const std::string& pTypeStr,
+                                        const clang::FileEntry* pSrcHeader);
 
-        bool extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
-                                      const clang::FileEntry* pDeclFile,
-                                      std::vector<std::string>& pArgsStrs,
-                                      std::vector<std::string>& pHeaders);
+        RegErr extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
+                                        const clang::FileEntry* pDeclFile,
+                                        std::vector<std::string>& pArgsStrs,
+                                        std::vector<std::string>& pHeaders);
 
-        using optstr = std::optional<std::string>;
-        optstr getReturnStrAndItsHeaders(const clang::FunctionDecl *pFnDecl,
+        ErrStr getReturnStrAndItsHeaders(const clang::FunctionDecl *pFnDecl,
                                          const clang::FileEntry* pDeclFile,
                                          std::vector<std::string>& pHeaders);
     public:

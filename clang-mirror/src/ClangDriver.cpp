@@ -136,10 +136,10 @@ namespace clmr
 
         std::unique_ptr<CompilationDatabase> cdb;
         if (!g_cdbDir.empty()) {
-            std::string errStr;
-            cdb = std::move(CompilationDatabase::loadFromDirectory(g_cdbDir, errStr));
+            std::string ErrStr;
+            cdb = std::move(CompilationDatabase::loadFromDirectory(g_cdbDir, ErrStr));
             if (!cdb) {
-                Logger::outError(errStr);
+                Logger::outError(ErrStr);
             }
         }
 

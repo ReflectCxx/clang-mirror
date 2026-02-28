@@ -44,7 +44,7 @@ namespace clmr
 
 namespace clmr 
 {
-	enum MetaKind 
+	enum class MetaKind 
 	{
 		None,
 		Ctor,
@@ -52,6 +52,19 @@ namespace clmr
 		MemberFnConst,
 		MemberFnStatic,
 		MemberFnNonConst
+	};
+
+	// Registration Error.
+	enum class RegErr
+	{
+		None,
+		Unknown,
+		AstParsing,
+		TemplateType,
+		IncompleteType,
+		HeaderNotFound,
+		HeaderNotPublic,
+		ExclusionByPolicy
 	};
 
 	struct File 
@@ -66,6 +79,20 @@ namespace clmr
 		static constexpr std::string_view incRtlAccess = "rtl_access.h";
 		static constexpr std::string_view incRtlBuilder = "rtl_builder.h";
 	};
+
+	inline static std::string toString(const RegErr pErr)
+	{
+		switch (pErr) {
+			case RegErr::None: return "RegErr::None";
+			case RegErr::Unknown: return "RegErr::Unknown";
+			case RegErr::AstParsing: return "RegErr::AstParsing";
+			case RegErr::IncompleteType: return "RegErr::IncompleteType";
+			case RegErr::TemplateType: return "RegErr::TemplateType";
+			case RegErr::HeaderNotFound: return "RegErr::HeaderNotFound";
+			case RegErr::HeaderNotPublic: return "RegErr::HeaderNotPublic";
+			case RegErr::ExclusionByPolicy: return "RegErr::ExclusionByPolicy";
+		}
+	}
 
 	struct ASTRecordMeta;
 	struct ASTFnMeta;

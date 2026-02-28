@@ -17,8 +17,9 @@ namespace clmr {
         static void polishTypeStr(std::string& pTypeStr);
         static bool isInUserCode(clang::NamedDecl* pNameDecl);
 
-        static std::string extractParentTypeName(const clang::FunctionDecl* pFuncDecl);
         static std::string extractQualifiedTypeName(const clang::QualType& pQType);
+
+        static std::string extractParentTypeName(const clang::FunctionDecl* pFuncDecl);
 
         static const clang::FileEntry* resolveHeaderFromType(const clang::QualType& pQT,
                                                              const clang::ASTContext& pContext,

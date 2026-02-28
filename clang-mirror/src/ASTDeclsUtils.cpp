@@ -43,8 +43,9 @@ namespace clmr
     std::string ASTDeclsUtils::extractParentTypeName(const clang::FunctionDecl* pFnDecl)
     {
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
-        if (!method) return {};
-
+        if (!method) {
+            return {};
+        }
         const clang::CXXRecordDecl* record = method->getParent();
         clang::QualType qt = record->getTypeForDecl()->getCanonicalTypeInternal();
         clang::PrintingPolicy policy(pFnDecl->getASTContext().getLangOpts());
@@ -107,7 +108,7 @@ namespace clmr
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
 
-        Logger::outDbg("(err) unresolved type:" + QT.getAsString());
+        Logger::outDbg("(err) unresolved type :" + QT.getAsString());
         return nullptr;
     }
 	
@@ -118,16 +119,9 @@ namespace clmr
         MetaKind metaKind = MetaKind::None;
 
         if (const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl)) {
-            if ( ctor->getNumParams() != 0 &&
-                !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
-                metaKind = MetaKind::Ctor;
-            }
+            metaKind = MetaKind::Ctor;
         }
         else if (const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl)) {
-            if (method->isOverloadedOperator() || llvm::isa<CXXConversionDecl>(method)) {
-                return { MetaKind::None, "" };
-            }
-
             if (method->isStatic()) {
                 metaKind = MetaKind::MemberFnStatic;
             }

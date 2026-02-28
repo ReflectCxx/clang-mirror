@@ -20,17 +20,18 @@ namespace {
                ext.equals_insensitive(".inc");
     }
 
-    static bool taggedForExclusion(const std::string& pStr)
+    static clmr::RegErr taggedForExclusion(const std::string& pStr)
     {
+        if (pStr.find('<') != std::string::npos) {  // exclude templates. (not supported yet)
+            return clmr::RegErr::TemplateType;
+        }
         const auto& exclusions = clmr::ASTCodeManager::instance().getExcludeNamespaces();
         for (const auto& excStr : exclusions) {
-            if (pStr.find(excStr + "::") != std::string::npos ||
-                pStr.find('<') != std::string::npos) {  // exclude templates as well. (not supported yet)
-                clmr::Logger::outDbg("excluded by policy.");
-                return true;
+            if (pStr.find(excStr + "::") != std::string::npos) {
+                return clmr::RegErr::ExclusionByPolicy;
             }
         }
-        return false;
+        return clmr::RegErr::None;
     }
 
     static const clang::FileEntry* getDeclaringFile(clang::FunctionDecl *pFnDecl)
@@ -66,11 +67,11 @@ namespace {
         return bItr == basePath.end();
     }
 
-    static bool isPublicHeader(const clang::FileEntry* file)
+    static clmr::RegErr isPublicHeader(const clang::FileEntry* file)
     {
         const auto& publicIncPaths = clmr::ASTCodeManager::instance().getPublicIncludePaths();
         if (publicIncPaths.empty()) {
-            return true;
+            return clmr::RegErr::None;
         }
         for (auto& incPath : publicIncPaths) {
             auto realPath = file->tryGetRealPathName().str();
@@ -79,10 +80,9 @@ namespace {
                 continue;
             }
             if (isSubDirectoryOf(incPath, realPath)) {
-                return true;
+                return clmr::RegErr::None;
             }
         }
-        clmr::Logger::outDbg("header not public.");
-        return false;
+        return clmr::RegErr::HeaderNotPublic;
     }
 }
