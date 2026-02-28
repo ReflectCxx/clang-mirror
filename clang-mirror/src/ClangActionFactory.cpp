@@ -63,8 +63,7 @@ namespace {
 
 namespace clmr {
 
-	void ClangActionFactory::setTargetSrcFile(const std::string pTargetSrcFile)
-	{
+	void ClangActionFactory::setTargetSrcFile(const std::string pTargetSrcFile) {
 		m_targetSrcFile = pTargetSrcFile;
 	}
 

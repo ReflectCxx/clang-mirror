@@ -8,6 +8,7 @@
 
 namespace {
 
+    inline constexpr bool g_debugLog = false;
     inline constexpr std::string_view clang_mirror = "[clang-mirror]";
 
     std::string fmtNewlines(const std::string& pStr)
@@ -81,8 +82,10 @@ namespace clmr {
     
     void Logger::outDbg(const std::string &pMsg, std::string_view pPrefix)
     {
-        auto spaces = std::string(clang_mirror.length(), ' ');
-        std::cout << color::GREY << spaces << "\t" << std::string(pPrefix) << pMsg << color::RESET << std::endl;
+        if(g_debugLog) {
+            auto spaces = std::string(clang_mirror.length(), ' ');
+            std::cout << color::GREY << spaces << "\t" << std::string(pPrefix) << pMsg << color::RESET << std::endl;
+        }
     }
 
     void Logger::outProgress(const std::string& pMsg, bool pUpdate/* = true*/)
