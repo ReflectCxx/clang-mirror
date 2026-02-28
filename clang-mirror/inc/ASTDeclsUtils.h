@@ -12,6 +12,8 @@
 
 namespace clmr {
 
+    using errfile = std::pair<RegErr, const clang::FileEntry*>;
+
     struct ASTDeclsUtils
     {
         static void polishTypeStr(std::string& pTypeStr);
@@ -21,13 +23,13 @@ namespace clmr {
 
         static std::string extractParentTypeName(const clang::FunctionDecl* pFuncDecl);
 
-        static const clang::FileEntry* resolveHeaderFromType(const clang::QualType& pQT,
-                                                             const clang::ASTContext& pContext,
-                                                             const ClangPPCallbacks& pPP);
+        static errfile resolveHeaderFromType(const clang::QualType& pQT,
+                                             const clang::ASTContext& pContext,
+                                             const ClangPPCallbacks& pPP);
 
-        static const clang::FileEntry* resolveHeaderFromDecl(const clang::NamedDecl* pDecl,
-                                                             const clang::SourceManager& pSrcMgr,
-                                                             const ClangPPCallbacks& pPP);
+        static errfile resolveHeaderFromDecl(const clang::NamedDecl* pDecl,
+                                             const clang::SourceManager& pSrcMgr,
+                                             const ClangPPCallbacks& pPP);
 
         static std::pair<clmr::MetaKind, std::string> getNameAndMetaKind(const clang::FunctionDecl* pFnDecl);
 

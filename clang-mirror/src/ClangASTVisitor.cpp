@@ -60,9 +60,9 @@ namespace clmr
             return RegErr::IncompleteType;
         }
 
-        auto incf = ASTDeclsUtils::resolveHeaderFromType(QT, pFnDecl->getASTContext(), m_preProcessor);
+        auto [err, incf] = ASTDeclsUtils::resolveHeaderFromType(QT, pFnDecl->getASTContext(), m_preProcessor);
         if (!incf) {
-            return RegErr::HeaderNotFound;
+            return err;
         }
         //if (!m_preProcessor.isFileReachableFromHeader(pSrcHeader, incf)) {
         //    Logger::outDbg("header not reachable for type: " + pTypeStr);
@@ -266,8 +266,8 @@ namespace clmr
         
         auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
         codeBuffer->addFunction(metaKind, {
-                .headers = headers,
-                .function = fname
+            .headers = headers,
+            .function = fname
         }, recordStr, returnStr, StringUtils::getParamTypesStr(argsTypeStr));
         return RegErr::None;
     }

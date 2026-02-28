@@ -61,12 +61,12 @@ namespace clmr
     }
 
 
-    const FileEntry* ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
-                                                          const SourceManager& pSrcMgr,
-                                                          const ClangPPCallbacks& pPP)
+    errfile ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
+                                                 const SourceManager& pSrcMgr,
+                                                 const ClangPPCallbacks& pPP)
     {
         if (!pDecl) {
-            return nullptr;
+            return { RegErr::AstParsing, nullptr };
         }
         for (auto* decl : pDecl->redecls())
         {
@@ -76,18 +76,18 @@ namespace clmr
             FileID fid = pSrcMgr.getFileID(loc);
             const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
             if (!fentry) continue;
-            return fentry;
+            return { RegErr::None, fentry };
         }
-        return nullptr;
+        return { RegErr::AstParsing, nullptr };
     }
 
 
-    const FileEntry* ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
-                                                          const ASTContext& pContext,
-                                                          const ClangPPCallbacks& pPP)
+    errfile ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
+                                                 const ASTContext& pContext,
+                                                 const ClangPPCallbacks& pPP)
     {
         if (pQT.isNull()) {
-            return nullptr;
+            return { RegErr::AstParsing, nullptr };
         }
 
         const SourceManager& SM = pContext.getSourceManager();
@@ -97,8 +97,7 @@ namespace clmr
             if (const TemplateDecl* TD = TST->getTemplateName().getAsTemplateDecl()){
                 return resolveHeaderFromDecl(TD, SM, pPP);
             }
-            Logger::outDbg("(unsupported) TemplateSpecializationType: " + QT.getAsString());
-            return nullptr;   
+            return { RegErr::TemplateType, nullptr };
         }
 
         if (const TypedefType* TT = QT->getAs<TypedefType>()) {
@@ -107,9 +106,10 @@ namespace clmr
         if (const TagType* TT = QT->getAs<TagType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
-
-        Logger::outDbg("(err) unresolved type :" + QT.getAsString());
-        return nullptr;
+        if (pQT->isFunctionPointerType()) {
+            return { RegErr::FunctionPtrType, nullptr };
+        }
+        return { RegErr::UnresolvedType, nullptr };
     }
 	
 
