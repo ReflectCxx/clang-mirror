@@ -12,12 +12,12 @@ namespace {
     static bool isBuiltInType(const clang::QualType& pQT,
                               const clang::ASTContext& pCtx)
     {
-        auto qT = pQT.getNonReferenceType().getUnqualifiedType();
-        qT = qT.getDesugaredType(pCtx);
+        auto qT = pQT.getNonReferenceType()
+                     .getUnqualifiedType()
+                     .getDesugaredType(pCtx);
 
         while (qT->isPointerType()) {
-            qT = qT->getPointeeType();
-            qT = qT.getDesugaredType(pCtx);
+            qT = qT->getPointeeType().getDesugaredType(pCtx);
         }
         return qT->isBuiltinType();
     }

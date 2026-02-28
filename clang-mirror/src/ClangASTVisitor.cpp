@@ -104,7 +104,11 @@ namespace clmr
             return err;
         }
 
-        auto* T = pQT.getTypePtrOrNull();
+        auto* T = pQT.getNonReferenceType()
+                     .getUnqualifiedType()
+                     .getDesugaredType(pCtx)
+                     .getTypePtrOrNull();
+
         if (const RecordType* RT = T->getAs<RecordType>()) {
             const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
             if (RD) {
