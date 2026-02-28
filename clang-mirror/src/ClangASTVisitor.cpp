@@ -183,19 +183,17 @@ namespace clmr
         }
 
         const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl);
-        if (ctor) {
-            if (ctor->getNumParams() == 0) {
-                return true;
-            }
+        if (ctor && ctor->getNumParams() == 0) {
+            return true;
         }
 
         const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl);
         if (method) {
-            if(method->isOverloadedOperator() || llvm::isa<CXXConversionDecl>(method)) {
+            if(method->isOverloadedOperator()) {
                 return true;
             }
             const CXXRecordDecl* record = method->getParent();
-            if (record->getAccess() != AS_public) {
+            if (record->getAccess() == AS_private || record->getAccess() == AS_protected) {
                 return true;
             }
         }
