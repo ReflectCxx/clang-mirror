@@ -15,7 +15,7 @@ namespace clmr {
     }
 
 
-    std::optional<std::string> ClangPPCallbacks::getIncludeStrAsWritten(const FileEntry *pIncFile, std::string_view pStr)
+    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile, std::string_view pStr)
     {
         const auto& itr = m_includeStrMap.find(pIncFile);
         if (itr == m_includeStrMap.end()) {

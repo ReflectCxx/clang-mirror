@@ -11,7 +11,7 @@ namespace clmr
 	{
 		inline constexpr std::string_view RESET = "\033[0m";
 		inline constexpr std::string_view RED_DARK = "\033[31m";
-		inline constexpr std::string_view RED = "\033[38;2;231;72;86m";
+		inline constexpr std::string_view RED = "\033[38;2;173;54;65m";
 		inline constexpr std::string_view GREEN = "\033[32m";
 		inline constexpr std::string_view YELLOW = "\033[33m";
 		inline constexpr std::string_view BLUE = "\033[34m";
@@ -20,6 +20,7 @@ namespace clmr
 		inline constexpr std::string_view WHITE = "\033[37m";
 		inline constexpr std::string_view TEAL = "\033[38;2;0;128;128m";
 		inline constexpr std::string_view GREY = "\033[38;2;118;118;118m";
+		inline constexpr std::string_view GREY_LITE = "\033[38;2;144;144;144m";
 	}
 
 	inline constexpr std::size_t index_none = std::size_t(-1);
@@ -88,10 +89,10 @@ namespace clmr
 			case RegErr::None: return "RegErr::None";
 			case RegErr::Unknown: return "RegErr::Unknown";
 			case RegErr::AstParsing: return "RegErr::AstParsing";
-			case RegErr::TemplateType: return "RegErr::TemplateType";
+			case RegErr::TemplateType: return "RegErr::TemplateType, unsupported";
 			case RegErr::IncompleteType: return "RegErr::IncompleteType";
 			case RegErr::UnresolvedType: return "RegErr::UnresolvedType";
-			case RegErr::FunctionPtrType: return "RegErr::FunctionPtrType";
+			case RegErr::FunctionPtrType: return "RegErr::FunctionPtrType, unsupported";
 			case RegErr::HeaderNotFound: return "RegErr::HeaderNotFound";
 			case RegErr::HeaderNotPublic: return "RegErr::HeaderNotPublic";
 			case RegErr::ExclusionByPolicy: return "RegErr::ExclusionByPolicy";

@@ -37,10 +37,10 @@ namespace clmr
 
             bool skipFile = pShouldBePublic;
             if (pShouldBePublic) {
-                skipFile = (isPublicHeader(file) != RegErr::None);
+                skipFile = isPublicHeader(file);
             }
             if (!skipFile) {
-                return m_preProcessor.getIncludeStrAsWritten(file, pTypeStr);
+                return m_preProcessor.getHashIncludeAsWritten(file, pTypeStr);
             }
         }
         return std::optional<std::string>();
@@ -77,21 +77,15 @@ namespace clmr
                                                      std::vector<std::string>& pArgsStrs,
                                                      std::vector<std::string>& pHeaders)
     {
-        const auto& params = pFnDecl->parameters();
         const auto& fnQName = pFnDecl->getQualifiedNameAsString();
         auto& SM = pFnDecl->getASTContext().getSourceManager();
 
-        for (unsigned index = 0; index < params.size(); index++)
+        for (auto* argDecl : pFnDecl->parameters())
         {
-            auto qT = params[index]->getOriginalType();
+            const auto& qT = argDecl->getType();
             const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
             pArgsStrs.push_back(argStr);
-
-            qT = qT.getNonReferenceType().getUnqualifiedType();
-            if (qT->isPointerType()) {
-                qT = qT->getPointeeType();
-            }
-            if (qT->isBuiltinType()) {
+            if(isBuiltInType(qT)) {
                 continue;
             }
 
@@ -114,10 +108,7 @@ namespace clmr
                         pHeaders.push_back(*incStr);
                     }
                 }
-                else {
-                    Logger::outDbg("unresolved arg-type: " + argStr);
-                    return RegErr::AstParsing;
-                }
+                else return RegErr::AstParsing;
             }
             else if (const EnumType* ET = T->getAs<EnumType>()) {
                 const EnumDecl* ED = ET->getDecl();
@@ -128,20 +119,11 @@ namespace clmr
                             pHeaders.push_back(*incStr);
                         }
                     }
-                    else {
-                        Logger::outDbg("unresolved arg-type: " + argStr);
-                        return RegErr::AstParsing;
-                    }
+                    else return RegErr::AstParsing;
                 }
-                else {
-                    Logger::outDbg("unresolved arg-type: " + argStr);
-                    return RegErr::AstParsing;
-                }
+                else return RegErr::AstParsing;
             }
-            else {
-                Logger::outDbg("unresolved arg-type: " + argStr);
-                return RegErr::AstParsing;
-            }
+            else return RegErr::AstParsing;
         }
         return RegErr::None;
     }
@@ -162,7 +144,7 @@ namespace clmr
         }
 
         if (!qT->isBuiltinType()) {
-            err = isHeaderReachableForType(qT, pFnDecl, returnStr, pDeclFile);
+            err = isHeaderReachableForType(pFnDecl->getReturnType(), pFnDecl, returnStr, pDeclFile);
             if (err != RegErr::None) {
                 return { err, "" };
             }
@@ -211,18 +193,18 @@ namespace clmr
             }
         }
 
-        auto* declFile = getDeclaringFile(pFnDecl);
-        if (declFile) {
-            auto err = isPublicHeader(declFile);
-            if (err == RegErr::None) {
-                err = addReflectableEntity(pFnDecl, declFile);
+        auto* headerFile = getDeclaringFile(pFnDecl);
+        if (headerFile) {
+            auto err = RegErr::HeaderNotPublic;
+            if (isPublicHeader(headerFile)) {
+                err = addReflectableEntity(pFnDecl, headerFile);
             }
             if (err != RegErr::None && err != RegErr::ExclusionByPolicy && err != RegErr::HeaderNotPublic) {
-                Logger::outDbg(pFnDecl->getNameAsString() + "() [" + toString(err) + "]", "^^");
+                Logger::outDbg(pFnDecl->getNameAsString() + "()", err, "^^");
             }
         }
         else {
-            Logger::outDbg(pFnDecl->getNameAsString() + "() [" + toString(RegErr::AstParsing) + "]", "^^");
+            Logger::outDbg(pFnDecl->getNameAsString() + "()", RegErr::AstParsing, "^^");
         }
         return true;
     }
@@ -258,7 +240,7 @@ namespace clmr
             return err0;
         }
 
-        auto hashIncludeStr = m_preProcessor.getIncludeStrAsWritten(pDeclFile, fname + "()");
+        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pDeclFile, fname + "()");
         if (!hashIncludeStr) {
             return RegErr::AstParsing;
         }

@@ -106,8 +106,10 @@ namespace clmr
         if (const TagType* TT = QT->getAs<TagType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
-        if (pQT->isFunctionPointerType()) {
-            return { RegErr::FunctionPtrType, nullptr };
+        if (const PointerType* PT = QT.getCanonicalType()->getAs<PointerType>()) {
+            if (PT->getPointeeType()->isFunctionType()) {
+                return { RegErr::FunctionPtrType, nullptr };
+            }
         }
         return { RegErr::UnresolvedType, nullptr };
     }

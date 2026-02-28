@@ -9,6 +9,15 @@
 
 namespace {
 
+    static bool isBuiltInType(const clang::QualType& pQT)
+    {
+        auto qT = pQT.getNonReferenceType().getUnqualifiedType();
+        if (qT->isPointerType()) {
+            qT = qT->getPointeeType();
+        }
+        return qT->isBuiltinType();
+    }
+
     static bool isHeaderFile(const std::string& pFileStr)
     {
         const auto& ext = llvm::sys::path::extension(pFileStr);
@@ -67,11 +76,11 @@ namespace {
         return bItr == basePath.end();
     }
 
-    static clmr::RegErr isPublicHeader(const clang::FileEntry* file)
+    static bool isPublicHeader(const clang::FileEntry* file)
     {
         const auto& publicIncPaths = clmr::ASTCodeManager::instance().getPublicIncludePaths();
         if (publicIncPaths.empty()) {
-            return clmr::RegErr::None;
+            return true;
         }
         for (auto& incPath : publicIncPaths) {
             auto realPath = file->tryGetRealPathName().str();
@@ -80,9 +89,9 @@ namespace {
                 continue;
             }
             if (isSubDirectoryOf(incPath, realPath)) {
-                return clmr::RegErr::None;
+                return true;
             }
         }
-        return clmr::RegErr::HeaderNotPublic;
+        return true;
     }
 }

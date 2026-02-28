@@ -80,11 +80,13 @@ namespace clmr {
         std::cout << color::RED_DARK << clang_mirror << "\t" << fmtNewlines(pMsg) << color::RESET << std::endl;
     }
     
-    void Logger::outDbg(const std::string &pMsg, std::string_view pPrefix)
+    void Logger::outDbg(const std::string &pMsg, RegErr pErr, std::string_view pPrefix)
     {
         if(g_debugLog) {
             auto spaces = std::string(clang_mirror.length(), ' ');
-            std::cout << color::GREY << spaces << "\t" << std::string(pPrefix) << pMsg << color::RESET << std::endl;
+            std::cout << color::GREY << spaces << "\t" << std::string(pPrefix) << pMsg 
+                      << color::RED << (pErr != RegErr::None ? (" [" + toString(pErr) + "]") : "")
+                      << color::RESET << std::endl;
         }
     }
 
