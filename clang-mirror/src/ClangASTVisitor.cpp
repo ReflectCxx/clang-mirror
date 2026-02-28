@@ -43,11 +43,8 @@ namespace clmr
                                                      const ASTContext& pCtx,
                                                      const FileEntry* pSrcHeader)
     {
-        QualType QT = pQT.getNonReferenceType().getUnqualifiedType();
-        if (QT->isPointerType()) {
-            QT = QT->getPointeeType();
-        }
-        if (QT->isIncompleteType()) {
+        auto qT = desugarQT(pQT, pCtx);
+        if (qT->isIncompleteType()) {
             return RegErr::IncompleteType;
         }
 
@@ -95,7 +92,8 @@ namespace clmr
                                                         const FileEntry* pDeclFile,
                                                         std::vector<std::string>& pHeaders)
     {
-        if (isBuiltInType(pQT, pCtx)) {
+        auto qT = desugarQT(pQT, pCtx);
+        if (qT->isBuiltinType()) {
             return RegErr::None;
         }
         
@@ -104,11 +102,7 @@ namespace clmr
             return err;
         }
 
-        auto* T = pQT.getNonReferenceType()
-                     .getUnqualifiedType()
-                     .getDesugaredType(pCtx)
-                     .getTypePtrOrNull();
-
+        auto* T = qT.getTypePtrOrNull();
         if (const RecordType* RT = T->getAs<RecordType>()) {
             const CXXRecordDecl* RD = llvm::dyn_cast<CXXRecordDecl>(RT->getDecl());
             if (RD) {

@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "StringUtils.h"
 #include "ASTDeclsUtils.h"
+#include "ClangASTVisitor.hpp"
 #include "clang/AST/RecursiveASTVisitor.h"
 
 using namespace clang;
@@ -90,25 +91,24 @@ namespace clmr
             return { RegErr::AstParsing, nullptr };
         }
 
+        auto qT = desugarQT(pQT, pCtx);
         const SourceManager& SM = pCtx.getSourceManager();
-        auto QT = pQT.getNonReferenceType();
-
-        if (const auto* TST = QT->getAs<TemplateSpecializationType>()) {
+        if (const auto* TST = qT->getAs<TemplateSpecializationType>()) {
             if (const TemplateDecl* TD = TST->getTemplateName().getAsTemplateDecl()){
                 return resolveHeaderFromDecl(TD, SM, pPP);
             }
             return { RegErr::TemplateType, nullptr };
         }
 
-        if (QT->isFunctionPointerType()) {
+        if (qT->isFunctionPointerType()) {
             return { RegErr::FunctionPtrType, nullptr };
         }
 
-        if (const TypedefType* TT = QT->getAs<TypedefType>()) {
+        if (const TypedefType* TT = qT->getAs<TypedefType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
         
-        if (const TagType* TT = QT->getAs<TagType>()) {
+        if (const TagType* TT = qT->getAs<TagType>()) {
             return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
         }
 
