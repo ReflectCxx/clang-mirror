@@ -96,7 +96,7 @@ namespace {
                 return true;
             }
         }
-        return true;
+        return false;
     }
 
     bool isReflectableEntity(clang::FunctionDecl* pFnDecl)
