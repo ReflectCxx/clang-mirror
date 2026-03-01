@@ -91,6 +91,10 @@ namespace clmr
             return { RegErr::AstParsing, nullptr };
         }
 
+        if (pQT->isFunctionPointerType()) {
+            return { RegErr::FunctionPtrType, nullptr };
+        }
+
         auto qT = desugarQT(pQT, pCtx);
         const SourceManager& SM = pCtx.getSourceManager();
         if (const auto* TST = qT->getAs<TemplateSpecializationType>()) {
@@ -98,10 +102,6 @@ namespace clmr
                 return resolveHeaderFromDecl(TD, SM, pPP);
             }
             return { RegErr::TemplateType, nullptr };
-        }
-
-        if (qT->isFunctionPointerType()) {
-            return { RegErr::FunctionPtrType, nullptr };
         }
 
         if (const TypedefType* TT = qT->getAs<TypedefType>()) {
