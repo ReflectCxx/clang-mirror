@@ -92,7 +92,7 @@ namespace clmr
     }
 
 
-    errfile ASTDeclsUtils::resolveHeaderFromType(const QualType& pQT,
+    errfile ASTDeclsUtils::getHeaderDefiningType(const QualType& pQT,
                                                  const ASTContext& pCtx,
                                                  const ClangPPCallbacks& pPP)
     {

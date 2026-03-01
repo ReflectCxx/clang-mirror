@@ -15,24 +15,18 @@ namespace clmr {
         const std::string m_srcFile;
         ClangPPCallbacks& m_preProcessor;
 
-        std::optional<std::string> getHashIncludeStr(const clang::TagDecl* pTypeDecl);
-
         RegErr addReflectableEntity(const clang::FunctionDecl* pFnDecl,
                                     const clang::FileEntry* pDeclFile);
-
-        RegErr isHeaderReachableForType(const clang::QualType& pQT,
-                                        const clang::ASTContext& pCtx,
-                                        const clang::FileEntry* pSrcHeader);
 
         RegErr extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
                                         const clang::FileEntry* pDeclFile,
                                         std::vector<std::string>& pArgsStrs,
                                         std::vector<std::string>& pHeaders);
 
-        RegErr getTypeDefiningHeader(const clang::QualType& pQT,
+        RegErr addTypeDefiningHeader(std::vector<std::string>& pHeaders,
+                                     const clang::QualType& pQT,
                                      const clang::ASTContext& pCtx,
-                                     const clang::FileEntry* pMainHeader,
-                                     std::vector<std::string>& pHeaders);
+                                     const clang::FileEntry* pIncSrcFile);
     public:
 
         ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);

@@ -14,8 +14,42 @@ namespace clmr {
         m_mainSrcFile = SM.getFileEntryForID(SM.getMainFileID());
     }
 
-    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile)
+
+    const clang::FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const clang::FileEntry* pFile) const
     {
+        auto& headersSet = m_includeGraph.find(m_mainSrcFile)->second;
+        for (auto* headerFile : headersSet) {
+            if (auto* userDefHeader = isHeaderReachableFromSrc(headerFile, pFile)) {
+                return userDefHeader;
+            }
+        }
+        return nullptr;
+    }
+
+
+    bool ClangPPCallbacks::isSystemHeader(const clang::FileEntry* pFile) const
+    {
+        const auto& SM = m_compiler.getSourceManager();
+        const auto& fileID = SM.translateFile(pFile);
+        if (!fileID.isValid()) {
+            return false;
+        }
+
+        SourceLocation Loc = SM.getLocForStartOfFile(fileID);
+        if (SM.getFileCharacteristic(Loc) == SrcMgr::C_User) {
+            return false;
+        }
+        return true;
+    }
+
+
+    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile,
+                                                                         bool pSkipSystemHeader) const
+    {
+        if (pSkipSystemHeader && isSystemHeader(pIncFile)) {
+            return std::nullopt;
+        }
+
         const auto& itr = m_includeStrMap.find(pIncFile);
         if (itr == m_includeStrMap.end()) {
             return std::nullopt;
@@ -23,36 +57,31 @@ namespace clmr {
         return std::make_optional(itr->second);
     }
 
-    const clang::FileEntry *ClangPPCallbacks::getFileDoingHashIncludeFor(const clang::FileEntry *pFile)
-    {
-        auto& headersSet = m_includeGraph.find(m_mainSrcFile)->second;
-        for (auto* headerFile : headersSet) {
-            if (isHeaderReachableFromSrc(headerFile, pFile)) {
-                return headerFile;
-            }
-        }
-        return nullptr;
-    }
 
-    bool ClangPPCallbacks::isHeaderReachableFromSrc(const FileEntry* pIncSrc,
-                                                    const FileEntry* pHeader)
+    const FileEntry* ClangPPCallbacks::isHeaderReachableFromSrc(const FileEntry* pIncSrc,
+                                                                const FileEntry* pHeader) const
     {
         if (!pIncSrc || !pHeader) {
-            return false;
+            return pHeader;
         }
 
         if (pIncSrc == pHeader) {
-            return true;
+            return pHeader;
         }
 
         std::queue<const FileEntry*> fileEntryQ;
         std::unordered_set<const FileEntry*> visited;
         fileEntryQ.push(pIncSrc);
 
+        const clang::FileEntry* lastUserFile = nullptr;
         while (!fileEntryQ.empty())
         {
             auto* nextFile = fileEntryQ.front();
             fileEntryQ.pop();
+
+            if (!isSystemHeader(nextFile)) {
+                lastUserFile = nextFile;
+            }
 
             if (!visited.insert(nextFile).second) {
                 continue;
@@ -65,13 +94,13 @@ namespace clmr {
 
             auto& nextIncludesSet = itr->second;
             if (nextIncludesSet.find(pHeader) != nextIncludesSet.end()){
-                return true;
+                return lastUserFile;
             }
             for (auto* fe : nextIncludesSet) {
                 fileEntryQ.push(fe);
             }
         }
-        return false;
+        return nullptr;
     }
 
 
@@ -89,10 +118,6 @@ namespace clmr {
         }
 
         auto& SM = m_compiler.getSourceManager();
-        if (SM.getFileCharacteristic(pHashLoc) != SrcMgr::C_User) {
-            return;
-        }
-
         auto* incSrcFile = SM.getFileEntryForID(SM.getFileID(pHashLoc));
         if (!incSrcFile) {
             return;
@@ -100,9 +125,7 @@ namespace clmr {
 
         auto headerFile = &pFile->getFileEntry();
         m_includeGraph[incSrcFile].insert(headerFile);
-
-        std::string headerIncStr = pIsAngled ? ("<" + pFileName.str() + ">")
-                                             : ("\"" + pFileName.str() + "\"");
-        m_includeStrMap[*pFile] = headerIncStr;
+        m_includeStrMap[*pFile] = pIsAngled ? ("<" + pFileName.str() + ">")
+                                            : ("\"" + pFileName.str() + "\"");
 	}
 }

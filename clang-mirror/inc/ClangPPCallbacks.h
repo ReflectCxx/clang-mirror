@@ -21,15 +21,19 @@ namespace clmr {
         IncludeStrMap m_includeStrMap;
         std::unordered_map<const clang::FileEntry*, IncludeFESet> m_includeGraph;
 
+        bool isSystemHeader(const clang::FileEntry*) const;
+
     public:
 
         ClangPPCallbacks(clang::CompilerInstance& CI);
 
-        const clang::FileEntry* getFileDoingHashIncludeFor(const clang::FileEntry* pFile);
+        const clang::FileEntry* getFileDoingHashIncludeFor(const clang::FileEntry* pFile) const;
 
-        std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pFile);
+        std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pFile,
+                                                           bool pSkipSystemHeader) const;
 
-        bool isHeaderReachableFromSrc(const clang::FileEntry *pHeader, const clang::FileEntry* pFile);
+        const clang::FileEntry* isHeaderReachableFromSrc(const clang::FileEntry *pHeader,
+                                                         const clang::FileEntry* pFile) const;
 
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,
