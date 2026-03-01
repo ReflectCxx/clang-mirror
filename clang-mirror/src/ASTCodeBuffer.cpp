@@ -11,6 +11,7 @@ namespace clmr
         , m_recordsMap(CxxRecordsMap())
         , m_freeFnsMap(CxxFunctionsMap())
         , m_incFiles(std::unordered_set<std::string>())
+        , m_regsEntityCount(0)
     { }
 
 
@@ -62,5 +63,6 @@ namespace clmr
             });
             m_incFiles.insert(pAst.headers.begin(), pAst.headers.end());
         }
+        m_regsEntityCount++;
     }
 }

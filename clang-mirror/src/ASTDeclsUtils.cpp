@@ -69,15 +69,24 @@ namespace clmr
         if (!pDecl) {
             return { RegErr::AstParsing, nullptr };
         }
-        for (auto* decl : pDecl->redecls())
-        {
-            SourceLocation loc = pSrcMgr.getSpellingLoc(decl->getLocation());
-            if (!loc.isValid() || pSrcMgr.isInMainFile(loc)) continue;
 
-            FileID fid = pSrcMgr.getFileID(loc);
-            const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
-            if (!fentry) continue;
-            return { RegErr::None, fentry };
+        const auto* tagDecl = llvm::dyn_cast<TagDecl>(pDecl);
+        if (tagDecl) {
+            const TagDecl* tagDef = tagDecl->getDefinition();
+            if (tagDef) 
+            {
+                SourceLocation loc = pSrcMgr.getSpellingLoc(pDecl->getLocation());
+                if (!loc.isValid() || pSrcMgr.isInMainFile(loc)) {
+                    return { RegErr::AstParsing, nullptr };
+                }
+
+                FileID fid = pSrcMgr.getFileID(loc);
+                const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
+                if (!fentry) {
+                    return { RegErr::AstParsing, nullptr };
+                }
+                return { RegErr::None, fentry };
+            }
         }
         return { RegErr::AstParsing, nullptr };
     }
