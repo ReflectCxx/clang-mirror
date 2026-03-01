@@ -25,17 +25,17 @@ namespace clmr {
     }
 
 
-    bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry* pHeaderFE,
+    bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry* pMainHeader,
                                                      const FileEntry* pFile) 
     {
-        if (!pHeaderFE || !pFile) {
+        if (!pMainHeader || !pFile) {
             return false;
         }
 
         std::queue<const FileEntry*> fileEntryQ;
         std::unordered_set<const FileEntry*> visited;
 
-        fileEntryQ.push(pHeaderFE);
+        fileEntryQ.push(pMainHeader);
         while (!fileEntryQ.empty()) 
         {
             auto* nextFile = fileEntryQ.front();

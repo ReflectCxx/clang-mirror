@@ -29,10 +29,10 @@ namespace clmr {
                                         std::vector<std::string>& pArgsStrs,
                                         std::vector<std::string>& pHeaders);
 
-        RegErr getTypeStrAndDefiningHeader(const clang::QualType& pQT,
-                                           const clang::ASTContext& pCtx,
-                                           const clang::FileEntry* pDeclFile,
-                                           std::vector<std::string>& pHeaders);
+        RegErr getTypeDefiningHeader(const clang::QualType& pQT,
+                                     const clang::ASTContext& pCtx,
+                                     const clang::FileEntry* pMainHeader,
+                                     std::vector<std::string>& pHeaders);
     public:
 
         ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);

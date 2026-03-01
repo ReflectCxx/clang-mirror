@@ -41,7 +41,7 @@ namespace clmr
 
     RegErr ClangASTVisitor::isHeaderReachableForType(const QualType& pQT,
                                                      const ASTContext& pCtx,
-                                                     const FileEntry* pSrcHeader)
+                                                     const FileEntry* pMainHeader)
     {
         auto qT = desugarQT(pQT, pCtx);
         if (qT->isIncompleteType()) {
@@ -52,16 +52,15 @@ namespace clmr
         if (!incf) {
             return err;
         }
-        //if (!m_preProcessor.isFileReachableFromHeader(pSrcHeader, incf)) {
-        //    Logger::outDbg("header not reachable for type: " + pTypeStr);
-        //    return false;
-        //}
+        if (!m_preProcessor.isFileReachableFromHeader(pMainHeader, incf)) {
+           return RegErr::AstParsing;
+        }
         return RegErr::None;
     }
 
 
     RegErr ClangASTVisitor::extractArgsAndItsHeaders(const FunctionDecl* pFnDecl,
-                                                     const FileEntry* pDeclFile,
+                                                     const FileEntry* pHeaderFile,
                                                      std::vector<std::string>& pArgsStrs,
                                                      std::vector<std::string>& pHeaders)
     {
@@ -71,7 +70,7 @@ namespace clmr
         for (auto* argDecl : pFnDecl->parameters())
         {
             const auto& qT = argDecl->getType();
-            auto err = getTypeStrAndDefiningHeader(qT, pFnDecl->getASTContext(), pDeclFile, pHeaders);
+            auto err = getTypeDefiningHeader(qT, pFnDecl->getASTContext(), pHeaderFile, pHeaders);
             if (err != RegErr::None) {
                 return err;
             }
@@ -87,17 +86,17 @@ namespace clmr
     }
 
 
-    RegErr ClangASTVisitor::getTypeStrAndDefiningHeader(const clang::QualType& pQT,
-                                                        const clang::ASTContext& pCtx,
-                                                        const FileEntry* pDeclFile,
-                                                        std::vector<std::string>& pHeaders)
+    RegErr ClangASTVisitor::getTypeDefiningHeader(const clang::QualType& pQT,
+                                                  const clang::ASTContext& pCtx,
+                                                  const FileEntry* pMainHeader,
+                                                  std::vector<std::string>& pHeaders)
     {
         auto qT = desugarQT(pQT, pCtx);
         if (qT->isBuiltinType()) {
             return RegErr::None;
         }
         
-        auto err = isHeaderReachableForType(pQT, pCtx, pDeclFile);
+        auto err = isHeaderReachableForType(pQT, pCtx, pMainHeader);
         if (err != RegErr::None) {
             return err;
         }
@@ -129,10 +128,10 @@ namespace clmr
     }
 
 
-    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pDeclFile)
+    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pHeaderFile)
     {
         std::vector<std::string> headers;
-        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pDeclFile);
+        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile);
         if (!hashIncludeStr) {
             return RegErr::AstParsing;
         }
@@ -154,7 +153,7 @@ namespace clmr
             return err;
         }
 
-        err = getTypeStrAndDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), pDeclFile, headers);
+        err = getTypeDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), pHeaderFile, headers);
         if (err != RegErr::None) {
             return err;
         }
@@ -166,7 +165,7 @@ namespace clmr
         }
         
         std::vector<std::string> argsTypeStr;
-        err = extractArgsAndItsHeaders(pFnDecl, pDeclFile, argsTypeStr, headers);
+        err = extractArgsAndItsHeaders(pFnDecl, pHeaderFile, argsTypeStr, headers);
         if (err != RegErr::None) {
             return err;
         }
