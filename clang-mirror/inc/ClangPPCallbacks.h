@@ -1,8 +1,8 @@
 #pragma once
 
+#include <set>
 #include <string_view>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "Constants.h"
 #include "clang/Lex/PPCallbacks.h"
@@ -15,7 +15,7 @@ namespace clmr {
         clang::CompilerInstance& m_compiler;
         const clang::FileEntry* m_mainSrcFile;
 
-        using IncludeFESet = std::unordered_set<const clang::FileEntry*>;
+        using IncludeFESet = std::set<const clang::FileEntry*>;
         using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
 
         IncludeStrMap m_includeStrMap;

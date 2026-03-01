@@ -1,5 +1,7 @@
 
 #include <queue>
+#include <unordered_set>
+
 #include "Logger.h"
 #include "ClangPPCallbacks.h"
 
@@ -73,7 +75,7 @@ namespace clmr {
         std::unordered_set<const FileEntry*> visited;
         fileEntryQ.push(pIncSrc);
 
-        const clang::FileEntry* lastUserFile = nullptr;
+        const clang::FileEntry* lastUserFile = pIncSrc;
         while (!fileEntryQ.empty())
         {
             auto* nextFile = fileEntryQ.front();
