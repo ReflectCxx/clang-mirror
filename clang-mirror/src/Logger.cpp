@@ -85,7 +85,8 @@ namespace clmr {
         if(g_debugLog) {
             auto spaces = std::string(clang_mirror.length(), ' ');
             std::cout << color::GREY << spaces << "\t" << std::string(pPrefix) << pMsg 
-                      << color::RED << (pErr != RegErr::None ? (" [" + toString(pErr) + "]") : "")
+                      << (pErr == RegErr::AstParsing ? color::RED : color::BLUE)
+                      << (pErr != RegErr::None ? (" [" + toString(pErr) + "]") : "")
                       << color::RESET << std::endl;
         }
     }

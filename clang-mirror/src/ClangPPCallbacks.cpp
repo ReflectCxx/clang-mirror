@@ -14,7 +14,6 @@ namespace clmr {
         m_mainSrcFile = SM.getFileEntryForID(SM.getMainFileID());
     }
 
-
     std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile)
     {
         const auto& itr = m_includeStrMap.find(pIncFile);
@@ -24,19 +23,33 @@ namespace clmr {
         return std::make_optional(itr->second);
     }
 
-
-    bool ClangPPCallbacks::isFileReachableFromHeader(const FileEntry* pMainHeader,
-                                                     const FileEntry* pFile) 
+    const clang::FileEntry *ClangPPCallbacks::getFileDoingHashIncludeFor(const clang::FileEntry *pFile)
     {
-        if (!pMainHeader || !pFile) {
+        auto& headersSet = m_includeGraph.find(m_mainSrcFile)->second;
+        for (auto* headerFile : headersSet) {
+            if (isHeaderReachableFromSrc(headerFile, pFile)) {
+                return headerFile;
+            }
+        }
+        return nullptr;
+    }
+
+    bool ClangPPCallbacks::isHeaderReachableFromSrc(const FileEntry* pIncSrc,
+                                                    const FileEntry* pHeader)
+    {
+        if (!pIncSrc || !pHeader) {
             return false;
+        }
+
+        if (pIncSrc == pHeader) {
+            return true;
         }
 
         std::queue<const FileEntry*> fileEntryQ;
         std::unordered_set<const FileEntry*> visited;
+        fileEntryQ.push(pIncSrc);
 
-        fileEntryQ.push(pMainHeader);
-        while (!fileEntryQ.empty()) 
+        while (!fileEntryQ.empty())
         {
             auto* nextFile = fileEntryQ.front();
             fileEntryQ.pop();
@@ -45,13 +58,13 @@ namespace clmr {
                 continue;
             }
 
-            auto itr = m_inclusionGraph.find(nextFile);
-            if(itr == m_inclusionGraph.end()) {
+            auto itr = m_includeGraph.find(nextFile);
+            if(itr == m_includeGraph.end()) {
                 continue;
             }
 
             auto& nextIncludesSet = itr->second;
-            if (nextIncludesSet.find(pFile) != nextIncludesSet.end()){
+            if (nextIncludesSet.find(pHeader) != nextIncludesSet.end()){
                 return true;
             }
             for (auto* fe : nextIncludesSet) {
@@ -75,15 +88,21 @@ namespace clmr {
             return;
         }
 
-        std::string headerIncStr = pIsAngled ? "<" + pFileName.str() + ">"
-                                             : "\"" + pFileName.str() + "\"";
-        m_includeStrMap[*pFile] = headerIncStr;
-
         auto& SM = m_compiler.getSourceManager();
-        auto* hashIncludeLocFile = SM.getFileEntryForID(SM.getFileID(pHashLoc));
-        if (!hashIncludeLocFile) {
+        if (SM.getFileCharacteristic(pHashLoc) != SrcMgr::C_User) {
             return;
         }
-        m_inclusionGraph[hashIncludeLocFile].insert(&pFile->getFileEntry());
+
+        auto* incSrcFile = SM.getFileEntryForID(SM.getFileID(pHashLoc));
+        if (!incSrcFile) {
+            return;
+        }
+
+        auto headerFile = &pFile->getFileEntry();
+        m_includeGraph[incSrcFile].insert(headerFile);
+
+        std::string headerIncStr = pIsAngled ? ("<" + pFileName.str() + ">")
+                                             : ("\"" + pFileName.str() + "\"");
+        m_includeStrMap[*pFile] = headerIncStr;
 	}
 }

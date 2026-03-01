@@ -52,7 +52,7 @@ namespace clmr
         if (!incf) {
             return err;
         }
-        if (!m_preProcessor.isFileReachableFromHeader(pMainHeader, incf)) {
+        if (!m_preProcessor.isHeaderReachableFromSrc(pMainHeader, incf)) {
            return RegErr::AstParsing;
         }
         return RegErr::None;
