@@ -4,8 +4,34 @@
 
 #include "Logger.h"
 #include "ClangPPCallbacks.h"
+#include "ClangASTVisitor.hpp"
 
 using namespace clang;
+
+namespace {
+
+    llvm::StringRef getRealPath(const clang::FileEntry* pFE)
+    {
+        auto realPath = pFE->tryGetRealPathName().str();
+        if (realPath.empty()) {
+            clmr::Logger::outError("clang::FileEntry::tryGetRealPathName() -> failed.");
+        }
+        return realPath;
+    }
+}
+
+namespace clmr {
+
+    bool FileComparator::operator()(const clang::FileEntry *pFEa, const clang::FileEntry *pFEb) const
+    {
+        bool aIsHeader = isHeaderFile(getRealPath(pFEa).str());
+        bool bIsHeader = isHeaderFile(getRealPath(pFEa).str());
+        if (aIsHeader != bIsHeader) {
+            return aIsHeader > bIsHeader;
+        }
+        return std::less<const clang::FileEntry*> { } (pFEa, pFEb);
+    }
+}
 
 namespace clmr {
 
@@ -22,7 +48,9 @@ namespace clmr {
         auto& headersSet = m_includeGraph.find(m_mainSrcFile)->second;
         for (auto* headerFile : headersSet) {
             if (auto* userDefHeader = isHeaderReachableFromSrc(headerFile, pFile)) {
-                return userDefHeader;
+                if (isPublicHeader(userDefHeader)) {
+                    return userDefHeader;
+                }
             }
         }
         return nullptr;

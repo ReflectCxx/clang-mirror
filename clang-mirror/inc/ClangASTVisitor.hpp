@@ -28,9 +28,7 @@ namespace {
         return ext.equals_insensitive(".h") ||
                ext.equals_insensitive(".hpp") ||
                ext.equals_insensitive(".hh")  ||
-               ext.equals_insensitive(".hxx") ||
-               ext.equals_insensitive(".inl") ||
-               ext.equals_insensitive(".inc");
+               ext.equals_insensitive(".hxx");
     }
 
     static clmr::RegErr taggedForExclusion(const std::string& pStr)

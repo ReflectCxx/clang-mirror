@@ -10,12 +10,20 @@
 
 namespace clmr {
 
+    struct FileComparator
+    {
+        bool operator()(const clang::FileEntry*, const clang::FileEntry*) const;
+    };
+}
+
+namespace clmr {
+
     class ClangPPCallbacks : public clang::PPCallbacks
     {
         clang::CompilerInstance& m_compiler;
         const clang::FileEntry* m_mainSrcFile;
 
-        using IncludeFESet = std::set<const clang::FileEntry*>;
+        using IncludeFESet = std::set<const clang::FileEntry*, FileComparator>;
         using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
 
         IncludeStrMap m_includeStrMap;
