@@ -19,14 +19,12 @@ namespace clmr {
                                     const clang::FileEntry* pDeclFile);
 
         RegErr extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
-                                        const clang::FileEntry* pDeclFile,
                                         std::vector<std::string>& pArgsStrs,
                                         std::vector<std::string>& pHeaders);
 
         RegErr addTypeDefiningHeader(std::vector<std::string>& pHeaders,
                                      const clang::QualType& pQT,
-                                     const clang::ASTContext& pCtx,
-                                     const clang::FileEntry* pIncSrcFile);
+                                     const clang::ASTContext& pCtx);
     public:
 
         ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP);

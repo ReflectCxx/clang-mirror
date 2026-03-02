@@ -43,13 +43,13 @@ namespace clmr {
     }
 
 
-    const clang::FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const clang::FileEntry* pFile) const
+    const clang::FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const clang::FileEntry* pHeader) const
     {
-        auto& headersSet = m_includeGraph.find(m_mainSrcFile)->second;
-        for (auto* headerFile : headersSet) {
-            if (auto* userDefHeader = isHeaderReachableFromSrc(headerFile, pFile)) {
-                if (isPublicHeader(userDefHeader)) {
-                    return userDefHeader;
+        auto& incSrcSet = m_includeGraph.find(m_mainSrcFile)->second;
+        for (auto* incSrcFile : incSrcSet) {
+            if (isHeaderReachableFromSrc(incSrcFile, pHeader)) {
+                if (isPublicHeader(incSrcFile)) {
+                    return incSrcFile;
                 }
             }
         }
@@ -57,29 +57,8 @@ namespace clmr {
     }
 
 
-    bool ClangPPCallbacks::isSystemHeader(const clang::FileEntry* pFile) const
+    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile) const
     {
-        const auto& SM = m_compiler.getSourceManager();
-        const auto& fileID = SM.translateFile(pFile);
-        if (!fileID.isValid()) {
-            return false;
-        }
-
-        SourceLocation Loc = SM.getLocForStartOfFile(fileID);
-        if (SM.getFileCharacteristic(Loc) == SrcMgr::C_User) {
-            return false;
-        }
-        return true;
-    }
-
-
-    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile,
-                                                                         bool pSkipSystemHeader) const
-    {
-        if (pSkipSystemHeader && isSystemHeader(pIncFile)) {
-            return std::nullopt;
-        }
-
         const auto& itr = m_includeStrMap.find(pIncFile);
         if (itr == m_includeStrMap.end()) {
             return std::nullopt;
@@ -88,30 +67,24 @@ namespace clmr {
     }
 
 
-    const FileEntry* ClangPPCallbacks::isHeaderReachableFromSrc(const FileEntry* pIncSrc,
-                                                                const FileEntry* pHeader) const
+    bool ClangPPCallbacks::isHeaderReachableFromSrc(const FileEntry* pIncSrc, const FileEntry* pHeader) const
     {
         if (!pIncSrc || !pHeader) {
-            return pHeader;
+            return false;
         }
 
         if (pIncSrc == pHeader) {
-            return pHeader;
+            return true;
         }
 
         std::queue<const FileEntry*> fileEntryQ;
         std::unordered_set<const FileEntry*> visited;
         fileEntryQ.push(pIncSrc);
 
-        const clang::FileEntry* lastUserFile = pIncSrc;
         while (!fileEntryQ.empty())
         {
             auto* nextFile = fileEntryQ.front();
             fileEntryQ.pop();
-
-            if (!isSystemHeader(nextFile)) {
-                lastUserFile = nextFile;
-            }
 
             if (!visited.insert(nextFile).second) {
                 continue;
@@ -124,13 +97,13 @@ namespace clmr {
 
             auto& nextIncludesSet = itr->second;
             if (nextIncludesSet.find(pHeader) != nextIncludesSet.end()){
-                return lastUserFile;
+                return true;
             }
             for (auto* fe : nextIncludesSet) {
                 fileEntryQ.push(fe);
             }
         }
-        return nullptr;
+        return false;
     }
 
 
@@ -155,7 +128,10 @@ namespace clmr {
 
         auto headerFile = &pFile->getFileEntry();
         m_includeGraph[incSrcFile].insert(headerFile);
-        m_includeStrMap[*pFile] = pIsAngled ? ("<" + pFileName.str() + ">")
-                                            : ("\"" + pFileName.str() + "\"");
+
+        if (incSrcFile == m_mainSrcFile) {
+            m_includeStrMap[*pFile] = pIsAngled ? ("<" + pFileName.str() + ">")
+                                                : ("\"" + pFileName.str() + "\"");
+        }
 	}
 }

@@ -24,12 +24,8 @@ namespace clmr {
         const clang::FileEntry* m_mainSrcFile;
 
         using IncludeFESet = std::set<const clang::FileEntry*, FileComparator>;
-        using IncludeStrMap = std::unordered_map<const clang::FileEntry*, std::string>;
-
-        IncludeStrMap m_includeStrMap;
         std::unordered_map<const clang::FileEntry*, IncludeFESet> m_includeGraph;
-
-        bool isSystemHeader(const clang::FileEntry*) const;
+        std::unordered_map<const clang::FileEntry*, std::string> m_includeStrMap;
 
     public:
 
@@ -37,11 +33,9 @@ namespace clmr {
 
         const clang::FileEntry* getFileDoingHashIncludeFor(const clang::FileEntry* pFile) const;
 
-        std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pFile,
-                                                           bool pSkipSystemHeader) const;
+        std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pFile) const;
 
-        const clang::FileEntry* isHeaderReachableFromSrc(const clang::FileEntry *pHeader,
-                                                         const clang::FileEntry* pFile) const;
+        bool isHeaderReachableFromSrc(const clang::FileEntry *pIncSrc, const clang::FileEntry* pHeader) const;
 
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,

@@ -26,7 +26,6 @@ namespace clmr
     { }
 
     RegErr ClangASTVisitor::extractArgsAndItsHeaders(const FunctionDecl* pFnDecl,
-                                                     const FileEntry* pHeaderFile,
                                                      std::vector<std::string>& pArgsStrs,
                                                      std::vector<std::string>& pHeaders)
     {
@@ -36,7 +35,7 @@ namespace clmr
         for (auto* argDecl : pFnDecl->parameters())
         {
             const auto& qT = argDecl->getType();
-            auto err = addTypeDefiningHeader(pHeaders, qT, pFnDecl->getASTContext(), pHeaderFile);
+            auto err = addTypeDefiningHeader(pHeaders, qT, pFnDecl->getASTContext());
             if (err != RegErr::None) {
                 return err;
             }
@@ -54,8 +53,7 @@ namespace clmr
 
     RegErr ClangASTVisitor::addTypeDefiningHeader(std::vector<std::string>& pHeaders,
                                                   const clang::QualType& pQT,
-                                                  const clang::ASTContext& pCtx,
-                                                  const clang::FileEntry* pIncSrcFile)
+                                                  const clang::ASTContext& pCtx)
     {
         auto qT = desugarQT(pQT, pCtx);
         if (qT->isBuiltinType()) {
@@ -66,24 +64,21 @@ namespace clmr
             return RegErr::IncompleteType;
         }
 
-        auto [err, srcFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx, m_preProcessor);
+        auto [err, incFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx, m_preProcessor);
         if (err != RegErr::None) {
             return err;
         }
 
-        auto incStr = m_preProcessor.getHashIncludeAsWritten(srcFile, true);
-        if (incStr) {
-            pHeaders.push_back(*incStr);
-            return RegErr::None;
+        incFile = m_preProcessor.getFileDoingHashIncludeFor(incFile);
+        if (!incFile) {
+            return RegErr::AstParsing;
         }
-        else {
-            srcFile = m_preProcessor.getFileDoingHashIncludeFor(srcFile);
-            if (srcFile) {
-                incStr = m_preProcessor.getHashIncludeAsWritten(srcFile, false);
-                if (incStr) {
-                    pHeaders.push_back(*incStr);
-                    return RegErr::None;
-                }
+
+        if (isPublicHeader(incFile)) {
+            auto incStr = m_preProcessor.getHashIncludeAsWritten(incFile);
+            if (incStr) {
+                pHeaders.push_back(*incStr);
+                return RegErr::None;
             }
         }
         return RegErr::AstParsing;
@@ -93,7 +88,7 @@ namespace clmr
     RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pHeaderFile)
     {
         std::vector<std::string> headers;
-        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile, true);
+        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile);
         if (!hashIncludeStr) {
             return RegErr::AstParsing;
         }
@@ -115,7 +110,7 @@ namespace clmr
             return err;
         }
 
-        err = addTypeDefiningHeader(headers, pFnDecl->getReturnType(), pFnDecl->getASTContext(), pHeaderFile);
+        err = addTypeDefiningHeader(headers, pFnDecl->getReturnType(), pFnDecl->getASTContext());
         if (err != RegErr::None) {
             return err;
         }
@@ -127,7 +122,7 @@ namespace clmr
         }
         
         std::vector<std::string> argsTypeStr;
-        err = extractArgsAndItsHeaders(pFnDecl, pHeaderFile, argsTypeStr, headers);
+        err = extractArgsAndItsHeaders(pFnDecl, argsTypeStr, headers);
         if (err != RegErr::None) {
             return err;
         }
