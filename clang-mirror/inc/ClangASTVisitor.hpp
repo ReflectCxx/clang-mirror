@@ -11,7 +11,7 @@ namespace {
 
     static llvm::StringRef getRealPath(const clang::FileEntry* pFE)
     {
-        auto realPath = pFE->tryGetRealPathName().str();
+        auto realPath = pFE->tryGetRealPathName();
         if (realPath.empty()) {
             clmr::Logger::outError("FileEntry::tryGetRealPathName() -> failed.");
         }

@@ -73,7 +73,6 @@ namespace clmr {
         if (!pIncSrc || !pHeader) {
             return false;
         }
-
         if (pIncSrc == pHeader) {
             return true;
         }
@@ -109,9 +108,41 @@ namespace clmr {
 
     std::vector<const FileEntry*> ClangPPCallbacks::getIncludeChainFromSrcToHeader(const FileEntry* pIncSrc, const FileEntry* pHeader) const
     {
-        std::vector<const FileEntry*> includeStack;
-        std::unordered_set<const FileEntry*> visited;
-        return includeStack;
+        if (!pIncSrc || !pHeader) {
+            return {};
+        }
+
+        std::vector<const FileEntry*> includeStack = { pIncSrc };
+        std::unordered_set<const FileEntry*> visited = { pIncSrc };
+
+        while (!includeStack.empty())
+        {
+            auto* topHeader = includeStack.back();
+            if (topHeader == pHeader) {
+                return includeStack;
+            }
+
+            auto itr = m_includeGraph.find(topHeader);
+            if (itr == m_includeGraph.end()) {
+                includeStack.pop_back();
+                continue;
+            }
+
+            bool childVisited = true;
+            for (auto* incSrcFile : itr->second) {
+                bool notVisited = visited.insert(incSrcFile).second;
+                if (notVisited) {
+                    childVisited = false;
+                    includeStack.push_back(incSrcFile);
+                    break;
+                }
+            }
+
+            if (childVisited) {
+                includeStack.pop_back();
+            }
+        }
+        return { };
     }
 
 
@@ -133,13 +164,15 @@ namespace clmr {
         if (!incSrcFile) {
             return;
         }
+        
+        if (pIsAngled) {
+            m_includeStrMap[*pFile] = ("<" + pFileName.str() + ">");
+        }
+        else {
+            m_includeStrMap[*pFile] = ("\"" + pFileName.str() + "\"");
+        }
 
         auto headerFile = &pFile->getFileEntry();
         m_includeGraph[incSrcFile].insert(headerFile);
-
-        if (incSrcFile == m_mainSrcFile) {
-            m_includeStrMap[*pFile] = pIsAngled ? ("<" + pFileName.str() + ">")
-                                                : ("\"" + pFileName.str() + "\"");
-        }
 	}
 }
