@@ -35,7 +35,7 @@ namespace clmr
         for (auto* argDecl : pFnDecl->parameters())
         {
             const auto& qT = argDecl->getType();
-            auto err = addTypeDefiningHeader(pHeaders, qT, pFnDecl->getASTContext());
+            auto err = addTypeDefiningHeader(qT, pFnDecl->getASTContext(), pHeaders);
             if (err != RegErr::None) {
                 return err;
             }
@@ -51,9 +51,9 @@ namespace clmr
     }
 
 
-    RegErr ClangASTVisitor::addTypeDefiningHeader(std::vector<std::string>& pHeaders,
-                                                  const clang::QualType& pQT,
-                                                  const clang::ASTContext& pCtx)
+    RegErr ClangASTVisitor::addTypeDefiningHeader(const clang::QualType& pQT,
+                                                  const clang::ASTContext& pCtx,
+                                                  std::vector<std::string>& pHeaders)
     {
         auto qT = desugarQT(pQT, pCtx);
         if (qT->isBuiltinType()) {
@@ -116,7 +116,7 @@ namespace clmr
             return err;
         }
 
-        err = addTypeDefiningHeader(headers, pFnDecl->getReturnType(), pFnDecl->getASTContext());
+        err = addTypeDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), headers);
         if (err != RegErr::None) {
             return err;
         }

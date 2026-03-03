@@ -12,8 +12,22 @@ namespace clmr {
 
     bool FileComparator::operator()(const FileEntry *pFEa, const FileEntry *pFEb) const
     {
+        auto pathA = getRealPath(pFEa);
+        auto pathB = getRealPath(pFEb);
+
+        const std::string mainFilePath = getRealPath(&m_mainSrcRef).str();
+        const std::string stemA = std::filesystem::path(pathA.str()).stem().string();
+        const std::string stemB = std::filesystem::path(pathB.str()).stem().string();
+        const std::string stemMain = std::filesystem::path(mainFilePath).stem().string();
+
+        const bool aIsMain = (stemA == stemMain);
+        const bool bIsMain = (stemB == stemMain);
+        if (aIsMain != bIsMain) {
+            return aIsMain;
+        }
+
         bool aIsHeader = isHeaderFile(getRealPath(pFEa));
-        bool bIsHeader = isHeaderFile(getRealPath(pFEa));
+        bool bIsHeader = isHeaderFile(getRealPath(pFEb));
         if (aIsHeader != bIsHeader) {
             return aIsHeader > bIsHeader;
         }
@@ -45,7 +59,8 @@ namespace clmr {
     {
         auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
         for (auto* incSrcFile : includeChain) {
-            if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
+            if (incSrcFile != m_mainSrcFile && 
+               (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile))) {
                 return incSrcFile;
             }
         }
@@ -132,7 +147,12 @@ namespace clmr {
             m_includeStrMap[*pFile] = ("\"" + pFileName.str() + "\"");
         }
 
+        auto [itr, inserted] = m_includeGraph.try_emplace( 
+            incSrcFile,
+            FileComparator{ *m_mainSrcFile }
+        );
+
         auto headerFile = &pFile->getFileEntry();
-        m_includeGraph[incSrcFile].insert(headerFile);
+        itr->second.insert(headerFile);
 	}
 }

@@ -13,6 +13,7 @@ namespace clmr {
 
     struct FileComparator
     {
+        const clang::FileEntry& m_mainSrcRef;
         bool operator()(const clang::FileEntry*, const clang::FileEntry*) const;
     };
 }
