@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <filesystem>
 
 #include "Logger.h"
@@ -31,7 +30,7 @@ namespace {
         return qT;
     }
 
-    static bool isHeaderFile(const std::string& pFileStr)
+    static bool isHeaderFile(const llvm::StringRef pFileStr)
     {
         const auto& ext = llvm::sys::path::extension(pFileStr);
         return ext.equals_insensitive(".h") ||
@@ -77,7 +76,7 @@ namespace {
             auto fpath = file->tryGetRealPathName();
 
             if (fpath.empty()) continue;
-            if (isHeaderFile(fpath.str())) {
+            if (isHeaderFile(fpath)) {
                 return file;
             }
         }

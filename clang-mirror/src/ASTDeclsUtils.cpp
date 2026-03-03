@@ -63,8 +63,7 @@ namespace clmr
 
 
     errfile ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
-                                                 const SourceManager& pSrcMgr,
-                                                 const ClangPPCallbacks& pPP)
+                                                 const SourceManager& pSrcMgr)
     {
         if (!pDecl) {
             return { RegErr::AstParsing, nullptr };
@@ -76,7 +75,11 @@ namespace clmr
             if (tagDef) 
             {
                 SourceLocation loc = pSrcMgr.getSpellingLoc(pDecl->getLocation());
-                if (!loc.isValid() || pSrcMgr.isInMainFile(loc)) {
+                if (!loc.isValid()) {
+                    return { RegErr::AstParsing, nullptr };
+                }
+
+                if (pSrcMgr.isInMainFile(loc)) {
                     return { RegErr::AstParsing, nullptr };
                 }
 
@@ -93,8 +96,7 @@ namespace clmr
 
 
     errfile ASTDeclsUtils::getHeaderDefiningType(const QualType& pQT,
-                                                 const ASTContext& pCtx,
-                                                 const ClangPPCallbacks& pPP)
+                                                 const ASTContext& pCtx)
     {
         if (pQT.isNull()) {
             return { RegErr::AstParsing, nullptr };
@@ -108,17 +110,17 @@ namespace clmr
         const SourceManager& SM = pCtx.getSourceManager();
         if (const auto* TST = qT->getAs<TemplateSpecializationType>()) {
             if (const TemplateDecl* TD = TST->getTemplateName().getAsTemplateDecl()){
-                return resolveHeaderFromDecl(TD, SM, pPP);
+                return resolveHeaderFromDecl(TD, SM);
             }
             return { RegErr::TemplateType, nullptr };
         }
 
         if (const TypedefType* TT = qT->getAs<TypedefType>()) {
-            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
+            return resolveHeaderFromDecl(TT->getDecl(), SM);
         }
         
         if (const TagType* TT = qT->getAs<TagType>()) {
-            return resolveHeaderFromDecl(TT->getDecl(), SM, pPP);
+            return resolveHeaderFromDecl(TT->getDecl(), SM);
         }
 
         return { RegErr::UnresolvedType, nullptr };

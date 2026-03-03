@@ -25,8 +25,7 @@ namespace clmr {
         static std::string extractParentTypeName(const clang::FunctionDecl* pFuncDecl);
 
         static errfile getHeaderDefiningType(const clang::QualType& pQT,
-                                             const clang::ASTContext& pContext,
-                                             const ClangPPCallbacks& pPP);
+                                             const clang::ASTContext& pContext);
 
         static std::pair<clmr::MetaKind, std::string> getNameAndMetaKind(const clang::FunctionDecl* pFnDecl);
 
@@ -37,7 +36,6 @@ namespace clmr {
                                              std::unordered_map<std::string, std::string>& pTemplateTypeDefs);
 
         static errfile resolveHeaderFromDecl(const clang::NamedDecl* pDecl,
-                                             const clang::SourceManager& pSrcMgr,
-                                             const ClangPPCallbacks& pPP);
+                                             const clang::SourceManager& pSrcMgr);
     };
 }

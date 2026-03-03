@@ -12,8 +12,8 @@ namespace clmr {
 
     bool FileComparator::operator()(const FileEntry *pFEa, const FileEntry *pFEb) const
     {
-        bool aIsHeader = isHeaderFile(getRealPath(pFEa).str());
-        bool bIsHeader = isHeaderFile(getRealPath(pFEa).str());
+        bool aIsHeader = isHeaderFile(getRealPath(pFEa));
+        bool bIsHeader = isHeaderFile(getRealPath(pFEa));
         if (aIsHeader != bIsHeader) {
             return aIsHeader > bIsHeader;
         }
@@ -43,12 +43,10 @@ namespace clmr {
 
     const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
-        auto& incSrcSet = m_includeGraph.find(m_mainSrcFile)->second;
-        for (auto* incSrcFile : incSrcSet) {
-            if (isHeaderReachableFromSrc(incSrcFile, pHeader)) {
-                if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
-                    return incSrcFile;
-                }
+        auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
+        for (auto* incSrcFile : includeChain) {
+            if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
+                return incSrcFile;
             }
         }
         return nullptr;
@@ -67,44 +65,6 @@ namespace clmr {
         return (SM.getFileCharacteristic(Loc) != SrcMgr::C_User);
     }
 
-
-    bool ClangPPCallbacks::isHeaderReachableFromSrc(const FileEntry* pIncSrc, const FileEntry* pHeader) const
-    {
-        if (!pIncSrc || !pHeader) {
-            return false;
-        }
-        if (pIncSrc == pHeader) {
-            return true;
-        }
-
-        std::queue<const FileEntry*> fileEntryQ;
-        std::unordered_set<const FileEntry*> visited;
-        fileEntryQ.push(pIncSrc);
-
-        while (!fileEntryQ.empty())
-        {
-            auto* nextFile = fileEntryQ.front();
-            fileEntryQ.pop();
-
-            if (!visited.insert(nextFile).second) {
-                continue;
-            }
-
-            auto itr = m_includeGraph.find(nextFile);
-            if(itr == m_includeGraph.end()) {
-                continue;
-            }
-
-            auto& nextIncludesSet = itr->second;
-            if (nextIncludesSet.find(pHeader) != nextIncludesSet.end()){
-                return true;
-            }
-            for (auto* fe : nextIncludesSet) {
-                fileEntryQ.push(fe);
-            }
-        }
-        return false;
-    }
 
     std::vector<const FileEntry*> ClangPPCallbacks::getIncludeChainFromSrcToHeader(const FileEntry* pIncSrc, const FileEntry* pHeader) const
     {
@@ -128,21 +88,21 @@ namespace clmr {
                 continue;
             }
 
-            bool childVisited = true;
+            bool advance = true;
             for (auto* incSrcFile : itr->second) {
                 bool notVisited = visited.insert(incSrcFile).second;
                 if (notVisited) {
-                    childVisited = false;
+                    advance = false;
                     includeStack.push_back(incSrcFile);
                     break;
                 }
             }
 
-            if (childVisited) {
+            if (advance) {
                 includeStack.pop_back();
             }
         }
-        return { };
+        return {};
     }
 
 

@@ -64,7 +64,7 @@ namespace clmr
             return RegErr::IncompleteType;
         }
 
-        auto [err, incFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx, m_preProcessor);
+        auto [err, incFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx);
         if (err != RegErr::None) {
             return err;
         }
@@ -86,11 +86,13 @@ namespace clmr
     RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pHeaderFile)
     {
         std::vector<std::string> headers;
-        auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile);
-        if (!hashIncludeStr) {
-            return RegErr::AstParsing;
+        if (pHeaderFile) {
+            auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile);
+            if (!hashIncludeStr) {
+                return RegErr::AstParsing;
+            }
+            headers.push_back(*hashIncludeStr);
         }
-        headers.push_back(*hashIncludeStr);
 
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) {
@@ -140,17 +142,11 @@ namespace clmr
             return true;
         }
 
-        auto fnStr = pFnDecl->getNameAsString() + "()";
-        auto* headerFile = getDeclaringFile(pFnDecl);
-
-        if (!headerFile) {
-            Logger::outDbg(pFnDecl->getNameAsString() + "()", RegErr::HeaderNotFound);
-            return true;
-        }
-
         auto err = RegErr::HeaderNotPublic;
-        if (isPublicHeader(headerFile))
-        {
+        auto fnStr = pFnDecl->getNameAsString() + "()";
+        auto headerFile = getDeclaringFile(pFnDecl);
+
+        if (!headerFile || isPublicHeader(headerFile)) {
             err = addReflectableEntity(pFnDecl, headerFile);
             if (err == RegErr::None) {
                 return true;
