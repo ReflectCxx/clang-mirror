@@ -59,8 +59,7 @@ namespace clmr {
     {
         auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
         for (auto* incSrcFile : includeChain) {
-            if (incSrcFile != m_mainSrcFile && 
-               (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile))) {
+            if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
                 return incSrcFile;
             }
         }
