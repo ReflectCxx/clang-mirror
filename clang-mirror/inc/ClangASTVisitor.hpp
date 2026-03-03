@@ -9,6 +9,15 @@
 
 namespace {
 
+    static llvm::StringRef getRealPath(const clang::FileEntry* pFE)
+    {
+        auto realPath = pFE->tryGetRealPathName().str();
+        if (realPath.empty()) {
+            clmr::Logger::outError("FileEntry::tryGetRealPathName() -> failed.");
+        }
+        return realPath;
+    }
+
     static const clang::QualType desugarQT(const clang::QualType& pQT, 
                                            const clang::ASTContext& pCtx)
     {
@@ -45,16 +54,31 @@ namespace {
         return clmr::RegErr::None;
     }
 
-    static const clang::FileEntry* getDeclaringFile(clang::FunctionDecl *pFnDecl)
+    static const clang::FileEntry* getDeclaringFile(clang::FunctionDecl * pFnDef)
     {
-        auto& SM = pFnDecl->getASTContext().getSourceManager();
-        for (auto* decl : pFnDecl->redecls())
+        if (!pFnDef) {
+            return nullptr;
+        }
+
+        auto& SM = pFnDef->getASTContext().getSourceManager();
+        for (auto* redecl : pFnDef->redecls())
         {
-            clang::SourceLocation loc = SM.getSpellingLoc(decl->getLocation());
-            const auto& fileStr = SM.getFilename(loc).str();
-            if (isHeaderFile(fileStr)) {
-                clang::FileID fid = SM.getFileID(loc);
-                return SM.getFileEntryForID(fid);
+            if (redecl == pFnDef) continue;
+            clang::SourceLocation loc = SM.getExpansionLoc(redecl->getLocation());
+
+            if (loc.isInvalid()) continue;
+            if (SM.isInMainFile(loc)) continue;
+            if (SM.isInSystemHeader(loc)) continue;
+
+            clang::FileID fid = SM.getFileID(loc);
+            const clang::FileEntry* file = SM.getFileEntryForID(fid);
+
+            if (!file) continue;
+            auto fpath = file->tryGetRealPathName();
+
+            if (fpath.empty()) continue;
+            if (isHeaderFile(fpath.str())) {
+                return file;
             }
         }
         return nullptr;

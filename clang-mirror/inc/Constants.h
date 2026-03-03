@@ -89,10 +89,10 @@ namespace clmr
 			case RegErr::None: return "RegErr::None";
 			case RegErr::Unknown: return "RegErr::Unknown";
 			case RegErr::AstParsing: return "RegErr::AstParsing";
-			case RegErr::TemplateType: return "RegErr::TemplateType, unsupported";
-			case RegErr::IncompleteType: return "RegErr::IncompleteType, unsupported";
+			case RegErr::TemplateType: return "RegErr::TemplateType";
+			case RegErr::IncompleteType: return "RegErr::IncompleteType";
 			case RegErr::UnresolvedType: return "RegErr::UnresolvedType";
-			case RegErr::FunctionPtrType: return "RegErr::FunctionPtrType, unsupported";
+			case RegErr::FunctionPtrType: return "RegErr::FunctionPtrType";
 			case RegErr::HeaderNotFound: return "RegErr::HeaderNotFound";
 			case RegErr::HeaderNotPublic: return "RegErr::HeaderNotPublic";
 			case RegErr::ExclusionByPolicy: return "RegErr::ExclusionByPolicy";

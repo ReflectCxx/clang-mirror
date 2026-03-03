@@ -74,12 +74,10 @@ namespace clmr
             return RegErr::AstParsing;
         }
 
-        if (isPublicHeader(incFile)) {
-            auto incStr = m_preProcessor.getHashIncludeAsWritten(incFile);
-            if (incStr) {
-                pHeaders.push_back(*incStr);
-                return RegErr::None;
-            }
+        auto incStr = m_preProcessor.getHashIncludeAsWritten(incFile);
+        if (incStr) {
+            pHeaders.push_back(*incStr);
+            return RegErr::None;
         }
         return RegErr::AstParsing;
     }
@@ -110,13 +108,13 @@ namespace clmr
             return err;
         }
 
-        err = addTypeDefiningHeader(headers, pFnDecl->getReturnType(), pFnDecl->getASTContext());
+        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        err = taggedForExclusion(returnStr);
         if (err != RegErr::None) {
             return err;
         }
 
-        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        err = taggedForExclusion(returnStr);
+        err = addTypeDefiningHeader(headers, pFnDecl->getReturnType(), pFnDecl->getASTContext());
         if (err != RegErr::None) {
             return err;
         }
@@ -142,19 +140,24 @@ namespace clmr
             return true;
         }
 
+        auto fnStr = pFnDecl->getNameAsString() + "()";
         auto* headerFile = getDeclaringFile(pFnDecl);
-        if (headerFile) {
-            auto err = RegErr::HeaderNotPublic;
-            if (isPublicHeader(headerFile)) {
-                err = addReflectableEntity(pFnDecl, headerFile);
-            }
-            if (err != RegErr::None && err != RegErr::ExclusionByPolicy && err != RegErr::HeaderNotPublic) {
-                Logger::outDbg(pFnDecl->getNameAsString() + "()", err, "^^");
+
+        if (!headerFile) {
+            Logger::outDbg(pFnDecl->getNameAsString() + "()", RegErr::HeaderNotFound);
+            return true;
+        }
+
+        auto err = RegErr::HeaderNotPublic;
+        if (isPublicHeader(headerFile))
+        {
+            err = addReflectableEntity(pFnDecl, headerFile);
+            if (err == RegErr::None) {
+                return true;
             }
         }
-        else {
-            Logger::outDbg(pFnDecl->getNameAsString() + "()", RegErr::AstParsing, "^^");
-        }
+
+        Logger::outDbg(fnStr, err);
         return true;
     }
 }

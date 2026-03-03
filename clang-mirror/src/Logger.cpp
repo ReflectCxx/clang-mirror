@@ -80,14 +80,21 @@ namespace clmr {
         std::cout << color::RED_DARK << clang_mirror << "\t" << fmtNewlines(pMsg) << color::RESET << std::endl;
     }
     
-    void Logger::outDbg(const std::string &pMsg, RegErr pErr, std::string_view pPrefix)
+    void Logger::outDbg(const std::string &pMsg, RegErr pErr)
     {
         if(g_debugLog) {
-            auto spaces = std::string(clang_mirror.length(), ' ');
-            std::cout << color::GREY << spaces << "\t" << std::string(pPrefix) << pMsg 
-                      << (pErr == RegErr::AstParsing ? color::RED : color::BLUE)
-                      << (pErr != RegErr::None ? (" [" + toString(pErr) + "]") : "")
-                      << color::RESET << std::endl;
+            auto clang_spaces = std::string(clang_mirror.length(), ' ');
+
+            auto errColor = (pErr == RegErr::HeaderNotFound ||
+                             pErr == RegErr::AstParsing) ? color::RED : color::BLUE;
+
+            if (errColor == color::BLUE) {
+                errColor = (pErr == RegErr::ExclusionByPolicy ||
+                            pErr == RegErr::HeaderNotPublic) ? color::GREEN : color::BLUE;
+            }
+
+            auto errCode = (pErr != RegErr::None ? (" [" + toString(pErr) + "] ") : "");
+            std::cout << clang_spaces << "\t" << errColor << errCode << color::GREY << pMsg << color::RESET << std::endl;
         }
     }
 

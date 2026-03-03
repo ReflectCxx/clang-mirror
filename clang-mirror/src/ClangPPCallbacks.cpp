@@ -8,28 +8,16 @@
 
 using namespace clang;
 
-namespace {
-
-    llvm::StringRef getRealPath(const clang::FileEntry* pFE)
-    {
-        auto realPath = pFE->tryGetRealPathName().str();
-        if (realPath.empty()) {
-            clmr::Logger::outError("clang::FileEntry::tryGetRealPathName() -> failed.");
-        }
-        return realPath;
-    }
-}
-
 namespace clmr {
 
-    bool FileComparator::operator()(const clang::FileEntry *pFEa, const clang::FileEntry *pFEb) const
+    bool FileComparator::operator()(const FileEntry *pFEa, const FileEntry *pFEb) const
     {
         bool aIsHeader = isHeaderFile(getRealPath(pFEa).str());
         bool bIsHeader = isHeaderFile(getRealPath(pFEa).str());
         if (aIsHeader != bIsHeader) {
             return aIsHeader > bIsHeader;
         }
-        return std::less<const clang::FileEntry*> { } (pFEa, pFEb);
+        return std::less<const FileEntry*> { } (pFEa, pFEb);
     }
 }
 
@@ -43,12 +31,22 @@ namespace clmr {
     }
 
 
-    const clang::FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const clang::FileEntry* pHeader) const
+    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile) const
+    {
+        const auto& itr = m_includeStrMap.find(pIncFile);
+        if (itr == m_includeStrMap.end()) {
+            return std::nullopt;
+        }
+        return std::make_optional(itr->second);
+    }
+
+
+    const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
         auto& incSrcSet = m_includeGraph.find(m_mainSrcFile)->second;
         for (auto* incSrcFile : incSrcSet) {
             if (isHeaderReachableFromSrc(incSrcFile, pHeader)) {
-                if (isPublicHeader(incSrcFile)) {
+                if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
                     return incSrcFile;
                 }
             }
@@ -57,13 +55,16 @@ namespace clmr {
     }
 
 
-    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile) const
+    bool ClangPPCallbacks::isSystemHeader(const FileEntry* pFile) const
     {
-        const auto& itr = m_includeStrMap.find(pIncFile);
-        if (itr == m_includeStrMap.end()) {
-            return std::nullopt;
+        const auto& SM = m_compiler.getSourceManager();
+        const auto& fileID = SM.translateFile(pFile);
+        if (!fileID.isValid()) {
+            return false;
         }
-        return std::make_optional(itr->second);
+
+        SourceLocation Loc = SM.getLocForStartOfFile(fileID);
+        return (SM.getFileCharacteristic(Loc) != SrcMgr::C_User);
     }
 
 
@@ -104,6 +105,13 @@ namespace clmr {
             }
         }
         return false;
+    }
+
+    std::vector<const FileEntry*> ClangPPCallbacks::getIncludeChainFromSrcToHeader(const FileEntry* pIncSrc, const FileEntry* pHeader) const
+    {
+        std::vector<const FileEntry*> includeStack;
+        std::unordered_set<const FileEntry*> visited;
+        return includeStack;
     }
 
 

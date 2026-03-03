@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <vector>
 #include <string_view>
 #include <unordered_map>
 
@@ -27,15 +28,19 @@ namespace clmr {
         std::unordered_map<const clang::FileEntry*, IncludeFESet> m_includeGraph;
         std::unordered_map<const clang::FileEntry*, std::string> m_includeStrMap;
 
+        bool isHeaderReachableFromSrc(const clang::FileEntry* pIncSrc, const clang::FileEntry* pHeader) const;
+
+        std::vector<const clang::FileEntry*> getIncludeChainFromSrcToHeader(const clang::FileEntry* pIncSrc,
+                                                                            const clang::FileEntry* pHeader) const;
     public:
 
         ClangPPCallbacks(clang::CompilerInstance& CI);
 
+        bool isSystemHeader(const clang::FileEntry* pFile) const;
+
         const clang::FileEntry* getFileDoingHashIncludeFor(const clang::FileEntry* pFile) const;
 
         std::optional<std::string> getHashIncludeAsWritten(const clang::FileEntry* pFile) const;
-
-        bool isHeaderReachableFromSrc(const clang::FileEntry *pIncSrc, const clang::FileEntry* pHeader) const;
 
         void InclusionDirective(clang::SourceLocation HashLoc,
                                 const clang::Token& IncludeTok, llvm::StringRef FileName,
