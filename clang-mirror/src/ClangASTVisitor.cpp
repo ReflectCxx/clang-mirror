@@ -70,13 +70,7 @@ namespace clmr
             return err;
         }
 
-        auto filestr = getRealPath(incFile);
-        incFile = m_preProcessor.getFileDoingHashIncludeFor(incFile);
-        if (!incFile) {
-            return RegErr::AstParsing;
-        }
-
-        auto incStr = m_preProcessor.getHashIncludeAsWritten(incFile);
+        auto incStr = m_preProcessor.getHashIncludeAsWrittenFor(incFile);
         if (!incStr) {
             return RegErr::AstParsing;
         }
@@ -90,7 +84,7 @@ namespace clmr
     {
         std::vector<std::string> headers;
         if (pHeaderFile) {
-            auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile);
+            auto hashIncludeStr = m_preProcessor.getHashIncludeAsWrittenFor(pHeaderFile);
             if (!hashIncludeStr) {
                 Logger::outDbg("while processing function : " + pFnDecl->getNameAsString());
                 return RegErr::AstParsing;

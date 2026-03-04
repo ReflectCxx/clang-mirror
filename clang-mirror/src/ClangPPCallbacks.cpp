@@ -8,6 +8,7 @@
 
 using namespace clang;
 
+
 namespace clmr {
 
     bool FileComparator::operator()(const FileEntry *pFEa, const FileEntry *pFEb) const
@@ -35,6 +36,7 @@ namespace clmr {
     }
 }
 
+
 namespace clmr {
 
     ClangPPCallbacks::ClangPPCallbacks(CompilerInstance& CI)
@@ -42,30 +44,6 @@ namespace clmr {
     {
         const auto& SM = CI.getSourceManager();
         m_mainSrcFile = SM.getFileEntryForID(SM.getMainFileID());
-    }
-
-
-    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWritten(const FileEntry *pIncFile) const
-    {
-        const auto& itr = m_includeStrMap.find(pIncFile);
-        if (itr == m_includeStrMap.end()) {
-            Logger::outDbg("`#include` not found in file : " + getRealPath(pIncFile).str());
-            return std::nullopt;
-        }
-        return std::make_optional(itr->second);
-    }
-
-
-    const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
-    {
-        auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
-        for (auto* incSrcFile : includeChain) {
-            if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
-                return incSrcFile;
-            }
-        }
-        Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
-        return nullptr;
     }
 
 
@@ -79,6 +57,36 @@ namespace clmr {
 
         SourceLocation Loc = SM.getLocForStartOfFile(fileID);
         return (SM.getFileCharacteristic(Loc) != SrcMgr::C_User);
+    }
+
+
+    const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
+    {
+        auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
+        for (auto* incSrcFile : includeChain) {
+            if (incSrcFile == m_mainSrcFile) continue;
+            if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
+                return incSrcFile;
+            }
+        }
+        Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
+        return nullptr;
+    }
+
+
+    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWrittenFor(const FileEntry * pHeader) const
+    {
+        const auto* incFile = getFileDoingHashIncludeFor(pHeader);
+        if (!incFile) {
+            return std::nullopt;
+        }
+
+        const auto& itr = m_includeStrMap.find(pHeader);
+        if (itr == m_includeStrMap.end()) {
+            Logger::outDbg("`#include` not found in file : " + getRealPath(pHeader).str());
+            return std::nullopt;
+        }
+        return std::make_optional(itr->second);
     }
 
 
