@@ -104,8 +104,8 @@ namespace clmr {
 
             bool advance = true;
             for (auto* incSrcFile : itr->second) {
-                bool notVisited = visited.insert(incSrcFile).second;
-                if (notVisited) {
+                bool unvisited = visited.insert(incSrcFile).second;
+                if (unvisited) {
                     advance = false;
                     includeStack.push_back(incSrcFile);
                     break;
