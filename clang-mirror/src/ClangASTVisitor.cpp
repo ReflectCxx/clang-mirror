@@ -43,7 +43,7 @@ namespace clmr
 
             err = addTypeDefiningHeader(qT, pFnDecl->getASTContext(), pHeaders);
             if (err != RegErr::None) {
-                Logger::outDbg("While processing param-type : " + argStr);
+                Logger::outDbg("error processing arg-type : " + argStr);
                 return err;
             }
             pArgsStrs.push_back(argStr);
@@ -86,7 +86,7 @@ namespace clmr
         if (pHeaderFile) {
             auto hashIncludeStr = m_preProcessor.getHashIncludeAsWrittenFor(pHeaderFile);
             if (!hashIncludeStr) {
-                Logger::outDbg("while processing function : " + pFnDecl->getNameAsString());
+                Logger::outDbg("error while processing function : " + pFnDecl->getNameAsString());
                 return RegErr::AstParsing;
             }
             headers.push_back(*hashIncludeStr);
@@ -94,7 +94,7 @@ namespace clmr
 
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) {
-            Logger::outDbg("Failed to classify as MetaKind : " + pFnDecl->getNameAsString());
+            Logger::outDbg("failed to classify as MetaKind : " + pFnDecl->getNameAsString());
             return RegErr::AstParsing;
         }
 
@@ -117,7 +117,7 @@ namespace clmr
 
         err = addTypeDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), headers);
         if (err != RegErr::None) {
-            Logger::outDbg("While processing return-type : " + returnStr);
+            Logger::outDbg("error processing return-type : " + returnStr);
             return err;
         }
         

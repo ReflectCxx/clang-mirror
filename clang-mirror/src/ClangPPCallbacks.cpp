@@ -63,9 +63,10 @@ namespace clmr {
     const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
         auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
-        for (auto* incSrcFile : includeChain) {
-            if (incSrcFile == m_mainSrcFile) continue;
-            if (isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
+        for (auto* incSrcFile : includeChain)
+        {
+            if (incSrcFile == m_mainSrcFile ||
+                isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
                 return incSrcFile;
             }
         }
