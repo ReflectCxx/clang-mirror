@@ -62,12 +62,10 @@ namespace clmr {
 
     const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
-        auto includeChain = getIncludeChainFromSrcToHeader(m_mainSrcFile, pHeader);
-        for (auto* incSrcFile : includeChain)
-        {
-            if (incSrcFile == m_mainSrcFile ||
-                isSystemHeader(incSrcFile) || isPublicHeader(incSrcFile)) {
-                return incSrcFile;
+        auto includeChain = getIncludeChainFromSrcToHeader(pHeader);
+        for (int i = 1; i < includeChain.size(); i++) {
+            if(isSystemHeader(includeChain[i]) || isPublicHeader(includeChain[i])) {
+                return includeChain[i];
             }
         }
         Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
@@ -82,23 +80,23 @@ namespace clmr {
             return std::nullopt;
         }
 
-        const auto& itr = m_includeStrMap.find(pHeader);
+        const auto& itr = m_includeStrMap.find(incFile);
         if (itr == m_includeStrMap.end()) {
-            Logger::outDbg("`#include` not found in file : " + getRealPath(pHeader).str());
+            Logger::outDbg("`#include` not found in file : " + getRealPath(incFile).str());
             return std::nullopt;
         }
         return std::make_optional(itr->second);
     }
 
 
-    std::vector<const FileEntry*> ClangPPCallbacks::getIncludeChainFromSrcToHeader(const FileEntry* pIncSrc, const FileEntry* pHeader) const
+    std::vector<const FileEntry*> ClangPPCallbacks::getIncludeChainFromSrcToHeader(const FileEntry* pHeader) const
     {
-        if (!pIncSrc || !pHeader) {
+        if (!pHeader) {
             return {};
         }
 
-        std::vector<const FileEntry*> includeStack = { pIncSrc };
-        std::unordered_set<const FileEntry*> visited = { pIncSrc };
+        std::vector<const FileEntry*> includeStack = { m_mainSrcFile };
+        std::unordered_set<const FileEntry*> visited = { m_mainSrcFile };
 
         while (!includeStack.empty())
         {

@@ -31,8 +31,8 @@ namespace clmr {
 
         const clang::FileEntry* getFileDoingHashIncludeFor(const clang::FileEntry* pHeader) const;
 
-        std::vector<const clang::FileEntry*> getIncludeChainFromSrcToHeader(const clang::FileEntry* pIncSrc,
-                                                                            const clang::FileEntry* pHeader) const;
+        std::vector<const clang::FileEntry*> getIncludeChainFromSrcToHeader(const clang::FileEntry* pHeader) const;
+
     public:
 
         ClangPPCallbacks(clang::CompilerInstance& CI);
