@@ -49,6 +49,7 @@ namespace clmr {
     {
         const auto& itr = m_includeStrMap.find(pIncFile);
         if (itr == m_includeStrMap.end()) {
+            Logger::outDbg("`#include` not found in file : " + getRealPath(pIncFile).str());
             return std::nullopt;
         }
         return std::make_optional(itr->second);
@@ -63,6 +64,7 @@ namespace clmr {
                 return incSrcFile;
             }
         }
+        Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
         return nullptr;
     }
 

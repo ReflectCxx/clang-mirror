@@ -39,7 +39,7 @@ namespace {
                ext.equals_insensitive(".hxx");
     }
 
-    static clmr::RegErr taggedForExclusion(const std::string& pStr)
+    static clmr::RegErr filterByExclusion(const std::string& pStr)
     {
         if (pStr.find('<') != std::string::npos) {  // exclude templates. (not supported yet)
             return clmr::RegErr::TemplateType;

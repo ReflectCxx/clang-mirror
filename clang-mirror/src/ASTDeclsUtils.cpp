@@ -66,6 +66,7 @@ namespace clmr
                                                  const SourceManager& pSrcMgr)
     {
         if (!pDecl) {
+            Logger::outDbg("null-pointer : NamedDecl*");
             return { RegErr::AstParsing, nullptr };
         }
 
@@ -76,22 +77,25 @@ namespace clmr
             {
                 SourceLocation loc = pSrcMgr.getSpellingLoc(pDecl->getLocation());
                 if (!loc.isValid()) {
+                    Logger::outDbg("Invalid location.");
                     return { RegErr::AstParsing, nullptr };
                 }
 
                 if (pSrcMgr.isInMainFile(loc)) {
+                    Logger::outDbg("Type decleared in current TU.");
                     return { RegErr::AstParsing, nullptr };
                 }
 
                 FileID fid = pSrcMgr.getFileID(loc);
                 const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
                 if (!fentry) {
+                    Logger::outDbg("Could not resolve header from type.");
                     return { RegErr::AstParsing, nullptr };
                 }
                 return { RegErr::None, fentry };
             }
         }
-        return { RegErr::AstParsing, nullptr };
+        return { RegErr::UnresolvedType, nullptr };
     }
 
 
@@ -99,6 +103,7 @@ namespace clmr
                                                  const ASTContext& pCtx)
     {
         if (pQT.isNull()) {
+            Logger::outDbg("Invalid QualType object.");
             return { RegErr::AstParsing, nullptr };
         }
 

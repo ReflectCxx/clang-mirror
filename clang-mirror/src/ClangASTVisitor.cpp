@@ -35,14 +35,15 @@ namespace clmr
         for (auto* argDecl : pFnDecl->parameters())
         {
             const auto& qT = argDecl->getType();
-            auto err = addTypeDefiningHeader(qT, pFnDecl->getASTContext(), pHeaders);
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
+            auto err = filterByExclusion(argStr);
             if (err != RegErr::None) {
                 return err;
             }
 
-            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
-            err = taggedForExclusion(argStr);
+            err = addTypeDefiningHeader(qT, pFnDecl->getASTContext(), pHeaders);
             if (err != RegErr::None) {
+                Logger::outDbg("While processing param-type : " + argStr);
                 return err;
             }
             pArgsStrs.push_back(argStr);
@@ -69,17 +70,19 @@ namespace clmr
             return err;
         }
 
+        auto filestr = getRealPath(incFile);
         incFile = m_preProcessor.getFileDoingHashIncludeFor(incFile);
         if (!incFile) {
             return RegErr::AstParsing;
         }
 
         auto incStr = m_preProcessor.getHashIncludeAsWritten(incFile);
-        if (incStr) {
-            pHeaders.push_back(*incStr);
-            return RegErr::None;
+        if (!incStr) {
+            return RegErr::AstParsing;
         }
-        return RegErr::AstParsing;
+
+        pHeaders.push_back(*incStr);
+        return RegErr::None;
     }
 
 
@@ -89,6 +92,7 @@ namespace clmr
         if (pHeaderFile) {
             auto hashIncludeStr = m_preProcessor.getHashIncludeAsWritten(pHeaderFile);
             if (!hashIncludeStr) {
+                Logger::outDbg("while processing function : " + pFnDecl->getNameAsString());
                 return RegErr::AstParsing;
             }
             headers.push_back(*hashIncludeStr);
@@ -96,28 +100,30 @@ namespace clmr
 
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
         if (metaKind == MetaKind::None) {
+            Logger::outDbg("Failed to classify as MetaKind : " + pFnDecl->getNameAsString());
             return RegErr::AstParsing;
         }
 
-        auto err = taggedForExclusion(fname);
+        auto err = filterByExclusion(fname);
         if (err != RegErr::None) {
             return err;
         }
 
         auto recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-        err = taggedForExclusion(recordStr);
+        err = filterByExclusion(recordStr);
         if (err != RegErr::None) {
             return err;
         }
 
         const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-        err = taggedForExclusion(returnStr);
+        err = filterByExclusion(returnStr);
         if (err != RegErr::None) {
             return err;
         }
 
         err = addTypeDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), headers);
         if (err != RegErr::None) {
+            Logger::outDbg("While processing return-type : " + returnStr);
             return err;
         }
         
