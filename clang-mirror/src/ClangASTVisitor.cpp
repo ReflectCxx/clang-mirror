@@ -7,8 +7,10 @@
 #include "ASTCodeManager.h"
 #include "ASTCodeBuffer.h"
 #include "ASTDeclsUtils.h"
-#include "ClangASTVisitor.h"
 #include "ClangPPCallbacks.h"
+
+#include "ClangASTVisitor.h"
+#include "ClangASTVisitor.hpp"
 
 #include "clang/AST/Type.h"
 #include "clang/AST/PrettyPrinter.h"
@@ -21,119 +23,137 @@ namespace clmr
     ClangASTVisitor::ClangASTVisitor(const std::string& pSrcFile, ClangPPCallbacks& pPP)
         : m_srcFile(pSrcFile)
         , m_preProcessor(pPP)
-	{ }
+    { }
 
-    bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
+    RegErr ClangASTVisitor::extractArgsAndItsHeaders(const FunctionDecl* pFnDecl,
+                                                     std::vector<std::string>& pArgsStrs,
+                                                     std::vector<std::string>& pHeaders)
     {
-        if (!ASTDeclsUtils::isInUserCode(pFnDecl) ||
-            pFnDecl->isDeleted() ||
-            pFnDecl->isInAnonymousNamespace() ||
-            (pFnDecl->isGlobal() && pFnDecl->isStatic()) ||
-            pFnDecl->isOverloadedOperator() ||
-            pFnDecl->getKind() == Decl::Kind::CXXDestructor ||
-            pFnDecl->getAccess() == AS_private ||
-            pFnDecl->getAccess() == AS_protected ||
-            pFnDecl->getLinkageInternal() != Linkage::External) {
-            return true;
-        }
-
-        if (!pFnDecl->isThisDeclarationADefinition()) {
-            return true;
-        }
-
-        if (pFnDecl->getFirstDecl() == nullptr) {
-            return true;
-        }
-
-        if (!ASTDeclsUtils::isDeclFrmCurrentSource(m_srcFile, pFnDecl)) {
-            return true;
-        }
-
-        std::string headerStr;
+        const auto& fnQName = pFnDecl->getQualifiedNameAsString();
         auto& SM = pFnDecl->getASTContext().getSourceManager();
 
-        for (auto* D : pFnDecl->redecls())
+        for (auto* argDecl : pFnDecl->parameters())
         {
-            SourceLocation loc = SM.getSpellingLoc(D->getLocation());
-            if (!loc.isValid()) continue;
-            if (SM.isInMainFile(loc)) continue;
-            if (SM.isInSystemHeader(loc)) continue;
-
-            FileID fid = SM.getFileID(loc);
-            const FileEntry* FE = SM.getFileEntryForID(fid);
-            if (!FE) continue;
-
-            auto& map = m_preProcessor.getIncludeStrMap();
-            auto it = map.find(FE);
-
-            if (it != map.end()) {
-                headerStr = it->second;
-                break;
+            const auto& qT = argDecl->getType();
+            const auto& argStr = ASTDeclsUtils::extractQualifiedTypeName(qT);
+            auto err = filterByExclusion(argStr);
+            if (err != RegErr::None) {
+                return err;
             }
-        }
 
-        if (!headerStr.empty()) {
-            addReflectableEntity(pFnDecl, headerStr);
+            err = addTypeDefiningHeader(qT, pFnDecl->getASTContext(), pHeaders);
+            if (err != RegErr::None) {
+                Logger::outDbg("error processing arg-type : " + argStr);
+                return err;
+            }
+            pArgsStrs.push_back(argStr);
         }
-        return true;
+        return RegErr::None;
     }
 
 
-    void ClangASTVisitor::addReflectableEntity(clang::FunctionDecl* pFnDecl, const std::string& pHeader)
+    RegErr ClangASTVisitor::addTypeDefiningHeader(const clang::QualType& pQT,
+                                                  const clang::ASTContext& pCtx,
+                                                  std::vector<std::string>& pHeaders)
     {
-        std::vector<std::string> parmTypes;
-        const auto& params = pFnDecl->parameters();
-        const auto& fnQName = pFnDecl->getQualifiedNameAsString();
-        for (unsigned index = 0; index < params.size(); index++) {
-            parmTypes.push_back(ASTDeclsUtils::extractQualifiedTypeName(params[index]->getOriginalType()));
+        auto qT = desugarQT(pQT, pCtx);
+        if (qT->isBuiltinType()) {
+            return RegErr::None;
+        }
+        
+        if (qT->isIncompleteType()) {
+            return RegErr::IncompleteType;
         }
 
-        std::string functionName;
-        MetaKind metaKind = MetaKind::None;
-
-        if (const auto* ctor = llvm::dyn_cast<clang::CXXConstructorDecl>(pFnDecl))
-        {
-            if (ctor->isUserProvided() && !ctor->isDefaultConstructor() &&
-                !ctor->isCopyConstructor() && !ctor->isMoveConstructor()) {
-                metaKind = MetaKind::Ctor;
-            }
-        }
-        else if (const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl))
-        {
-            if (method->isOverloadedOperator() || llvm::isa<clang::CXXConversionDecl>(method)) {
-                return;
-            }
-
-            if (method->isStatic()) {
-                metaKind = MetaKind::MemberFnStatic;
-            }
-            else {
-                if (method->isConst()) {
-                    metaKind = MetaKind::MemberFnConst;
-                }
-                else {
-                    metaKind = MetaKind::MemberFnNonConst;
-                }
-            }
-            functionName = pFnDecl->getDeclName().getAsString();
-        }
-        else {
-            metaKind = MetaKind::NonMemberFn;
-            functionName = pFnDecl->getQualifiedNameAsString();
+        auto [err, incFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx);
+        if (err != RegErr::None) {
+            return err;
         }
 
-        if (metaKind != MetaKind::None) {
-            const std::string returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
-            const std::string recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
-            if (recordStr.find('<') != std::string::npos) {
-                return;
-            }
-
-            ASTCodeManager::instance().getCodeBuffer(m_srcFile, true)
-                                      ->addFunction(metaKind, {
-                    .header = pHeader,
-                    .function = functionName
-            }, recordStr, returnStr, StringUtils::getParamTypesStr(parmTypes));
+        auto incStr = m_preProcessor.getHashIncludeAsWrittenFor(incFile);
+        if (!incStr) {
+            return RegErr::AstParsing;
         }
+
+        pHeaders.push_back(*incStr);
+        return RegErr::None;
+    }
+
+
+    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pHeaderFile)
+    {
+        std::vector<std::string> headers;
+        if (pHeaderFile) {
+            auto hashIncludeStr = m_preProcessor.getHashIncludeAsWrittenFor(pHeaderFile);
+            if (!hashIncludeStr) {
+                Logger::outDbg("error while processing function : " + pFnDecl->getNameAsString());
+                return RegErr::AstParsing;
+            }
+            headers.push_back(*hashIncludeStr);
+        }
+
+        auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
+        if (metaKind == MetaKind::None) {
+            Logger::outDbg("failed to classify as MetaKind : " + pFnDecl->getNameAsString());
+            return RegErr::AstParsing;
+        }
+
+        auto err = filterByExclusion(fname);
+        if (err != RegErr::None) {
+            return err;
+        }
+
+        auto recordStr = ASTDeclsUtils::extractParentTypeName(pFnDecl);
+        err = filterByExclusion(recordStr);
+        if (err != RegErr::None) {
+            return err;
+        }
+
+        const auto returnStr = ASTDeclsUtils::extractQualifiedTypeName(pFnDecl->getReturnType());
+        err = filterByExclusion(returnStr);
+        if (err != RegErr::None) {
+            return err;
+        }
+
+        err = addTypeDefiningHeader(pFnDecl->getReturnType(), pFnDecl->getASTContext(), headers);
+        if (err != RegErr::None) {
+            Logger::outDbg("error processing return-type : " + returnStr);
+            return err;
+        }
+        
+        std::vector<std::string> argsTypeStr;
+        err = extractArgsAndItsHeaders(pFnDecl, argsTypeStr, headers);
+        if (err != RegErr::None) {
+            return err;
+        }
+
+        auto* codeBuffer = ASTCodeManager::instance().getCodeBuffer(m_srcFile, true);
+        codeBuffer->addFunction(metaKind, {
+            .headers = headers,
+            .function = fname
+        }, recordStr, returnStr, StringUtils::getParamTypesStr(argsTypeStr));
+        return RegErr::None;
+    }
+
+
+    bool ClangASTVisitor::VisitFunctionDecl(FunctionDecl* pFnDecl)
+    {
+        if (!isReflectableEntity(pFnDecl)) {
+            return true;
+        }
+
+        auto err = RegErr::HeaderNotPublic;
+        auto fnStr = pFnDecl->getNameAsString() + "()";
+        auto headerFile = getDeclaringFile(pFnDecl);
+
+        if (!headerFile || isPublicHeader(headerFile)) {
+            err = addReflectableEntity(pFnDecl, headerFile);
+            if (err == RegErr::None) {
+                return true;
+            }
+        }
+
+        Logger::outDbg(fnStr, err);
+        return true;
     }
 }

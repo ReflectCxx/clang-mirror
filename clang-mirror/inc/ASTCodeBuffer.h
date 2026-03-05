@@ -21,6 +21,8 @@ namespace clmr
 		CxxRecordsMap m_recordsMap;
 		CxxFunctionsMap m_freeFnsMap;
 
+		std::size_t m_regsEntityCount;
+
 		using IncSet = std::unordered_set<std::string>;
 		IncSet m_incFiles;
 
@@ -45,6 +47,7 @@ namespace clmr
 		GETTER_CREF(std::string, SrcFile, m_srcFile)
 		GETTER_CREF(CxxRecordsMap, RecordsMap, m_recordsMap)
 		GETTER_CREF(CxxFunctionsMap, FreeFunctionsMap, m_freeFnsMap)
+		GETTER_CREF(std::size_t, RegisteredEntitiesCount, m_regsEntityCount)
 
 		void setErrorsFound(bool pErrorFound);
 		void setSrcFileIndex(std::size_t pIndex);

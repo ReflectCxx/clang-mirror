@@ -4,6 +4,7 @@ set(CLREFLECT_INCS
 	"${CMAKE_CURRENT_LIST_DIR}/ClangDriver.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ClangPPCallbacks.h"
 	"${CMAKE_CURRENT_LIST_DIR}/ClangASTVisitor.h"
+	"${CMAKE_CURRENT_LIST_DIR}/ClangASTVisitor.hpp"
 	"${CMAKE_CURRENT_LIST_DIR}/ClangActionFactory.h"
 	
 	"${CMAKE_CURRENT_LIST_DIR}/ASTParser.h"

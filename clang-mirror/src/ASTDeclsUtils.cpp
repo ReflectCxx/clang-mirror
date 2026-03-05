@@ -1,7 +1,9 @@
 
 #include "Constants.h"
+#include "Logger.h"
 #include "StringUtils.h"
 #include "ASTDeclsUtils.h"
+#include "ClangASTVisitor.hpp"
 #include "clang/AST/RecursiveASTVisitor.h"
 
 using namespace clang;
@@ -17,6 +19,7 @@ namespace clmr
         //StringUtils::replaceSubString(pTypeStr, " &", "&");
         //StringUtils::replaceSubString(pTypeStr, " *", "*");
     }
+
 
     bool ASTDeclsUtils::isInUserCode(NamedDecl* pDecl)
     {
@@ -38,45 +41,127 @@ namespace clmr
     }
 
 
-	bool ASTDeclsUtils::isDeclFrmCurrentSource(const std::string& pCurSrcFile, clang::Decl* pDecl)
-    {
-        std::string currentSrcFile = pCurSrcFile;
-        std::transform(currentSrcFile.begin(), currentSrcFile.end(), currentSrcFile.begin(),
-            [](unsigned char c)->char {
-                return (c == '\\') ? '/' : std::tolower(c);
-            });
-
-        const auto& srcManager = pDecl->getASTContext().getSourceManager();
-        auto fileLoc = srcManager.getFileLoc(pDecl->getBeginLoc());
-        auto declSrcFile = srcManager.getFilename(fileLoc).str();
-        std::transform(declSrcFile.begin(), declSrcFile.end(), declSrcFile.begin(),
-            [](unsigned char c)->char {
-                return (c == '\\') ? '/' : std::tolower(c);
-            });
-        return (currentSrcFile == declSrcFile);
-    }
-
-
-    std::string ASTDeclsUtils::extractParentTypeName(clang::FunctionDecl* pFnDecl)
+    std::string ASTDeclsUtils::extractParentTypeName(const clang::FunctionDecl* pFnDecl)
     {
         const auto* method = llvm::dyn_cast<clang::CXXMethodDecl>(pFnDecl);
-        if (!method)
+        if (!method) {
             return {};
-
+        }
         const clang::CXXRecordDecl* record = method->getParent();
         clang::QualType qt = record->getTypeForDecl()->getCanonicalTypeInternal();
         clang::PrintingPolicy policy(pFnDecl->getASTContext().getLangOpts());
-        
+
         policy.SuppressScope = false;
         policy.SuppressTagKeyword = true;
         policy.FullyQualifiedName = true;
-		
+
         std::string result;
         llvm::raw_string_ostream os(result);
         qt.print(os, policy);
         return os.str();
     }
+
+
+    errfile ASTDeclsUtils::resolveHeaderFromDecl(const NamedDecl* pDecl,
+                                                 const SourceManager& pSrcMgr)
+    {
+        if (!pDecl) {
+            Logger::outDbg("null-pointer : NamedDecl*");
+            return { RegErr::AstParsing, nullptr };
+        }
+
+        const auto* tagDecl = llvm::dyn_cast<TagDecl>(pDecl);
+        if (tagDecl) {
+            const TagDecl* tagDef = tagDecl->getDefinition();
+            if (tagDef) 
+            {
+                SourceLocation loc = pSrcMgr.getSpellingLoc(pDecl->getLocation());
+                if (!loc.isValid()) {
+                    Logger::outDbg("Invalid location.");
+                    return { RegErr::AstParsing, nullptr };
+                }
+
+                if (pSrcMgr.isInMainFile(loc)) {
+                    Logger::outDbg("Type decleared in current TU.");
+                    return { RegErr::AstParsing, nullptr };
+                }
+
+                FileID fid = pSrcMgr.getFileID(loc);
+                const FileEntry* fentry = pSrcMgr.getFileEntryForID(fid);
+                if (!fentry) {
+                    Logger::outDbg("Could not resolve header from type.");
+                    return { RegErr::AstParsing, nullptr };
+                }
+                return { RegErr::None, fentry };
+            }
+        }
+        return { RegErr::UnresolvedType, nullptr };
+    }
+
+
+    errfile ASTDeclsUtils::getHeaderDefiningType(const QualType& pQT,
+                                                 const ASTContext& pCtx)
+    {
+        if (pQT.isNull()) {
+            Logger::outDbg("Invalid QualType object.");
+            return { RegErr::AstParsing, nullptr };
+        }
+
+        if (pQT->isFunctionPointerType()) {
+            return { RegErr::FunctionPtrType, nullptr };
+        }
+
+        auto qT = desugarQT(pQT, pCtx);
+        const SourceManager& SM = pCtx.getSourceManager();
+        if (const auto* TST = qT->getAs<TemplateSpecializationType>()) {
+            if (const TemplateDecl* TD = TST->getTemplateName().getAsTemplateDecl()){
+                return resolveHeaderFromDecl(TD, SM);
+            }
+            return { RegErr::TemplateType, nullptr };
+        }
+
+        if (const TypedefType* TT = qT->getAs<TypedefType>()) {
+            return resolveHeaderFromDecl(TT->getDecl(), SM);
+        }
+        
+        if (const TagType* TT = qT->getAs<TagType>()) {
+            return resolveHeaderFromDecl(TT->getDecl(), SM);
+        }
+
+        return { RegErr::UnresolvedType, nullptr };
+    }
 	
+
+    std::pair<MetaKind, std::string> ASTDeclsUtils::getNameAndMetaKind(const FunctionDecl* pFnDecl)
+    {
+        std::string functionName;
+        MetaKind metaKind = MetaKind::None;
+
+        if (const auto* ctor = llvm::dyn_cast<CXXConstructorDecl>(pFnDecl)) {
+            metaKind = MetaKind::Ctor;
+        }
+        else if (const auto* method = llvm::dyn_cast<CXXMethodDecl>(pFnDecl)) {
+            if (method->isStatic()) {
+                metaKind = MetaKind::MemberFnStatic;
+            }
+            else {
+                if (method->isConst()) {
+                    metaKind = MetaKind::MemberFnConst;
+                }
+                else {
+                    metaKind = MetaKind::MemberFnNonConst;
+                }
+            }
+            functionName = pFnDecl->getDeclName().getAsString();
+        }
+        else {
+            metaKind = MetaKind::NonMemberFn;
+            functionName = pFnDecl->getQualifiedNameAsString();
+        }
+
+        return { metaKind, functionName };
+    }
+
 
     std::string ASTDeclsUtils::extractQualifiedTypeName(const clang::QualType& pQType)
     {
@@ -115,8 +200,8 @@ namespace clmr
     }
 
 
-    const std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType,
-                                                                           std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
+    std::optional<std::string> ASTDeclsUtils::getTypeDefAliasForType(const QualType& pQType,
+                                                                     std::unordered_map<std::string, std::string>& pTemplateTypeDefs)
     {
         const Type* type = pQType.getTypePtrOrNull();
         if (!type) {

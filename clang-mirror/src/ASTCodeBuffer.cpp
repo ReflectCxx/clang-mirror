@@ -11,6 +11,7 @@ namespace clmr
         , m_recordsMap(CxxRecordsMap())
         , m_freeFnsMap(CxxFunctionsMap())
         , m_incFiles(std::unordered_set<std::string>())
+        , m_regsEntityCount(0)
     { }
 
 
@@ -36,31 +37,32 @@ namespace clmr
     }
 
 
-    void ASTCodeBuffer::addFunction(MetaKind pMK, const ASTObj& pAst, const std::string& pRecord,
+    void ASTCodeBuffer::addFunction(MetaKind pMk, const ASTObj& pAst, const std::string& pRecord,
 			                        const std::string& pReturn, const std::string& pParams)
     {
         ASTFnMeta* codeMeta = nullptr;
-        if (pMK == MetaKind::NonMemberFn) {
-            codeMeta = &addFunctionCodeMeta(m_freeFnsMap, ASTFnMeta{ 
+        if (pMk == MetaKind::NonMemberFn) {
+            codeMeta = &addFunctionCodeMeta(m_freeFnsMap, ASTFnMeta { 
                 .isCtor = false,
                 .ast = pAst 
             });
         }
-        else if (pMK != MetaKind::None) {
+        else if (pMk != MetaKind::None) {
             auto& typeMeta = getRecordCodeMeta(m_recordsMap, pRecord);
-            codeMeta = &addFunctionCodeMeta(typeMeta.methods, ASTFnMeta{ 
-                .isCtor = (pMK == MetaKind::Ctor),
+            codeMeta = &addFunctionCodeMeta(typeMeta.methods, ASTFnMeta { 
+                .isCtor = (pMk == MetaKind::Ctor),
                 .ast = pAst
             });
         }
 
         if (codeMeta) {
             codeMeta->signatures.push_back({
-                .metaKind = pMK,
+                .metaKind = pMk,
                 .returnStr = pReturn,
                 .paramsStr = (pParams.empty() ? "void" : pParams)
             });
-            m_incFiles.insert(pAst.header);
+            m_incFiles.insert(pAst.headers.begin(), pAst.headers.end());
         }
+        m_regsEntityCount++;
     }
 }

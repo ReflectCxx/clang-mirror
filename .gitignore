@@ -4,10 +4,11 @@ bin/
 
 # Visual Studio
 .vs/
+.vscode/
 .cache/
 *.VC.db
 *.VC.opendb
 
 # Project-specific generated folders
-MyReflectionApp/build
-MyReflectionApp/RTLRegistration
+*compile_commands*
+RTLRegistration/

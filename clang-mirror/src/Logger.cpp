@@ -8,6 +8,7 @@
 
 namespace {
 
+    inline constexpr bool g_debugLog = true;
     inline constexpr std::string_view clang_mirror = "[clang-mirror]";
 
     std::string fmtNewlines(const std::string& pStr)
@@ -66,17 +67,35 @@ namespace clmr {
 
     void Logger::out(const std::string& pMsg)
     {
-        std::cout << color::GREY << clang_mirror <<"\t" << color::RESET << pMsg << std::endl;
+        std::cout << color::GREY << clang_mirror << "\t" << color::RESET << pMsg << std::endl;
     }
 
     void Logger::outgen(const std::string& pMsg)
     {
-        std::cout << color::GREY << clang_mirror <<"\t" << color::TEAL << "generated: " << color::GREY << pMsg << std::endl;
+        std::cout << color::GREY << clang_mirror << "\t" << color::TEAL << "generated: " << color::GREY << pMsg << std::endl;
     }
 
     void Logger::outError(const std::string& pMsg)
     {
-        std::cout << color::DARK_RED << clang_mirror <<"\t" << fmtNewlines(pMsg) << color::RESET << std::endl;
+        std::cout << color::RED_DARK << clang_mirror << "\t" << fmtNewlines(pMsg) << color::RESET << std::endl;
+    }
+    
+    void Logger::outDbg(const std::string &pMsg, RegErr pErr)
+    {
+        if(g_debugLog) {
+            auto clang_spaces = std::string(clang_mirror.length(), ' ');
+
+            auto errColor = (pErr == RegErr::HeaderNotFound ||
+                             pErr == RegErr::AstParsing) ? color::RED : color::BLUE;
+
+            if (errColor == color::BLUE) {
+                errColor = (pErr == RegErr::ExclusionByPolicy ||
+                            pErr == RegErr::HeaderNotPublic) ? color::GREEN : color::BLUE;
+            }
+
+            auto errCode = (pErr != RegErr::None ? (" [" + toString(pErr) + "] ") : "");
+            std::cout << clang_spaces << "\t" << errColor << errCode << color::GREY << pMsg << color::RESET << std::endl;
+        }
     }
 
     void Logger::outProgress(const std::string& pMsg, bool pUpdate/* = true*/)

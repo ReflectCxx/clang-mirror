@@ -40,6 +40,30 @@ namespace
         cl::value_desc("path"),
         cl::cat(g_clangMirrorCategory)
     );
+
+    static cl::list<std::string> g_excludeDirs(
+        "exclude-dirs",
+        cl::desc("Directories to exclude (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::list<std::string> g_includePaths(
+        "include-paths",
+        cl::desc("Publicly accessible include dirs (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::list<std::string> g_excludeNamespaces(
+        "exclude-namespaces",
+        cl::desc("Namespaces to exclude (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
 }
 
 
@@ -47,17 +71,10 @@ namespace clmr
 {
     void ClangDriver::collectSrcFiles(std::set<std::string>& pSrcSet, const std::vector<std::string>& pSrcFiles)
     {
-        std::vector<std::string> excluded = {
-            "_deps",
-            "build",
-            "generated",
-            "third_party"
-        };
-
         for (const auto& file : pSrcFiles)
         {
             bool skip = false;
-            for (const auto& excStr : excluded) {
+            for (const auto& excStr : g_excludeDirs) {
                 if (file.find(excStr) != std::string::npos) {
                     skip = true;
                     break;
@@ -119,10 +136,10 @@ namespace clmr
 
         std::unique_ptr<CompilationDatabase> cdb;
         if (!g_cdbDir.empty()) {
-            std::string errStr;
-            cdb = std::move(CompilationDatabase::loadFromDirectory(g_cdbDir, errStr));
+            std::string ErrStr;
+            cdb = std::move(CompilationDatabase::loadFromDirectory(g_cdbDir, ErrStr));
             if (!cdb) {
-                Logger::outError(errStr);
+                Logger::outError(ErrStr);
             }
         }
 
@@ -137,6 +154,13 @@ namespace clmr
         }
 
         ASTCodeManager::instance().setOutDir(g_outDir);
+
+        ASTCodeManager::instance().setExcludeNamespaces({ g_excludeNamespaces.begin(),
+                                                          g_excludeNamespaces.end() });
+
+        ASTCodeManager::instance().setPublicIncludePaths({ g_includePaths.begin(),
+                                                           g_includePaths.end() });
+
         return runClangParser({ srcs.begin(), srcs.end() },
                               (cdb ? *cdb : optionsParser->getCompilations()));
     }

@@ -19,6 +19,9 @@ namespace clmr
 		using CodeBuffMap = std::unordered_map<std::string, std::unique_ptr<ASTCodeBuffer>>;
 
 		std::string m_outPath;
+		std::vector<std::string> m_includePaths;
+		std::vector<std::string> m_excludeNamespaces;
+
 		CodeBuffMap m_codeBuffs;
 
 		static std::filesystem::path toRootDir(std::string_view pPath);
@@ -38,12 +41,12 @@ namespace clmr
 		ASTCodeManager(const ASTCodeManager&) = delete;
 		ASTCodeManager& operator=(ASTCodeManager&&) = delete;
 		ASTCodeManager& operator=(const ASTCodeManager&) = delete;
-		
-		GETTER_CREF(CodeBuffMap, CodeBufferMap, m_codeBuffs)
-
-		ASTCodeBuffer* getCodeBuffer(const std::string& pSrcFile, bool pCreate = false);
 
 		static ASTCodeManager& instance();
+		
+		GETTER_CREF(CodeBuffMap, CodeBufferMap, m_codeBuffs)
+		GETTER_CREF(std::vector<std::string>, PublicIncludePaths, m_includePaths)
+		GETTER_CREF(std::vector<std::string>, ExcludeNamespaces, m_excludeNamespaces)
 
 		bool emitCxxMirror();
 
@@ -53,6 +56,12 @@ namespace clmr
 
 		void collectGlobalFunctions(CxxFunctionsMap& pGlobalFns);
 
+	    void setExcludeNamespaces(const std::vector<std::string>& pExcludeNs);
+
+		void setPublicIncludePaths(const std::vector<std::string>& pIncludePaths);
+
 		bool emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex);
+
+		ASTCodeBuffer* getCodeBuffer(const std::string& pSrcFile, bool pCreate = false);
 	};
 }

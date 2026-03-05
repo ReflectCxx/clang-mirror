@@ -21,6 +21,16 @@ namespace clmr {
         m_outPath = pOutDir;
     }
 
+    void ASTCodeManager::setExcludeNamespaces(const std::vector<std::string>& pExcludeNs)
+    {
+        m_excludeNamespaces = pExcludeNs;
+    }
+
+    void ASTCodeManager::setPublicIncludePaths(const std::vector<std::string>& pIncludePaths)
+    {
+        m_includePaths = pIncludePaths;
+    }
+
     ASTCodeManager& ASTCodeManager::instance()
     {
         static ASTCodeManager instance;
@@ -58,8 +68,13 @@ namespace clmr {
         using CMgr = ASTCodeManager;
 
         if( dump(File::nameIDsHeader, &CMgr::toRootDir, &CGen::emitRegisteredIDsHeader) &&
-            dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader) ){
-            Logger::out("Registered entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
+            dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader) )
+        {
+            std::size_t count = 0;
+            for (auto& itr : m_codeBuffs) {
+                count += itr.second->getRegisteredEntitiesCount();
+            }
+            Logger::out("Registered " + std::to_string(count) + " entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
             
             if( dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader) && 
                 dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource) ){
