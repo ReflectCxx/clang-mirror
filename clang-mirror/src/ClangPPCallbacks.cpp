@@ -60,72 +60,88 @@ namespace clmr {
     }
 
 
-    const FileEntry* ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
+    std::pair<RegErr, std::string> ClangPPCallbacks::getHashIncludeAsWrittenFor(const FileEntry* pHeader) const
     {
-        auto includeChain = getIncludeChainFromSrcToHeader(pHeader);
-        for (int i = 1; i < includeChain.size(); i++) {
-            if(isSystemHeader(includeChain[i]) || isPublicHeader(includeChain[i])) {
-                return includeChain[i];
-            }
-        }
-        Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
-        return nullptr;
-    }
-
-
-    std::optional<std::string> ClangPPCallbacks::getHashIncludeAsWrittenFor(const FileEntry * pHeader) const
-    {
-        const auto* incFile = getFileDoingHashIncludeFor(pHeader);
-        if (!incFile) {
-            return std::nullopt;
+        auto [err, incFile] = getFileDoingHashIncludeFor(pHeader);
+        if (err != RegErr::None) {
+            return { err, {} };
         }
 
         const auto& itr = m_includeStrMap.find(incFile);
         if (itr == m_includeStrMap.end()) {
             Logger::outDbg("`#include` not found in file : " + getRealPath(incFile).str());
-            return std::nullopt;
+            return { RegErr::AstParsing, {} };
         }
-        return std::make_optional(itr->second);
+        return { err, itr->second };
     }
 
 
-    std::vector<const FileEntry*> ClangPPCallbacks::getIncludeChainFromSrcToHeader(const FileEntry* pHeader) const
+    std::pair<RegErr, const clang::FileEntry*> ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
-        if (!pHeader) {
-            return {};
+        auto itr = m_includeGraph.find(m_mainSrcFile);
+        if (itr == m_includeGraph.end()) {
+            Logger::outDbg("Header not included by source for file: " + getRealPath(pHeader).str());
+            return { RegErr::AstParsing, nullptr };
         }
 
-        std::vector<const FileEntry*> includeStack = { m_mainSrcFile };
-        std::unordered_set<const FileEntry*> visited = { m_mainSrcFile };
+        bool notPublic = false;
+        for (auto incFile : itr->second)
+        {
+            if (isHeaderReachableFrom(incFile, pHeader)) {
+                if (isSystemHeader(incFile) || isPublicHeader(incFile)) {
+                    return { RegErr::None, incFile };
+                }
+                notPublic = true;
+            }
+        }
+
+        if (notPublic) {
+            Logger::outDbg("not found at specified `include` dir: " + getRealPath(pHeader).str());
+            return { RegErr::HeaderNotPublic, nullptr };
+        }
+        Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
+        return { RegErr::AstParsing, nullptr };
+    }
+
+
+    bool ClangPPCallbacks::isHeaderReachableFrom(const clang::FileEntry* pSrcFile, const clang::FileEntry* pHeader) const
+    {
+        if (!pHeader) {
+            return false;
+        }
+
+        if (pHeader == pSrcFile) {
+            return true;
+        }
+
+        std::vector<const FileEntry*> includeStack = { pSrcFile };
+        std::unordered_set<const FileEntry*> visited = { pSrcFile };
 
         while (!includeStack.empty())
         {
-            auto* topHeader = includeStack.back();
-            if (topHeader == pHeader) {
-                return includeStack;
+            auto* top = includeStack.back();
+            if (top == pHeader) {
+                return true;
             }
 
-            auto itr = m_includeGraph.find(topHeader);
+            auto itr = m_includeGraph.find(top);
             if (itr == m_includeGraph.end()) {
                 includeStack.pop_back();
                 continue;
             }
 
-            bool advance = true;
+            bool pop = true;
             for (auto* incSrcFile : itr->second) {
                 bool unvisited = visited.insert(incSrcFile).second;
                 if (unvisited) {
-                    advance = false;
+                    pop = false;
                     includeStack.push_back(incSrcFile);
                     break;
                 }
             }
-
-            if (advance) {
-                includeStack.pop_back();
-            }
+            if (pop) includeStack.pop_back();
         }
-        return {};
+        return false;
     }
 
 

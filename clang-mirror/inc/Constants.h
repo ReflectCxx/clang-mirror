@@ -96,7 +96,7 @@ namespace clmr
 			case RegErr::HeaderNotFound: return "RegErr::HeaderNotFound";
 			case RegErr::HeaderNotPublic: return "RegErr::HeaderNotPublic";
 			case RegErr::ExclusionByPolicy: return "RegErr::ExclusionByPolicy";
-			default: "(undefined)";
+			default: return "(undefined)";
 		}
 	}
 
