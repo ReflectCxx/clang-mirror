@@ -29,7 +29,7 @@ namespace clmr {
         std::unordered_map<const clang::FileEntry*, IncludeFESet> m_includeGraph;
         std::unordered_map<const clang::FileEntry*, std::string> m_includeStrMap;
 
-        bool isHeaderReachableFrom(const clang::FileEntry* pSrcFile, const clang::FileEntry* pHeader) const;
+        void buildIncludeStack(std::vector<const clang::FileEntry*>& pIncStack, const clang::FileEntry* pHeader) const;
 
         std::pair<RegErr, const clang::FileEntry*> getFileDoingHashIncludeFor(const clang::FileEntry* pHeader) const;
 

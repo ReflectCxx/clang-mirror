@@ -1,7 +1,4 @@
 
-#include <iostream>
-#include <algorithm>
-
 #include "Constants.h"
 #include "StringUtils.h"
 #include "ASTCodeManager.h"
@@ -142,18 +139,12 @@ namespace clmr
             return true;
         }
 
-        auto err = RegErr::HeaderNotPublic;
-        auto fnStr = pFnDecl->getNameAsString() + "()";
-        auto headerFile = getDeclaringFile(pFnDecl);
-
-        if (!headerFile || isPublicHeader(headerFile))
-        {
-            err = addReflectableEntity(pFnDecl, headerFile);
-            if (err == RegErr::None) {
-                return true;
-            }
+        auto err = addReflectableEntity(pFnDecl, getDeclaringFile(pFnDecl));
+        if (err == RegErr::None) {
+            return true;
         }
 
+        auto fnStr = pFnDecl->getNameAsString() + "()";
         Logger::outDbg(fnStr, err);
         return true;
     }

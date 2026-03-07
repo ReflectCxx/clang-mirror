@@ -76,8 +76,44 @@ namespace clmr {
     }
 
 
+    void ClangPPCallbacks::buildIncludeStack(std::vector<const clang::FileEntry*>& pIncludeStack, const clang::FileEntry* pHeader) const
+    {
+        std::unordered_set<const FileEntry*> visited = { pIncludeStack.front() };
+
+        while (!pIncludeStack.empty())
+        {
+            auto* top = pIncludeStack.back();
+            if (top == pHeader) {
+                return;
+            }
+
+            auto itr = m_includeGraph.find(top);
+            if (itr == m_includeGraph.end()) {
+                pIncludeStack.pop_back();
+                continue;
+            }
+
+            bool pop = true;
+            for (auto* incSrcFile : itr->second) {
+                bool unvisited = visited.insert(incSrcFile).second;
+                if (unvisited) {
+                    pop = false;
+                    pIncludeStack.push_back(incSrcFile);
+                    break;
+                }
+            }
+            if (pop) pIncludeStack.pop_back();
+        }
+        return;
+    }
+
+
     std::pair<RegErr, const clang::FileEntry*> ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
+        if (!pHeader) {
+            return { RegErr::AstParsing, nullptr };
+        }
+
         auto itr = m_includeGraph.find(m_mainSrcFile);
         if (itr == m_includeGraph.end()) {
             Logger::outDbg("Header not included by source for file: " + getRealPath(pHeader).str());
@@ -85,12 +121,17 @@ namespace clmr {
         }
 
         bool notPublic = false;
-        for (auto incFile : itr->second)
+        for (auto nxtIncFile : itr->second)
         {
-            if (isHeaderReachableFrom(incFile, pHeader)) {
-                if (isSystemHeader(incFile) || isPublicHeader(incFile)) {
+            std::vector<const clang::FileEntry*> incStack = { nxtIncFile };
+            buildIncludeStack(incStack, pHeader);
+
+            if (incStack.back() != pHeader)
+                continue;
+
+            for (auto incFile : incStack) {
+                if (isSystemHeader(incFile) || isPublicHeader(incFile))
                     return { RegErr::None, incFile };
-                }
                 notPublic = true;
             }
         }
@@ -104,47 +145,6 @@ namespace clmr {
     }
 
 
-    bool ClangPPCallbacks::isHeaderReachableFrom(const clang::FileEntry* pSrcFile, const clang::FileEntry* pHeader) const
-    {
-        if (!pHeader) {
-            return false;
-        }
-
-        if (pHeader == pSrcFile) {
-            return true;
-        }
-
-        std::vector<const FileEntry*> includeStack = { pSrcFile };
-        std::unordered_set<const FileEntry*> visited = { pSrcFile };
-
-        while (!includeStack.empty())
-        {
-            auto* top = includeStack.back();
-            if (top == pHeader) {
-                return true;
-            }
-
-            auto itr = m_includeGraph.find(top);
-            if (itr == m_includeGraph.end()) {
-                includeStack.pop_back();
-                continue;
-            }
-
-            bool pop = true;
-            for (auto* incSrcFile : itr->second) {
-                bool unvisited = visited.insert(incSrcFile).second;
-                if (unvisited) {
-                    pop = false;
-                    includeStack.push_back(incSrcFile);
-                    break;
-                }
-            }
-            if (pop) includeStack.pop_back();
-        }
-        return false;
-    }
-
-
     void ClangPPCallbacks::InclusionDirective(SourceLocation pHashLoc,
                                               const Token &pIncludeTok, llvm::StringRef pFileName,
                                               bool pIsAngled, CharSourceRange pFilenameRange,
@@ -152,8 +152,7 @@ namespace clmr {
                                               llvm::StringRef pSearchPath, llvm::StringRef pRelativePath,
                                               const Module *pSuggestedModule,
                                               bool pModuleImported,
-                                              SrcMgr::CharacteristicKind pFileType)
-    {
+                                              SrcMgr::CharacteristicKind pFileType) {
         if (!pFile) {
             return;
         }
