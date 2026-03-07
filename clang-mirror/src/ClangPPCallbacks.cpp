@@ -8,7 +8,6 @@
 
 using namespace clang;
 
-
 namespace clmr {
 
     bool FileComparator::operator()(const FileEntry *pFEa, const FileEntry *pFEb) const
@@ -16,13 +15,12 @@ namespace clmr {
         auto pathA = getRealPath(pFEa);
         auto pathB = getRealPath(pFEb);
 
-        const std::string mainFilePath = getRealPath(&m_mainSrcRef).str();
-        const std::string stemA = std::filesystem::path(pathA.str()).stem().string();
-        const std::string stemB = std::filesystem::path(pathB.str()).stem().string();
-        const std::string stemMain = std::filesystem::path(mainFilePath).stem().string();
+        auto stemA = std::filesystem::path(pathA.str()).stem().string();
+        auto stemB = std::filesystem::path(pathB.str()).stem().string();
+        auto stemMain = std::filesystem::path(getRealPath(&m_mainSrcRef).str()).stem().string();
 
-        const bool aIsMain = (stemA == stemMain);
-        const bool bIsMain = (stemB == stemMain);
+        bool aIsMain = (stemA == stemMain);
+        bool bIsMain = (stemB == stemMain);
         if (aIsMain != bIsMain) {
             return aIsMain;
         }
@@ -32,7 +30,7 @@ namespace clmr {
         if (aIsHeader != bIsHeader) {
             return aIsHeader > bIsHeader;
         }
-        return std::less<const FileEntry*> { } (pFEa, pFEb);
+        return std::less<const FileEntry*> {} (pFEa, pFEb);
     }
 }
 
@@ -83,9 +81,7 @@ namespace clmr {
         while (!pIncludeStack.empty())
         {
             auto* top = pIncludeStack.back();
-            if (top == pHeader) {
-                return;
-            }
+            if (top == pHeader) return;
 
             auto itr = m_includeGraph.find(top);
             if (itr == m_includeGraph.end()) {
