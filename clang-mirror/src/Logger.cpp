@@ -8,7 +8,7 @@
 
 namespace {
 
-    inline constexpr bool g_debugLog = true;
+    inline constexpr bool g_debugLog = false;
     inline constexpr std::string_view clang_mirror = "[clang-mirror]";
 
     std::string fmtNewlines(const std::string& pStr)

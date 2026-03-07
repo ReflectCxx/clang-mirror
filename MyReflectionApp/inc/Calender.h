@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "Event.h"
+
 namespace nsdate
 {
 	struct Date;

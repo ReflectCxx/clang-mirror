@@ -1,7 +1,4 @@
 
-#include <iostream>
-#include <algorithm>
-
 #include "Constants.h"
 #include "StringUtils.h"
 #include "ASTCodeManager.h"
@@ -65,31 +62,33 @@ namespace clmr
             return RegErr::IncompleteType;
         }
 
-        auto [err, incFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx);
-        if (err != RegErr::None) {
-            return err;
+        auto [err0, incFile] = ASTDeclsUtils::getHeaderDefiningType(pQT, pCtx);
+        if (err0 != RegErr::None) {
+            return err0;
         }
 
-        auto incStr = m_preProcessor.getHashIncludeAsWrittenFor(incFile);
-        if (!incStr) {
-            return RegErr::AstParsing;
+        auto [err1, incStr] = m_preProcessor.getHashIncludeAsWrittenFor(incFile);
+        if (err1!= RegErr::None) {
+            return err1;
         }
 
-        pHeaders.push_back(*incStr);
+        pHeaders.push_back(incStr);
         return RegErr::None;
     }
 
 
-    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pHeaderFile)
+    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl)
     {
         std::vector<std::string> headers;
-        if (pHeaderFile) {
-            auto hashIncludeStr = m_preProcessor.getHashIncludeAsWrittenFor(pHeaderFile);
-            if (!hashIncludeStr) {
+        auto headerFile = getDeclaringFile(pFnDecl);
+
+        if (headerFile) {
+            auto [err, hashIncStr] = m_preProcessor.getHashIncludeAsWrittenFor(headerFile);
+            if (err != RegErr::None) {
                 Logger::outDbg("error while processing function : " + pFnDecl->getNameAsString());
-                return RegErr::AstParsing;
+                return err;
             }
-            headers.push_back(*hashIncludeStr);
+            headers.push_back(hashIncStr);
         }
 
         auto [metaKind, fname] = ASTDeclsUtils::getNameAndMetaKind(pFnDecl);
@@ -142,17 +141,12 @@ namespace clmr
             return true;
         }
 
-        auto err = RegErr::HeaderNotPublic;
-        auto fnStr = pFnDecl->getNameAsString() + "()";
-        auto headerFile = getDeclaringFile(pFnDecl);
-
-        if (!headerFile || isPublicHeader(headerFile)) {
-            err = addReflectableEntity(pFnDecl, headerFile);
-            if (err == RegErr::None) {
-                return true;
-            }
+        auto err = addReflectableEntity(pFnDecl);
+        if (err == RegErr::None) {
+            return true;
         }
 
+        auto fnStr = pFnDecl->getNameAsString() + "()";
         Logger::outDbg(fnStr, err);
         return true;
     }
