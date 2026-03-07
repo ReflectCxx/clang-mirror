@@ -7,6 +7,7 @@
 
 #include "clang/Basic/Diagnostic.h"
 #include "clang-tidy/ClangTidy.h"
+#include "clang/Frontend/TextDiagnosticPrinter.h"
 
 using namespace llvm;
 using namespace clang;
@@ -17,14 +18,14 @@ namespace
 {
     static std::unique_ptr<clang::tidy::ClangTidyOptionsProvider> createOptionsProvider()
     {
-        clang::tidy::ClangTidyOptions DefaultOptions;
-        clang::tidy::ClangTidyOptions OverrideOptions;
-        clang::tidy::ClangTidyGlobalOptions GlobalOptions;
+        clang::tidy::ClangTidyOptions defaultOptions;
+        clang::tidy::ClangTidyOptions overrideOptions;
+        clang::tidy::ClangTidyGlobalOptions globalOptions;
 
         return std::make_unique<clang::tidy::FileOptionsProvider>(
-			std::move(GlobalOptions), 
-			std::move(DefaultOptions), 
-			std::move(OverrideOptions)
+			std::move(globalOptions), 
+			std::move(defaultOptions),
+			std::move(overrideOptions)
 		);
 	}
 }
@@ -41,40 +42,30 @@ namespace clmr
 		bool anyRegistrationSrcEmitted = false;
 		for (size_t index = pStartIndex; index <= pEndIndex; index++)
 		{
-			const auto& srcFilePath = m_srcFiles.at(index).c_str();
-
-			Logger::outProgress(std::string(srcFilePath));
-
-			if (!std::filesystem::exists(srcFilePath)) {
-				Logger::outProgress(srcFilePath + std::string(". File not found..!"), false);
-				continue;
-			}
-
-			ClangTool clangTool(pCdb, { srcFilePath }, std::make_shared<PCHContainerOperations>());
-
-			ClangTidyContext context(createOptionsProvider(), false, false);
-			context.setEnableProfiling(false);
-
-			ClangTidyDiagnosticConsumer diagConsumer(context);
-			auto diagOpts = std::make_unique<DiagnosticOptions>();
-			DiagnosticsEngine diagEngine(new DiagnosticIDs(), *diagOpts, &diagConsumer, false);
+			const auto& cmdSrcFilePath = m_srcFiles.at(index).c_str();
+			Logger::outProgress(std::string(cmdSrcFilePath));
 			
-			context.setDiagnosticsEngine(std::move(diagOpts), &diagEngine);
-			clangTool.setDiagnosticConsumer(&diagConsumer);
+            auto diagOpts = std::make_unique<clang::DiagnosticOptions>();
+			diagOpts->ShowColors = true;
+			diagOpts->ShowCarets = true;
+			diagOpts->ShowFixits = true;
+			diagOpts->ShowColumn = true;
+			diagOpts->ShowSourceRanges = true;
+			diagOpts->ShowOptionNames = true;
 
+			ClangTool clangTool(pCdb, { cmdSrcFilePath }, std::make_shared<PCHContainerOperations>());
+			auto diagConsumer = std::make_unique<clang::TextDiagnosticPrinter>(llvm::errs(), *diagOpts);
 			auto actionFactory = std::make_unique<ClangActionFactory>();
-			clangTool.run(actionFactory.get());
+			
+			clangTool.setDiagnosticConsumer(diagConsumer.get());
+			auto result = clangTool.run(actionFactory.get());
 
-			bool foundErrors = llvm::any_of(diagConsumer.take(), [](const ClangTidyError& E) {
-				return E.DiagLevel == ClangTidyError::Error;
-			});
-
-			if (!foundErrors) {
-				ASTCodeManager::instance().emitRegistrationSource(srcFilePath, index);
+			auto& clangSrcFilePath = actionFactory->getTargetSrcFile();
+			if (result == 0 && ASTCodeManager::instance().emitRegistrationSource(clangSrcFilePath, index)) {
 				anyRegistrationSrcEmitted = true;
 			}
 			else {
-				ASTCodeManager::instance().compilationFailedFor(srcFilePath);
+				ASTCodeManager::instance().compilationFailedFor(clangSrcFilePath);
 			}
 		}
 		return anyRegistrationSrcEmitted;

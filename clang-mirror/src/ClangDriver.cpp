@@ -25,73 +25,143 @@ using namespace clang::tooling;
 
 namespace 
 {
-    static cl::OptionCategory ClangMirrorCategory("clang-mirror options");
+    static cl::OptionCategory g_clangMirrorCategory("clang-mirror options");
 
-    static cl::opt<std::string> OutDir(
+    static cl::opt<std::string> g_outDir(
         "out-dir",
         cl::desc("Directory where generated RTL registration code will be written"),
         cl::value_desc("path"),
-        cl::cat(ClangMirrorCategory)
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::opt<std::string> g_cdbDir(
+        "cdb-dir",
+        cl::desc("Directory containing the compile_commands.json"),
+        cl::value_desc("path"),
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::list<std::string> g_excludeDirs(
+        "exclude-dirs",
+        cl::desc("Directories to exclude (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::list<std::string> g_includePaths(
+        "include-paths",
+        cl::desc("Publicly accessible include dirs (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
+    );
+
+    static cl::list<std::string> g_excludeNamespaces(
+        "exclude-namespaces",
+        cl::desc("Namespaces to exclude (comma separated or repeated flag)"),
+        cl::ZeroOrMore,
+        cl::CommaSeparated,
+        cl::cat(g_clangMirrorCategory)
     );
 }
 
 
 namespace clmr
 {
-    bool ClangDriver::compileSourceFiles(int argc, const char** argv)
+    void ClangDriver::collectSrcFiles(std::set<std::string>& pSrcSet, const std::vector<std::string>& pSrcFiles)
     {
-        InitLLVM X(argc, argv);
-        SmallVector<const char*> Args{ argv, argv + argc };
-
-        const bool isWin = Triple(sys::getProcessTriple()).isOSWindows();
-        cl::TokenizerCallback Tokenizer = isWin ? cl::TokenizeWindowsCommandLine
-                                                : cl::TokenizeGNUCommandLine;
-        BumpPtrAllocator Alloc;
-        cl::ExpansionContext ECtx(Alloc, Tokenizer);
-        if (Error Err = ECtx.expandResponseFiles(Args)) {
-            WithColor::error() << toString(std::move(Err)) << "\n";
-            return false;
+        for (const auto& file : pSrcFiles)
+        {
+            bool skip = false;
+            for (const auto& excStr : g_excludeDirs) {
+                if (file.find(excStr) != std::string::npos) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip) {
+                pSrcSet.insert(file);
+            }
         }
-
-        argc = static_cast<int>(Args.size());
-        argv = Args.data();
-
-        Expected<CommonOptionsParser> OptionsParser = 
-            CommonOptionsParser::create(argc, argv, ClangMirrorCategory, cl::ZeroOrMore);
-
-        if (!OptionsParser) {
-            llvm::WithColor::error() << llvm::toString(OptionsParser.takeError());
-            Logger::out("Failed to initialize CommonOptionsParser.");
-            return false;
-        }
-
-        if (OutDir.empty()) {
-            llvm::WithColor::error() << "error: --out-dir is required\n";
-            return false;
-        }
-
-        ASTCodeManager::instance().setOutDir(OutDir);
-
-        std::string cdbLoadErr;
-        StringRef cdbPathStr;
-        const auto& pathList = OptionsParser->getSourcePathList();
-        if (!pathList.empty()) {
-            cdbPathStr = pathList.front();
-        }
-
-        // For definite ordering, so the registration output on different platform remains same.
-        std::set<std::string> distinctSrcFiles(pathList.begin(), pathList.end());
-        Logger::out("Number of source files to process: " + std::to_string(distinctSrcFiles.size()));
-        const auto& finalSrcFiles = std::vector<std::string>(distinctSrcFiles.begin(), distinctSrcFiles.end());
-        return runClangParser(finalSrcFiles, OptionsParser->getCompilations());
     }
 
 
     bool ClangDriver::runClangParser(const std::vector<std::string>& pSrcFiles, CompilationDatabase& pCdb)
     {
         const int fileCount = pSrcFiles.size();
-        Logger::resetDoneCounter(fileCount);
-        ASTParser cxxParser(pSrcFiles);
-        return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
+        Logger::out("Number of source files to process: " + std::to_string(fileCount));
+
+        if (fileCount != 0) {
+            Logger::resetDoneCounter(fileCount);
+            ASTParser cxxParser(pSrcFiles);
+            return cxxParser.parseFiles(pCdb, 0, fileCount - 1);
+        }
+        else {
+            Logger::outError("no source files to process!");
+            return false;
+        }
+    }
+    
+
+    bool ClangDriver::compileSourceFiles(int p_argc, const char** p_argv)
+    {
+        InitLLVM X(p_argc, p_argv);
+        SmallVector<const char*> args{ p_argv, p_argv + p_argc };
+
+        const bool isWin = Triple(sys::getProcessTriple()).isOSWindows();
+        cl::TokenizerCallback Tokenizer = isWin ? cl::TokenizeWindowsCommandLine
+                                                : cl::TokenizeGNUCommandLine;
+        BumpPtrAllocator alloc;
+        cl::ExpansionContext ectx(alloc, Tokenizer);
+        if (Error err = ectx.expandResponseFiles(args)) {
+            WithColor::error() << toString(std::move(err)) << "\n";
+            return false;
+        }
+
+        p_argc = static_cast<int>(args.size());
+        p_argv = args.data();
+
+        auto optionsParser = CommonOptionsParser::create(p_argc, p_argv, g_clangMirrorCategory, cl::ZeroOrMore);
+        if (!optionsParser) {
+            llvm::WithColor::error() << llvm::toString(optionsParser.takeError());
+            Logger::out("Failed to initialize CommonOptionsParser.");
+            return false;
+        }
+
+        if (g_outDir.empty()) {
+            llvm::WithColor::error() << "error: --out-dir is required\n";
+            return false;
+        }
+
+        std::unique_ptr<CompilationDatabase> cdb;
+        if (!g_cdbDir.empty()) {
+            std::string ErrStr;
+            cdb = std::move(CompilationDatabase::loadFromDirectory(g_cdbDir, ErrStr));
+            if (!cdb) {
+                Logger::outError(ErrStr);
+            }
+        }
+
+        std::set<std::string> srcs;
+        const auto& files = optionsParser->getSourcePathList();
+        if (!files.empty()) {
+            collectSrcFiles(srcs, files);
+        }
+        else if (cdb) {
+            const auto& cdbSrcs = cdb->getAllFiles();
+            collectSrcFiles(srcs, cdbSrcs);
+        }
+
+        ASTCodeManager::instance().setOutDir(g_outDir);
+
+        ASTCodeManager::instance().setExcludeNamespaces({ g_excludeNamespaces.begin(),
+                                                          g_excludeNamespaces.end() });
+
+        ASTCodeManager::instance().setPublicIncludePaths({ g_includePaths.begin(),
+                                                           g_includePaths.end() });
+
+        return runClangParser({ srcs.begin(), srcs.end() },
+                              (cdb ? *cdb : optionsParser->getCompilations()));
     }
 }

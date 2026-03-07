@@ -1,8 +1,18 @@
 # clang-mirror
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-2EA44F?logo=open-source-initiative&logoColor=white)](LICENSE)
+&nbsp;
+[![CMake](https://img.shields.io/badge/CMake-Enabled-064F8C?logo=cmake&logoColor=white)](https://cmake.org)
+&nbsp;
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?logo=c%2B%2B&logoColor=white)](https://isocpp.org)
+&nbsp;
+[![Build](https://github.com/ReflectCxx/clang-mirror/actions/workflows/build.yml/badge.svg?branch=release)](https://github.com/ReflectCxx/clang-mirror/actions/workflows/build.yml?query=branch%3Arelease)
+&nbsp;
+[![Try clang-mirror Online](https://img.shields.io/badge/Try%20Online-clang--mirror-f48024?logo=github&logoColor=white)](https://github.com/codespaces/new?repo=ReflectCxx/RTL-Demo&ref=clang-mirror-demo&quickstart=1)
+
 `clang-mirror` is a Clang-based code generation tool that produces AST-driven IDs and metadata registration code to enable portable runtime reflection for C++ without compiler extensions.
 
-It enables user-defined types, functions, and member functions to be discovered and invoked at runtime using compile-time validated IDs – without manual registration.
+It enables user-defined types, functions, and member functions to be discovered and invoked at runtime using compile-time validated `constexpr` string IDs – without manual registration.
 
 After the generated ID headers and registration sources are built into your project, reflected entities can be discovered and invoked at runtime. Registration is initialized lazily on the first call to `cxx::mirror()`, so no runtime cost is incurred if reflection is never used.
 
@@ -50,16 +60,17 @@ auto clsId = cxx::type::Person::id;
 auto fnId  = cxx::type::Person::fn::getName::id;
 
 // Lookup the class by ID.
-auto classPerson = cxx::mirror().getRecord(clsId);
-auto getName = classPerson->getMethod(fnId);  // Query method metadata.
+auto clsPerson = cxx::mirror().getRecord(clsId);
+auto fnGetName = clsPerson->getMethod(fnId);  // Query method metadata.
 
 // Get functor from metadata.
-auto method = getName->targetT<Person>()
-                     .argsT()
-                     .returnT<std::string>();
+auto getName = fnGetName->targetT<Person>()
+                        .argsT()
+                        .returnT<std::string>();
 					 
-if(method) {  // Functor valid?
-    std::string name = method(personObj)();  // invokes Person::getName()
+if(getName) {  // Functor valid?
+    Person obj;
+    std::string name = getName(obj)();  // invokes Person::getName() on `obj`.
 }
 
 ```
@@ -73,7 +84,9 @@ Given one or more source files, it uses the `clang` frontend to analyze the AST 
 
 The generated sources are compiled and linked statically alongside **RTL** as part of your build.
 
-Integration is straightforward: include the generated header (`cxx_mirror.h`) and link against the **RTL** library. Your project then becomes runtime-reflection ready. You can introspect registered types and invoke functions through **RTL**’s APIs, with full runtime resolution handled automatically.
+Integration is straightforward: include the generated header (`cxx_mirror.h`) and link against the **RTL** library. 
+
+Your project then becomes runtime-reflection ready. You can introspect registered types and invoke functions through **RTL**’s APIs, with full runtime resolution handled automatically.
 
 ## Key Features
 
@@ -81,11 +94,6 @@ Integration is straightforward: include the generated header (`cxx_mirror.h`) an
 
 * ✅ **Type-Safe** – Compile-time validation of reflection queries.
 
-* ✅ **Non-Intrusive** – No modifications to your source code required.
+* ✅ **Non-Intrusive** – No modifications to your source code required. 
 
-
-## Current Status
-
-**⚠️ Early Development – Bootstrapping Phase**
-
-clang-mirror is actively being built and is not yet ready for general use. In the meantime, you can check out [Reflection Template Library (RTL)](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) to explore the underlying runtime reflection system that `clang-mirror` is designed to support.
+Together, `clang-mirror` and the [RTL](https://github.com/ReflectCxx/ReflectionTemplateLibrary-CPP) form a complete, portable runtime reflection solution for modern C++.

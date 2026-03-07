@@ -9,14 +9,13 @@
 #include "ClangActionFactory.h"
 
 #include "clang/AST/ASTConsumer.h"
-#include "clang/Frontend/CompilerInstance.h"
 #include "clang/StaticAnalyzer/Frontend/AnalysisConsumer.h"
 
 namespace {
 
 	class ClangASTConsumer : public clang::ASTConsumer
 	{
-		const std::string& m_currentSrcFile;
+		const std::string m_currentSrcFile;
 		clmr::ClangPPCallbacks& m_preProcessor;
 
 	public:
@@ -28,6 +27,10 @@ namespace {
 
 		void HandleTranslationUnit(clang::ASTContext& Context) override
 		{
+			if (Context.getDiagnostics().hasErrorOccurred()) {
+				return;
+			}
+
 			clmr::ClangASTVisitor visitor(m_currentSrcFile, m_preProcessor);
 			visitor.TraverseDecl(Context.getTranslationUnitDecl());
 		}
@@ -36,33 +39,23 @@ namespace {
 
 	class CLMirrorFrontEndAction : public clang::ASTFrontendAction
 	{
-		std::string m_targetSrcFile;
-		clmr::ClangPPCallbacks* m_preProcessor = nullptr;
+		clmr::ClangActionFactory* m_actionFactory = nullptr;
 
 	public:
 
-		CLMirrorFrontEndAction() = default;
-
-		// This is always called after `BeginSourceFileAction`
-		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& Compiler, llvm::StringRef InFile) override
-		{
-			Compiler.getDiagnosticOpts().ShowCarets = false;
-			return std::make_unique<ClangASTConsumer>(m_targetSrcFile, *m_preProcessor);
+		void setActionFactory(clmr::ClangActionFactory* pActionFactory) {
+			m_actionFactory = pActionFactory;
 		}
 
-		bool BeginSourceFileAction(clang::CompilerInstance& CI) override 
+		std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance& CI, llvm::StringRef InFile) override
 		{
-			const auto& inputs = CI.getInvocation().getFrontendOpts().Inputs;
-			m_targetSrcFile = inputs[0].getFile().str();
+			auto PPCb = std::make_unique<clmr::ClangPPCallbacks>(CI);
+			auto* ptr = PPCb.get();
 
-			auto& PP = CI.getPreprocessor();
-			auto& SM = CI.getSourceManager();
-			auto PPCb = std::make_unique<clmr::ClangPPCallbacks>(SM);
+			m_actionFactory->setTargetSrcFile(InFile.str());
 
-			m_preProcessor = PPCb.get();
-			PP.addPPCallbacks(std::move(PPCb));
-
-			return true;
+			CI.getPreprocessor().addPPCallbacks(std::move(PPCb));
+			return std::make_unique<ClangASTConsumer>(InFile.str(), *ptr);
 		}
 	};
 }
@@ -70,8 +63,14 @@ namespace {
 
 namespace clmr {
 
+	void ClangActionFactory::setTargetSrcFile(const std::string pTargetSrcFile) {
+		m_targetSrcFile = pTargetSrcFile;
+	}
+
 	std::unique_ptr<clang::FrontendAction> ClangActionFactory::create()
-	{
-		return std::make_unique<CLMirrorFrontEndAction>();
+	{   
+		auto actionFactory = std::make_unique<CLMirrorFrontEndAction>();
+		actionFactory->setActionFactory(this);
+		return std::move(actionFactory);
 	}
 }

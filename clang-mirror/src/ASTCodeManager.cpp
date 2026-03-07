@@ -21,6 +21,16 @@ namespace clmr {
         m_outPath = pOutDir;
     }
 
+    void ASTCodeManager::setExcludeNamespaces(const std::vector<std::string>& pExcludeNs)
+    {
+        m_excludeNamespaces = pExcludeNs;
+    }
+
+    void ASTCodeManager::setPublicIncludePaths(const std::vector<std::string>& pIncludePaths)
+    {
+        m_includePaths = pIncludePaths;
+    }
+
     ASTCodeManager& ASTCodeManager::instance()
     {
         static ASTCodeManager instance;
@@ -35,21 +45,55 @@ namespace clmr {
         }
     }
 
-    void ASTCodeManager::emitCxxMirror()
+    void ASTCodeManager::collectGlobalFunctions(CxxFunctionsMap& pGlobalFns)
+    {
+        for (auto& itr : m_codeBuffs) 
+        {
+            if (itr.second->isCompilationFailed()) {
+                continue;
+            }
+            for (const auto& [fname, fnMeta] : itr.second->getFreeFunctionsMap()) {
+
+                auto [it, inserted] = pGlobalFns.emplace(fname, fnMeta);
+                if (!inserted) {
+                    it->second.signatures.push_back(fnMeta.signatures.back());
+                }
+            }
+        }
+    }
+
+    bool ASTCodeManager::emitCxxMirror()
     {
         using CGen = ASTCodeGen;
         using CMgr = ASTCodeManager;
 
-        dump(File::nameIDsHeader, &CMgr::toRootDir, &CGen::emitRegisteredIDsHeader);
-        dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader);
-        dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader);
-        dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource);
-
-        Logger::out("Registered entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
+        if( dump(File::nameIDsHeader, &CMgr::toRootDir, &CGen::emitRegisteredIDsHeader) &&
+            dump(File::nameRegHeader, &CMgr::toRootDir, &CGen::emitRegistrationInitsHeader) )
+        {
+            std::size_t count = 0;
+            for (auto& itr : m_codeBuffs) {
+                count += itr.second->getRegisteredEntitiesCount();
+            }
+            Logger::out("Registered " + std::to_string(count) + " entities from " + std::to_string(m_codeBuffs.size()) + " source files.");
+            
+            if( dump(File::nameCxxHeader, &CMgr::toRootDir, &CGen::emitCxxMirrorHeader) && 
+                dump(File::nameCxxSource, &CMgr::toSrcDir, &CGen::emitCxxMirrorSource) ){
+                auto pathStr = toRootDir(m_outPath).string();
+                Logger::out("Registration code generated in: " + pathStr);
+                return true;
+            }
+            else {
+                Logger::out("Failed generating cxx_mirror interface.");
+            }
+        }
+        else {
+            Logger::out("Failed generating IDs & init() headers.");
+        }
+        return false;
     }
 
 
-    void ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
+    bool ASTCodeManager::emitRegistrationSource(const std::string& pSrcFile, std::size_t pIndex)
     {
         auto codeBuffer = getCodeBuffer(pSrcFile);
         if (codeBuffer && !codeBuffer->isCompilationFailed()) {
@@ -59,8 +103,9 @@ namespace clmr {
                  .append(".cpp");
 
             codeBuffer->setSrcFileIndex(pIndex);
-            dump(fname, &ASTCodeManager::toSrcDir, &ASTCodeGen::emitRegistrationInitsSource, codeBuffer);
+            return dump(fname, &ASTCodeManager::toSrcDir, &ASTCodeGen::emitRegistrationInitsSource, codeBuffer);
         }
+        return false;
     }
 
 
@@ -71,7 +116,7 @@ namespace clmr {
             std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRoot / File::dirSrc;
             std::filesystem::create_directories(dir, err);
             if (err) {
-                Logger::outException("Failed to create output directory: " + err.message());
+                Logger::outError("Failed to create output directory: " + err.message());
                 std::abort();
             }
             return dir;
@@ -87,7 +132,7 @@ namespace clmr {
             std::filesystem::path dir = std::filesystem::path(pPath) / File::dirRoot;
             std::filesystem::create_directories(dir, err);
             if (err) {
-                Logger::outException("Failed to create output directory: " + err.message());
+                Logger::outError("Failed to create output directory: " + err.message());
                 std::abort();
             }
             return dir;
@@ -113,7 +158,7 @@ namespace clmr {
     }
 
 
-    void ASTCodeManager::dump(std::string_view pFile, GetDir pGetDir, Emitter pEmiter,
+    bool ASTCodeManager::dump(std::string_view pFile, GetDir pGetDir, Emitter pEmiter,
                               ASTCodeBuffer* pCb /*= nullptr*/)
     {
         std::filesystem::path fspath = pGetDir(m_outPath) / pFile;
@@ -122,8 +167,8 @@ namespace clmr {
 
         std::ofstream fout(temp);
         if (!fout) {
-            Logger::outException("Error opening file: " + fspath.string());
-            return;
+            Logger::outError("Error opening file: " + fspath.string());
+            return false;
         }
 
         pEmiter(fout, pCb);
@@ -131,8 +176,8 @@ namespace clmr {
         if (!fout) {
             fout.close();
             std::filesystem::remove(temp);
-            Logger::outException("Error writing file: " + fspath.string());
-            return;
+            Logger::outError("Error writing file: " + fspath.string());
+            return false;
         }
         fout.close();
 
@@ -140,9 +185,10 @@ namespace clmr {
         std::filesystem::remove(fspath, ec);      // Required, `rename` does not replace existing file on Windows.
         std::filesystem::rename(temp, fspath, ec);
         if (ec) {
-            Logger::outException("Error replacing file: " + fspath.string());
-            return;
+            Logger::outError("Error replacing file: " + fspath.string());
+            return false;
         }
         Logger::outgen(fspath.string());
+        return true;
     }
 }

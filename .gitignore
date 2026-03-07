@@ -4,13 +4,11 @@ bin/
 
 # Visual Studio
 .vs/
+.vscode/
 .cache/
 *.VC.db
 *.VC.opendb
 
 # Project-specific generated folders
-TestSrcProject/build
-TestSrcProject/RTLRegistration
-
-# Tool configs (only if local)
-TestSrcProject/.clang-tidy
+*compile_commands*
+RTLRegistration/

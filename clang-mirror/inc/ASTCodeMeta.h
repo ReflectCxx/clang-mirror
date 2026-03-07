@@ -12,7 +12,7 @@ namespace clmr
 {
     struct ASTObj {
 
-        std::string header;
+        std::vector<std::string> headers;
         std::string function;
     };
 
@@ -23,7 +23,7 @@ namespace clmr
         std::string paramsStr;
     };
 
-    struct ASTCodeMeta
+    struct ASTFnMeta
     {
         const bool isCtor;
         const ASTObj ast;
