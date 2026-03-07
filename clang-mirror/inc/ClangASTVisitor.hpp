@@ -53,11 +53,9 @@ namespace {
         return clmr::RegErr::None;
     }
 
-    static const clang::FileEntry* getDeclaringFile(clang::FunctionDecl * pFnDef)
+    static const clang::FileEntry* getDeclaringFile(const clang::FunctionDecl * pFnDef)
     {
-        if (!pFnDef) {
-            return nullptr;
-        }
+        if (!pFnDef) return nullptr;
 
         auto& SM = pFnDef->getASTContext().getSourceManager();
         for (auto* redecl : pFnDef->redecls())

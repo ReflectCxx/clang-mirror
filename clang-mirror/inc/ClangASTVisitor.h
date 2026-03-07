@@ -15,8 +15,7 @@ namespace clmr {
         const std::string m_srcFile;
         ClangPPCallbacks& m_preProcessor;
 
-        RegErr addReflectableEntity(const clang::FunctionDecl* pFnDecl,
-                                    const clang::FileEntry* pDeclFile);
+        RegErr addReflectableEntity(const clang::FunctionDecl* pFnDecl);
 
         RegErr extractArgsAndItsHeaders(const clang::FunctionDecl *pFnDecl,
                                         std::vector<std::string>& pArgsStrs,

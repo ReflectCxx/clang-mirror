@@ -32,6 +32,7 @@ add_executable(MyReflectionApp
 # Include directories (user headers)
 # -----------------------------------
 target_include_directories(MyReflectionApp PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

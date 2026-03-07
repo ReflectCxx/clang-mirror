@@ -77,11 +77,13 @@ namespace clmr
     }
 
 
-    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl, const FileEntry* pHeaderFile)
+    RegErr ClangASTVisitor::addReflectableEntity(const FunctionDecl* pFnDecl)
     {
         std::vector<std::string> headers;
-        if (pHeaderFile) {
-            auto [err, hashIncStr] = m_preProcessor.getHashIncludeAsWrittenFor(pHeaderFile);
+        auto headerFile = getDeclaringFile(pFnDecl);
+
+        if (headerFile) {
+            auto [err, hashIncStr] = m_preProcessor.getHashIncludeAsWrittenFor(headerFile);
             if (err != RegErr::None) {
                 Logger::outDbg("error while processing function : " + pFnDecl->getNameAsString());
                 return err;
@@ -139,7 +141,7 @@ namespace clmr
             return true;
         }
 
-        auto err = addReflectableEntity(pFnDecl, getDeclaringFile(pFnDecl));
+        auto err = addReflectableEntity(pFnDecl);
         if (err == RegErr::None) {
             return true;
         }

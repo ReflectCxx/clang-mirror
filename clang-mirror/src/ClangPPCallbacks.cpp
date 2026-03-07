@@ -106,9 +106,8 @@ namespace clmr {
 
     std::pair<RegErr, const clang::FileEntry*> ClangPPCallbacks::getFileDoingHashIncludeFor(const FileEntry* pHeader) const
     {
-        if (!pHeader) {
+        if (!pHeader)
             return { RegErr::AstParsing, nullptr };
-        }
 
         auto itr = m_includeGraph.find(m_mainSrcFile);
         if (itr == m_includeGraph.end()) {
@@ -116,7 +115,7 @@ namespace clmr {
             return { RegErr::AstParsing, nullptr };
         }
 
-        bool notPublic = false;
+        bool noPublic = false;
         for (auto nxtIncFile : itr->second)
         {
             std::vector<const clang::FileEntry*> incStack = { nxtIncFile };
@@ -128,14 +127,15 @@ namespace clmr {
             for (auto incFile : incStack) {
                 if (isSystemHeader(incFile) || isPublicHeader(incFile))
                     return { RegErr::None, incFile };
-                notPublic = true;
+                noPublic = true;
             }
         }
 
-        if (notPublic) {
+        if (noPublic) {
             Logger::outDbg("not found at specified `include` dir: " + getRealPath(pHeader).str());
             return { RegErr::HeaderNotPublic, nullptr };
         }
+
         Logger::outDbg("Header not reachable for file: " + getRealPath(pHeader).str());
         return { RegErr::AstParsing, nullptr };
     }
